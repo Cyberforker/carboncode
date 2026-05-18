@@ -1,0 +1,59 @@
+{
+  "name": "@carboncode/cli",
+  "version": "0.1.0",
+  "description": "Chinese-first DeepSeek-powered terminal coding agent.",
+  "type": "module",
+  "bin": {
+    "carboncode": "dist/cli/index.js",
+    "ccode": "dist/cli/index.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "LICENSES"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "agent",
+    "cli",
+    "deepseek",
+    "coding-agent",
+    "terminal"
+  ],
+  "author": "Yapie0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Yapie0/carboncode.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
