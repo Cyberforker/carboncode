@@ -4,8 +4,8 @@ Date: 2026-05-18
 
 ## Summary
 
-Carbon Code should switch from the small clean selective import to a broad import of
-DeepSeek-Reasonix as the implementation base. The current small Carbon core proves
+Carbon Code should import the Reasonix body, then productize it as Carbon Code.
+The current small Carbon core proves
 the package name, DeepSeek V4 profiles, npm publishing, and attribution flow, but it
 does not provide enough agent surface to become a Chinese-first Codex-like CLI
 quickly.

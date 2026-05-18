@@ -18,6 +18,8 @@ The repository is intentionally early. The main design reference is:
 - Initial design doc commit exists locally:
   - `403a731 Add Carbon Code CLI design`
 - `origin/main` may not exist until the first push.
+- Current implementation direction:
+  - 导入 Reasonix 主体，然后做 Carbon Code 产品化。
 
 ## Product Direction
 
@@ -100,17 +102,14 @@ Attribution can be low-profile, but must remain discoverable in the repository a
 
 ## Next Recommended Steps
 
-1. Push the existing local commits to `origin/main`.
-2. Decide whether to import Reasonix with preserved history or copy selected source into this clean repo.
-3. Add license compliance files before publishing or distributing any derived code.
-4. Import the Reasonix base.
-5. Rename package metadata and CLI commands to Carbon Code.
-6. Configure DeepSeek defaults and first-run API key setup.
-7. Verify basic chat, file read, file edit, and shell approval flow.
+1. Continue Carbon Code productization of imported Reasonix surfaces.
+2. Replace remaining user-visible Reasonix wording in prompts, docs, dashboard, and desktop surfaces.
+3. Finish `AGENTS.md` / `CARBON.md` project-rule loading behavior.
+4. Verify current official DeepSeek model IDs before public release copy.
+5. Tag a release only after npm Trusted Publishing is configured for `@carboncode/cli`.
 
 ## Important Open Decisions
 
-- Preserve upstream git history vs. clean selective import.
 - Public open-source release vs. private/internal alpha first.
 - Exact current DeepSeek model IDs.
 - Whether `carbon` is installed by default or only created through opt-in alias setup.

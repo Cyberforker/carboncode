@@ -1,9 +1,8 @@
 # Third Party Notices
 
-Carbon Code uses a clean selective import strategy from DeepSeek-Reasonix.
-Selected architecture, CLI organization, DeepSeek-first configuration patterns,
-dotenv loading, and safe search/edit tool behavior are derived from or informed
-by DeepSeek-Reasonix.
+Carbon Code imports the DeepSeek-Reasonix repository body and productizes it as
+Carbon Code. The CLI/TUI, agent loop, tooling, session, memory, MCP, transcript,
+dashboard, repair, and validation subsystems are derived from DeepSeek-Reasonix.
 
 ## DeepSeek-Reasonix
 

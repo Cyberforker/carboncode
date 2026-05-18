@@ -8,7 +8,6 @@ export function loadDotenv(path = ".env"): void {
   } catch {
     return;
   }
-
   for (const line of raw.split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;

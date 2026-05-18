@@ -1,7 +1,15 @@
 # Carbon Code
 
-Carbon Code is a Chinese-first, DeepSeek-powered terminal coding agent for
-personal developer workflows.
+Chinese-first, DeepSeek-powered terminal coding agent derived from
+DeepSeek-Reasonix.
+
+Carbon Code is aimed at personal developer workflows: open a repository, let the
+agent read and search the codebase, review planned edits, approve shell commands,
+run validation, and keep a concise session trail.
+
+## Install
+
+Requires Node.js 22 or newer.
 
 ```bash
 npm install -g @carboncode/cli
@@ -9,43 +17,62 @@ cd path/to/project
 carboncode
 ```
 
-Current commands:
+Short command:
 
 ```bash
-carboncode setup --api-key sk-...
-carboncode
-carboncode doctor
-carboncode models
-carboncode run "阅读项目并修复测试" --yes
+ccode
 ```
 
-The default model profiles are:
+One-off usage without a global install:
 
-- `flash`: `deepseek-v4-flash`
-- `pro`: `deepseek-v4-pro`
+```bash
+npx @carboncode/cli
+```
 
-Configuration is stored at:
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `carboncode` / `carboncode code [dir]` | Coding agent rooted at the current project. |
+| `carboncode chat` | Chat without filesystem or shell tools. |
+| `carboncode run "task"` | Non-interactive one-shot task. |
+| `carboncode doctor` | Local health check. |
+| `carboncode update` | Check and install the latest CLI package. |
+
+Carbon Code also installs `ccode`. It intentionally does not install `cc`,
+because that name commonly points to the system C compiler.
+
+## Configuration
+
+Carbon Code stores user configuration in:
 
 ```text
 ~/.carboncode/config.json
 ```
 
-Project rules are loaded from `CARBON.md` and `AGENTS.md`, in that order.
+Set a DeepSeek API key with the first-run setup wizard, or export it directly:
 
-## Current MVP Behavior
+```bash
+export DEEPSEEK_API_KEY=sk-...
+```
 
-- `carboncode` starts a Chinese interactive task loop.
-- `carboncode run <task>` runs one non-interactive task.
-- `carboncode doctor` checks local DeepSeek connectivity without printing the API key.
-- File tools can list files, read UTF-8 files with truncation, search names/content, and apply unique search/replace edits.
-- Edits and shell commands go through approval unless `--yes` is used.
-- Agent messages preserve DeepSeek/OpenAI-compatible `tool_calls` before tool results.
-- Output includes token count and an estimated USD cost based on DeepSeek V4 pricing.
+Project rules should live in `AGENTS.md` or `CARBON.md` in the repository.
 
-Do not commit `~/.carboncode/config.json`; it is a user-level secret file.
+## Current Scope
 
-## Attribution
+This repository currently imports the Reasonix main codebase and productizes it
+as Carbon Code. The first productization pass covers package identity, command
+names, Carbon config paths, update/install commands, Chinese-first CLI copy, npm
+publishing, and license attribution.
 
-Carbon Code selectively imports and adapts architecture and agent primitives
-from DeepSeek-Reasonix under the MIT license. See
-`THIRD_PARTY_NOTICES.md` and `LICENSES/DeepSeek-Reasonix-MIT.txt`.
+## License And Attribution
+
+Carbon Code is MIT licensed. It is derived from DeepSeek-Reasonix, which is also
+MIT licensed.
+
+The upstream notice is preserved in:
+
+- `THIRD_PARTY_NOTICES.md`
+- `LICENSES/DeepSeek-Reasonix-MIT.txt`
+
+Do not remove upstream copyright or MIT notices from derived files.
