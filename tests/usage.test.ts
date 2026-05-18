@@ -12,6 +12,7 @@ import {
   appendUsage,
   bucketCacheHitRatio,
   bucketSavingsFraction,
+  defaultUsageLogPath,
   readUsageLog,
 } from "../src/telemetry/usage.js";
 
@@ -53,6 +54,11 @@ describe("appendUsage + readUsageLog", () => {
     expect(loaded).toHaveLength(1);
     expect(loaded[0]?.ts).toBe(1_700_000_000_000);
     expect(loaded[0]?.session).toBe("default");
+  });
+
+  it("defaultUsageLogPath lives under ~/.carboncode", () => {
+    expect(defaultUsageLogPath()).toMatch(/[/\\]\.carboncode[/\\]usage\.jsonl$/);
+    expect(defaultUsageLogPath()).not.toContain(".reasonix");
   });
 
   it("returns [] when the log does not exist", () => {

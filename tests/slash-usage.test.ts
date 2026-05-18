@@ -6,20 +6,30 @@ import { suggestSlashCommands } from "../src/cli/ui/slash.js";
 import { loadSlashUsage, recordSlashUse, slashUsagePath } from "../src/slash-usage.js";
 
 let dir: string;
-let prevEnv: string | undefined;
+let prevCarbonEnv: string | undefined;
+let prevReasonixEnv: string | undefined;
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "reasonix-usage-"));
-  prevEnv = process.env.REASONIX_SLASH_USAGE_PATH;
-  process.env.REASONIX_SLASH_USAGE_PATH = join(dir, "slash-usage.json");
+  dir = mkdtempSync(join(tmpdir(), "carbon-usage-"));
+  prevCarbonEnv = process.env.CARBONCODE_SLASH_USAGE_PATH;
+  prevReasonixEnv = process.env.REASONIX_SLASH_USAGE_PATH;
+  process.env.CARBONCODE_SLASH_USAGE_PATH = join(dir, "slash-usage.json");
+  // biome-ignore lint/performance/noDelete: test controls legacy env fallback explicitly
+  delete process.env.REASONIX_SLASH_USAGE_PATH;
 });
 
 afterEach(() => {
-  if (prevEnv === undefined) {
+  if (prevCarbonEnv === undefined) {
+    // biome-ignore lint/performance/noDelete: process.env must lose the key, not hold "undefined"
+    delete process.env.CARBONCODE_SLASH_USAGE_PATH;
+  } else {
+    process.env.CARBONCODE_SLASH_USAGE_PATH = prevCarbonEnv;
+  }
+  if (prevReasonixEnv === undefined) {
     // biome-ignore lint/performance/noDelete: process.env must lose the key, not hold "undefined"
     delete process.env.REASONIX_SLASH_USAGE_PATH;
   } else {
-    process.env.REASONIX_SLASH_USAGE_PATH = prevEnv;
+    process.env.REASONIX_SLASH_USAGE_PATH = prevReasonixEnv;
   }
   rmSync(dir, { recursive: true, force: true });
 });
@@ -27,6 +37,22 @@ afterEach(() => {
 describe("slash-usage store", () => {
   it("returns empty when the file doesn't exist yet", () => {
     expect(loadSlashUsage()).toEqual({});
+  });
+
+  it("defaults to ~/.carboncode/slash-usage.json when no override is set", () => {
+    // biome-ignore lint/performance/noDelete: this test exercises default path resolution
+    delete process.env.CARBONCODE_SLASH_USAGE_PATH;
+    // biome-ignore lint/performance/noDelete: this test exercises default path resolution
+    delete process.env.REASONIX_SLASH_USAGE_PATH;
+    expect(slashUsagePath()).toMatch(/[/\\]\.carboncode[/\\]slash-usage\.json$/);
+    expect(slashUsagePath()).not.toContain(".reasonix");
+  });
+
+  it("keeps REASONIX_SLASH_USAGE_PATH as a legacy override", () => {
+    // biome-ignore lint/performance/noDelete: legacy fallback must be explicit
+    delete process.env.CARBONCODE_SLASH_USAGE_PATH;
+    process.env.REASONIX_SLASH_USAGE_PATH = join(dir, "legacy-slash-usage.json");
+    expect(slashUsagePath()).toBe(join(dir, "legacy-slash-usage.json"));
   });
 
   it("recordSlashUse persists to disk and survives reload", () => {

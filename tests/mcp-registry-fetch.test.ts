@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   CACHE_SCHEMA_VERSION,
   CACHE_TTL_MS,
+  defaultCachePath,
   fallbackFromCatalog,
   fetchOfficialPage,
   fetchSmitheryDetail,
@@ -112,6 +113,13 @@ const SMITHERY_RESPONSE = {
   ],
   pagination: { totalPages: 1 },
 };
+
+describe("MCP registry cache path", () => {
+  it("defaults to ~/.carboncode/mcp-registry-cache.json", () => {
+    expect(defaultCachePath()).toMatch(/[/\\]\.carboncode[/\\]mcp-registry-cache\.json$/);
+    expect(defaultCachePath()).not.toContain(".reasonix");
+  });
+});
 
 describe("fetchOfficialPage", () => {
   it("normalizes one page and returns the next cursor", async () => {

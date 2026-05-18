@@ -6,7 +6,7 @@ import { loadDotenv } from "../env.js";
 import { decideQQAccess, describeQQAccess, redactQQOpenId } from "./access.js";
 import { type C2CMessage, QQBot } from "./bot.js";
 
-const QQ_LOCK_FILE = join(homedir(), ".reasonix", "qq-channel.pid");
+const QQ_LOCK_FILE = join(homedir(), ".carboncode", "qq-channel.pid");
 const QQ_MAX_CHUNK_BYTES = 1500;
 const NATURAL_SPLIT_MIN_FRACTION = 0.6;
 

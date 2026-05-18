@@ -10,9 +10,9 @@ interface UsageFile {
 }
 
 export function slashUsagePath(): string {
-  const override = process.env.REASONIX_SLASH_USAGE_PATH;
+  const override = process.env.CARBONCODE_SLASH_USAGE_PATH ?? process.env.REASONIX_SLASH_USAGE_PATH;
   if (override) return override;
-  return join(homedir(), ".reasonix", "slash-usage.json");
+  return join(homedir(), ".carboncode", "slash-usage.json");
 }
 
 export function loadSlashUsage(): SlashUsageCounts {
@@ -45,7 +45,7 @@ function persist(counts: Record<string, number>): void {
   }
 }
 
-/** Read-modify-write so two concurrent reasonix processes don't clobber each other's counts. */
+/** Read-modify-write so two concurrent Carbon Code processes don't clobber each other's counts. */
 export function recordSlashUse(name: string): SlashUsageCounts {
   const counts: Record<string, number> = { ...loadSlashUsage() };
   counts[name] = (counts[name] ?? 0) + 1;

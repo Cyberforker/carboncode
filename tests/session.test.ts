@@ -1,6 +1,7 @@
 import {
   appendFileSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -67,12 +68,40 @@ describe("session persistence", () => {
     if (existsSync(tmp)) rmSync(tmp, { recursive: true, force: true });
   });
 
-  it("sessionPath lives under <home>/.reasonix/sessions", () => {
+  it("sessionPath lives under <home>/.carboncode/sessions", () => {
     const p = sessionPath("demo");
-    expect(p).toContain(".reasonix");
+    expect(p).toContain(".carboncode");
+    expect(p).not.toContain(".reasonix");
     expect(p).toContain("sessions");
     expect(p.endsWith("demo.jsonl")).toBe(true);
     expect(p.startsWith(tmp)).toBe(true);
+  });
+
+  it("loads legacy ~/.reasonix/sessions files when no Carbon session exists", () => {
+    const legacyDir = join(tmp, ".reasonix", "sessions");
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(
+      join(legacyDir, "legacy.jsonl"),
+      `${JSON.stringify({ role: "user", content: "old" })}\n`,
+    );
+
+    expect(loadSessionMessages("legacy")).toEqual([{ role: "user", content: "old" }]);
+  });
+
+  it("lists legacy ~/.reasonix/sessions files alongside Carbon sessions", () => {
+    appendSessionMessage("carbon", { role: "user", content: "new" });
+    const legacyDir = join(tmp, ".reasonix", "sessions");
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(
+      join(legacyDir, "legacy.jsonl"),
+      `${JSON.stringify({ role: "user", content: "old" })}\n`,
+    );
+
+    expect(
+      listSessions()
+        .map((s) => s.name)
+        .sort(),
+    ).toEqual(["carbon", "legacy"]);
   });
 
   it("loadSessionMessages returns [] when the file doesn't exist", () => {

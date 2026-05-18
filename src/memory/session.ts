@@ -1,4 +1,4 @@
-/** JSONL append-only message log under `~/.reasonix/sessions/`; concurrent-write safe. */
+/** JSONL append-only message log under `~/.carboncode/sessions/`; concurrent-write safe. */
 
 import { execFileSync } from "node:child_process";
 import {
@@ -69,11 +69,27 @@ export interface SessionMeta {
 }
 
 export function sessionsDir(): string {
+  return join(homedir(), ".carboncode", "sessions");
+}
+
+function legacySessionsDir(): string {
   return join(homedir(), ".reasonix", "sessions");
 }
 
 export function sessionPath(name: string): string {
   return join(sessionsDir(), `${sanitizeName(name)}.jsonl`);
+}
+
+function legacySessionPath(name: string): string {
+  return join(legacySessionsDir(), `${sanitizeName(name)}.jsonl`);
+}
+
+function existingSessionPath(name: string): string {
+  const carbon = sessionPath(name);
+  if (existsSync(carbon)) return carbon;
+  const legacy = legacySessionPath(name);
+  if (existsSync(legacy)) return legacy;
+  return carbon;
 }
 
 export function sanitizeName(name: string): string {
@@ -95,14 +111,19 @@ export function freshSessionName(currentName: string | undefined): string {
 
 /** Names of `.jsonl` sessions starting with `prefix`, newest-first by filename. */
 export function findSessionsByPrefix(prefix: string): string[] {
-  const dir = sessionsDir();
-  if (!existsSync(dir)) return [];
+  const dirs = [sessionsDir(), legacySessionsDir()];
+  const seen = new Set<string>();
   try {
-    const files = readdirSync(dir)
-      .filter((f) => f.endsWith(".jsonl") && !f.endsWith(".events.jsonl") && f.startsWith(prefix))
-      .sort()
-      .reverse();
-    return files.map((f) => f.replace(/\.jsonl$/, ""));
+    for (const dir of dirs) {
+      if (!existsSync(dir)) continue;
+      for (const file of readdirSync(dir)) {
+        if (!file.endsWith(".jsonl")) continue;
+        if (file.endsWith(".events.jsonl")) continue;
+        if (!file.startsWith(prefix)) continue;
+        seen.add(file.replace(/\.jsonl$/, ""));
+      }
+    }
+    return [...seen].sort((a, b) => `${a}.jsonl`.localeCompare(`${b}.jsonl`)).reverse();
   } catch {
     return [];
   }
@@ -133,7 +154,7 @@ export function resolveSession(
     const prior = loadSessionMessages(sessionToCheck);
     if (prior.length > 0) {
       resolved = sessionToCheck;
-      const p = sessionPath(sessionToCheck);
+      const p = existingSessionPath(sessionToCheck);
       const mtime = existsSync(p) ? statSync(p).mtime : new Date();
       preview = { messageCount: prior.length, lastActive: mtime };
     }
@@ -148,7 +169,7 @@ export function resolveSession(
 }
 
 export function loadSessionMessages(name: string): ChatMessage[] {
-  const path = sessionPath(name);
+  const path = existingSessionPath(name);
   if (!existsSync(path)) return [];
   const live = readSessionMessages(path);
   if (live && (live.messages.length > 0 || !live.hadContent)) return live.messages;
@@ -181,7 +202,7 @@ function readSessionMessages(
 }
 
 export function appendSessionMessage(name: string, message: ChatMessage): void {
-  const path = sessionPath(name);
+  const path = existingSessionPath(name);
   mkdirSync(dirname(path), { recursive: true });
   appendFileSync(path, `${JSON.stringify(message)}\n`, "utf8");
   try {
@@ -192,31 +213,42 @@ export function appendSessionMessage(name: string, message: ChatMessage): void {
 }
 
 export function listSessions(opts?: { workspaceFilter?: string }): SessionInfo[] {
-  const dir = sessionsDir();
-  if (!existsSync(dir)) return [];
   const want = opts?.workspaceFilter ? normalizeWorkspace(opts.workspaceFilter) : null;
+  const dirs = [sessionsDir(), legacySessionsDir()];
+  const seen = new Set<string>();
   try {
-    // Exclude `.events.jsonl` sidecars — they share the .jsonl suffix.
-    const files = readdirSync(dir).filter(
-      (f) => f.endsWith(".jsonl") && !f.endsWith(".events.jsonl"),
-    );
-    return files
-      .flatMap((file) => {
-        const path = join(dir, file);
-        const name = file.replace(/\.jsonl$/, "");
-        const meta = loadSessionMeta(name);
-        // Workspace pre-filter: cheap meta read first, skip the
-        // (potentially multi-MB) jsonl read for sessions that don't
-        // belong to the current workspace. Issue #1179.
-        if (want !== null) {
-          if (typeof meta.workspace !== "string") return [];
-          if (normalizeWorkspace(meta.workspace) !== want) return [];
-        }
-        const stat = statSync(path);
-        const messageCount = countLines(path);
-        return [{ name, path, size: stat.size, messageCount, mtime: stat.mtime, meta }];
-      })
-      .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+    const items: SessionInfo[] = [];
+    for (const dir of dirs) {
+      if (!existsSync(dir)) continue;
+      // Exclude `.events.jsonl` sidecars — they share the .jsonl suffix.
+      const files = readdirSync(dir).filter(
+        (f) => f.endsWith(".jsonl") && !f.endsWith(".events.jsonl"),
+      );
+      const dirItems = files
+        .filter((file) => {
+          const name = file.replace(/\.jsonl$/, "");
+          if (seen.has(name)) return false;
+          seen.add(name);
+          return true;
+        })
+        .flatMap((file) => {
+          const path = join(dir, file);
+          const name = file.replace(/\.jsonl$/, "");
+          const meta = loadSessionMetaFromDir(dir, name);
+          // Workspace pre-filter: cheap meta read first, skip the
+          // (potentially multi-MB) jsonl read for sessions that don't
+          // belong to the current workspace. Issue #1179.
+          if (want !== null) {
+            if (typeof meta.workspace !== "string") return [];
+            if (normalizeWorkspace(meta.workspace) !== want) return [];
+          }
+          const stat = statSync(path);
+          const messageCount = countLines(path);
+          return [{ name, path, size: stat.size, messageCount, mtime: stat.mtime, meta }];
+        });
+      items.push(...dirItems);
+    }
+    return items.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
   } catch {
     return [];
   }
@@ -243,7 +275,18 @@ export function listSessionsForWorkspace(workspace: string): SessionInfo[] {
 }
 
 function metaPath(name: string): string {
-  return join(sessionsDir(), `${sanitizeName(name)}.meta.json`);
+  return join(dirname(existingSessionPath(name)), `${sanitizeName(name)}.meta.json`);
+}
+
+function loadSessionMetaFromDir(dir: string, name: string): SessionMeta {
+  const p = join(dir, `${sanitizeName(name)}.meta.json`);
+  if (!existsSync(p)) return {};
+  try {
+    const raw = JSON.parse(readFileSync(p, "utf8")) as SessionMeta;
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
 }
 
 export function loadSessionMeta(name: string): SessionMeta {
@@ -276,9 +319,10 @@ export function renameSession(oldName: string, newName: string): boolean {
   const safeOld = sanitizeName(oldName);
   const safeNew = sanitizeName(newName);
   if (safeOld === safeNew) return false;
-  const oldJsonl = sessionPath(oldName);
+  const oldJsonl = existingSessionPath(oldName);
   const newJsonl = sessionPath(newName);
   if (!existsSync(oldJsonl) || existsSync(newJsonl)) return false;
+  mkdirSync(dirname(newJsonl), { recursive: true });
   renameSync(oldJsonl, newJsonl);
   for (const ext of SESSION_SIDECAR_EXTS) {
     const oldP = oldJsonl.replace(/\.jsonl$/, ext);
@@ -307,7 +351,7 @@ export function pruneStaleSessions(daysOld = 90): string[] {
 }
 
 export function deleteSession(name: string): boolean {
-  const path = sessionPath(name);
+  const path = existingSessionPath(name);
   try {
     unlinkSync(path);
     for (const ext of SESSION_SIDECAR_EXTS) {
@@ -326,7 +370,7 @@ export function deleteSession(name: string): boolean {
 
 /** Crash-safe rewrite: snapshot the previous live log, write a sibling tmp file, then atomically swap it in. */
 export function rewriteSession(name: string, messages: ChatMessage[]): void {
-  const path = sessionPath(name);
+  const path = existingSessionPath(name);
   mkdirSync(dirname(path), { recursive: true });
   const body = messages.map((m) => JSON.stringify(m)).join("\n");
   const tmp = `${path}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
@@ -352,7 +396,7 @@ export function rewriteSession(name: string, messages: ChatMessage[]): void {
 
 /** Rotate the live jsonl + sidecars to `<name>__archive_<ts>` so /new doesn't destroy history. Returns the archive name, or null if there was nothing to archive. */
 export function archiveSession(name: string): string | null {
-  const path = sessionPath(name);
+  const path = existingSessionPath(name);
   if (!existsSync(path)) return null;
   try {
     if (statSync(path).size === 0) return null;

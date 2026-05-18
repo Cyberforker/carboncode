@@ -23,7 +23,7 @@ function listAll(): void {
     console.log(t("sessions.emptyHint"));
     return;
   }
-  console.log("Saved sessions (~/.reasonix/sessions/):");
+  console.log("Saved sessions (~/.carboncode/sessions/):");
   console.log("");
   console.log(`  ${"name".padEnd(22)} ${"msgs".padStart(6)}  ${"size".padStart(8)}  modified`);
   console.log(`  ${"─".repeat(60)}`);
@@ -37,8 +37,8 @@ function listAll(): void {
     if (details.length > 0) console.log(`      ${details.join(" · ")}`);
   }
   console.log("");
-  console.log("Inspect:  reasonix sessions <name>");
-  console.log("Resume:   reasonix chat --session <name>");
+  console.log("Inspect:  carboncode sessions <name>");
+  console.log("Resume:   carboncode chat --session <name>");
 }
 
 function inspectSession(name: string, verbose: boolean): void {

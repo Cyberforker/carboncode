@@ -10,6 +10,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { sanitizeName, sessionsDir } from "../memory/session.js";
 import type { PlanStep } from "../tools/plan.js";
@@ -29,8 +30,24 @@ export function planStatePath(sessionName: string): string {
   return join(sessionsDir(), `${sanitizeName(sessionName)}.plan.json`);
 }
 
+function legacyPlanStatePath(sessionName: string): string {
+  return join(homedir(), ".reasonix", "sessions", `${sanitizeName(sessionName)}.plan.json`);
+}
+
+function existingPlanStatePath(sessionName: string): string {
+  const carbon = planStatePath(sessionName);
+  if (existsSync(carbon)) return carbon;
+  const legacy = legacyPlanStatePath(sessionName);
+  if (existsSync(legacy)) return legacy;
+  return carbon;
+}
+
+function planArchiveDirs(): string[] {
+  return [sessionsDir(), join(homedir(), ".reasonix", "sessions")];
+}
+
 export function loadPlanState(sessionName: string): PlanStateOnDisk | null {
-  const path = planStatePath(sessionName);
+  const path = existingPlanStatePath(sessionName);
   if (!existsSync(path)) return null;
   try {
     const raw = readFileSync(path, "utf8");
@@ -99,7 +116,7 @@ export function savePlanState(
 
 /** Remove the persisted plan, if any. Used on cancel / clean reset. */
 export function clearPlanState(sessionName: string): void {
-  const path = planStatePath(sessionName);
+  const path = existingPlanStatePath(sessionName);
   try {
     if (existsSync(path)) unlinkSync(path);
   } catch {
@@ -109,12 +126,12 @@ export function clearPlanState(sessionName: string): void {
 
 /** Random suffix avoids same-millisecond collision; `:`/`.` swapped for Windows-safe filenames. */
 export function archivePlanState(sessionName: string): string | null {
-  const active = planStatePath(sessionName);
+  const active = existingPlanStatePath(sessionName);
   if (!existsSync(active)) return null;
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const suffix = Math.random().toString(36).slice(2, 6);
   const archive = join(
-    sessionsDir(),
+    dirname(active),
     `${sanitizeName(sessionName)}.plan.${stamp}-${suffix}.done.json`,
   );
   try {
@@ -139,54 +156,60 @@ export interface PlanArchiveSummary {
   summary?: string;
 }
 
+function readPlanArchive(full: string): PlanArchiveSummary | null {
+  try {
+    const raw = readFileSync(full, "utf8");
+    const parsed = JSON.parse(raw) as Partial<PlanStateOnDisk>;
+    if (parsed.version !== 1) return null;
+    if (!Array.isArray(parsed.steps) || parsed.steps.length === 0) return null;
+    const steps = parsed.steps.filter(
+      (s): s is PlanStep =>
+        !!s &&
+        typeof s === "object" &&
+        typeof (s as PlanStep).id === "string" &&
+        typeof (s as PlanStep).title === "string" &&
+        typeof (s as PlanStep).action === "string",
+    );
+    if (steps.length === 0) return null;
+    const completedStepIds = Array.isArray(parsed.completedStepIds)
+      ? parsed.completedStepIds.filter((id): id is string => typeof id === "string" && !!id)
+      : [];
+    // Prefer the file's own updatedAt; fall back to mtime if missing
+    // or unparseable so a hand-edited archive still sorts sensibly.
+    let completedAt = typeof parsed.updatedAt === "string" ? parsed.updatedAt : "";
+    if (!completedAt || Number.isNaN(Date.parse(completedAt))) {
+      try {
+        completedAt = statSync(full).mtime.toISOString();
+      } catch {
+        completedAt = new Date(0).toISOString();
+      }
+    }
+    const entry: PlanArchiveSummary = { path: full, completedAt, steps, completedStepIds };
+    if (typeof parsed.body === "string" && parsed.body) entry.body = parsed.body;
+    if (typeof parsed.summary === "string" && parsed.summary) entry.summary = parsed.summary;
+    return entry;
+  } catch {
+    // Skip corrupt archives entirely.
+    return null;
+  }
+}
+
 export function listPlanArchives(sessionName: string): PlanArchiveSummary[] {
-  const dir = sessionsDir();
-  if (!existsSync(dir)) return [];
   const prefix = `${sanitizeName(sessionName)}.plan.`;
   const suffix = ".done.json";
-  let entries: string[];
-  try {
-    entries = readdirSync(dir);
-  } catch {
-    return [];
-  }
   const summaries: PlanArchiveSummary[] = [];
-  for (const name of entries) {
-    if (!name.startsWith(prefix) || !name.endsWith(suffix)) continue;
-    const full = join(dir, name);
+  for (const dir of planArchiveDirs()) {
+    if (!existsSync(dir)) continue;
+    let entries: string[];
     try {
-      const raw = readFileSync(full, "utf8");
-      const parsed = JSON.parse(raw) as Partial<PlanStateOnDisk>;
-      if (parsed.version !== 1) continue;
-      if (!Array.isArray(parsed.steps) || parsed.steps.length === 0) continue;
-      const steps = parsed.steps.filter(
-        (s): s is PlanStep =>
-          !!s &&
-          typeof s === "object" &&
-          typeof (s as PlanStep).id === "string" &&
-          typeof (s as PlanStep).title === "string" &&
-          typeof (s as PlanStep).action === "string",
-      );
-      if (steps.length === 0) continue;
-      const completedStepIds = Array.isArray(parsed.completedStepIds)
-        ? parsed.completedStepIds.filter((id): id is string => typeof id === "string" && !!id)
-        : [];
-      // Prefer the file's own updatedAt; fall back to mtime if missing
-      // or unparseable so a hand-edited archive still sorts sensibly.
-      let completedAt = typeof parsed.updatedAt === "string" ? parsed.updatedAt : "";
-      if (!completedAt || Number.isNaN(Date.parse(completedAt))) {
-        try {
-          completedAt = statSync(full).mtime.toISOString();
-        } catch {
-          completedAt = new Date(0).toISOString();
-        }
-      }
-      const entry: PlanArchiveSummary = { path: full, completedAt, steps, completedStepIds };
-      if (typeof parsed.body === "string" && parsed.body) entry.body = parsed.body;
-      if (typeof parsed.summary === "string" && parsed.summary) entry.summary = parsed.summary;
-      summaries.push(entry);
+      entries = readdirSync(dir);
     } catch {
-      // Skip the corrupt archive entirely.
+      continue;
+    }
+    for (const name of entries) {
+      if (!name.startsWith(prefix) || !name.endsWith(suffix)) continue;
+      const summary = readPlanArchive(join(dir, name));
+      if (summary) summaries.push(summary);
     }
   }
   summaries.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
@@ -199,61 +222,25 @@ export interface PlanArchiveWithSession extends PlanArchiveSummary {
 
 /** Cross-session enumeration in a single dir scan — used by the dashboard plans panel where the per-session loop was O(N×M) and timed out for users with hundreds of sessions. */
 export function listAllPlanArchives(): PlanArchiveWithSession[] {
-  const dir = sessionsDir();
-  if (!existsSync(dir)) return [];
-  let entries: string[];
-  try {
-    entries = readdirSync(dir);
-  } catch {
-    return [];
-  }
   const out: PlanArchiveWithSession[] = [];
   const suffix = ".done.json";
   const planMarker = ".plan.";
-  for (const name of entries) {
-    if (!name.endsWith(suffix)) continue;
-    const planIdx = name.indexOf(planMarker);
-    if (planIdx < 0) continue;
-    const sessionName = name.slice(0, planIdx);
-    if (!sessionName) continue;
-    const full = join(dir, name);
+  for (const dir of planArchiveDirs()) {
+    if (!existsSync(dir)) continue;
+    let entries: string[];
     try {
-      const raw = readFileSync(full, "utf8");
-      const parsed = JSON.parse(raw) as Partial<PlanStateOnDisk>;
-      if (parsed.version !== 1) continue;
-      if (!Array.isArray(parsed.steps) || parsed.steps.length === 0) continue;
-      const steps = parsed.steps.filter(
-        (s): s is PlanStep =>
-          !!s &&
-          typeof s === "object" &&
-          typeof (s as PlanStep).id === "string" &&
-          typeof (s as PlanStep).title === "string" &&
-          typeof (s as PlanStep).action === "string",
-      );
-      if (steps.length === 0) continue;
-      const completedStepIds = Array.isArray(parsed.completedStepIds)
-        ? parsed.completedStepIds.filter((id): id is string => typeof id === "string" && !!id)
-        : [];
-      let completedAt = typeof parsed.updatedAt === "string" ? parsed.updatedAt : "";
-      if (!completedAt || Number.isNaN(Date.parse(completedAt))) {
-        try {
-          completedAt = statSync(full).mtime.toISOString();
-        } catch {
-          completedAt = new Date(0).toISOString();
-        }
-      }
-      const entry: PlanArchiveWithSession = {
-        sessionName,
-        path: full,
-        completedAt,
-        steps,
-        completedStepIds,
-      };
-      if (typeof parsed.body === "string" && parsed.body) entry.body = parsed.body;
-      if (typeof parsed.summary === "string" && parsed.summary) entry.summary = parsed.summary;
-      out.push(entry);
+      entries = readdirSync(dir);
     } catch {
-      // Skip the corrupt archive entirely.
+      continue;
+    }
+    for (const name of entries) {
+      if (!name.endsWith(suffix)) continue;
+      const planIdx = name.indexOf(planMarker);
+      if (planIdx < 0) continue;
+      const sessionName = name.slice(0, planIdx);
+      if (!sessionName) continue;
+      const summary = readPlanArchive(join(dir, name));
+      if (summary) out.push({ ...summary, sessionName });
     }
   }
   out.sort((a, b) => b.completedAt.localeCompare(a.completedAt));

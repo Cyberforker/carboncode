@@ -7,6 +7,7 @@ import {
   addProjectShellAllowed,
   clearProjectPathAllowed,
   clearProjectShellAllowed,
+  defaultConfigPath,
   editModeHintShown,
   isPlausibleKey,
   loadApiKey,
@@ -46,6 +47,7 @@ describe("config", () => {
   let dir: string;
   let path: string;
   const originalEnv = process.env.DEEPSEEK_API_KEY;
+  const originalCarbonSearch = process.env.CARBONCODE_SEARCH;
   const originalSearch = process.env.REASONIX_SEARCH;
   const originalBaseUrl = process.env.DEEPSEEK_BASE_URL;
 
@@ -54,6 +56,8 @@ describe("config", () => {
     path = join(dir, "config.json");
     // biome-ignore lint/performance/noDelete: the string "undefined" leaks into process.env otherwise
     delete process.env.DEEPSEEK_API_KEY;
+    // biome-ignore lint/performance/noDelete: same reason
+    delete process.env.CARBONCODE_SEARCH;
     // biome-ignore lint/performance/noDelete: same reason
     delete process.env.REASONIX_SEARCH;
     // biome-ignore lint/performance/noDelete: same reason
@@ -67,6 +71,12 @@ describe("config", () => {
       delete process.env.DEEPSEEK_API_KEY;
     } else {
       process.env.DEEPSEEK_API_KEY = originalEnv;
+    }
+    if (originalCarbonSearch === undefined) {
+      // biome-ignore lint/performance/noDelete: same reason
+      delete process.env.CARBONCODE_SEARCH;
+    } else {
+      process.env.CARBONCODE_SEARCH = originalCarbonSearch;
     }
     if (originalSearch === undefined) {
       // biome-ignore lint/performance/noDelete: same reason
@@ -84,6 +94,11 @@ describe("config", () => {
 
   it("readConfig returns {} when file is missing", () => {
     expect(readConfig(path)).toEqual({});
+  });
+
+  it("defaultConfigPath lives under ~/.carboncode", () => {
+    expect(defaultConfigPath()).toMatch(/[/\\]\.carboncode[/\\]config\.json$/);
+    expect(defaultConfigPath()).not.toContain(".reasonix");
   });
 
   it("writeConfig + readConfig round-trip", () => {
@@ -221,23 +236,34 @@ describe("config", () => {
     expect(searchEnabled(path)).toBe(false);
   });
 
-  it("searchEnabled honours REASONIX_SEARCH=off/false/0", () => {
-    process.env.REASONIX_SEARCH = "off";
+  it("searchEnabled honours CARBONCODE_SEARCH=off/false/0", () => {
+    process.env.CARBONCODE_SEARCH = "off";
     expect(searchEnabled(path)).toBe(false);
-    process.env.REASONIX_SEARCH = "false";
+    process.env.CARBONCODE_SEARCH = "false";
     expect(searchEnabled(path)).toBe(false);
-    process.env.REASONIX_SEARCH = "0";
+    process.env.CARBONCODE_SEARCH = "0";
     expect(searchEnabled(path)).toBe(false);
   });
 
+  it("searchEnabled keeps REASONIX_SEARCH as a legacy opt-out", () => {
+    process.env.REASONIX_SEARCH = "off";
+    expect(searchEnabled(path)).toBe(false);
+  });
+
+  it("searchEnabled lets CARBONCODE_SEARCH override legacy REASONIX_SEARCH", () => {
+    process.env.CARBONCODE_SEARCH = "on";
+    process.env.REASONIX_SEARCH = "off";
+    expect(searchEnabled(path)).toBe(true);
+  });
+
   it("searchEnabled stays true for unrelated env values", () => {
-    process.env.REASONIX_SEARCH = "on";
+    process.env.CARBONCODE_SEARCH = "on";
     expect(searchEnabled(path)).toBe(true);
   });
 
   it("env off beats config true", () => {
     writeConfig({ apiKey: "sk-test123abcdefghijkl", search: true }, path);
-    process.env.REASONIX_SEARCH = "off";
+    process.env.CARBONCODE_SEARCH = "off";
     expect(searchEnabled(path)).toBe(false);
   });
 

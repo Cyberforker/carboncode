@@ -1,4 +1,4 @@
-/** Checkpoint store tests — fresh temp workspace + redirected HOME so real `~/.reasonix` is untouched. */
+/** Checkpoint store tests — fresh temp workspace + redirected HOME so real Carbon home is untouched. */
 
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -54,6 +54,12 @@ describe("createCheckpoint", () => {
     expect(cp).not.toBeNull();
     expect(cp!.files).toHaveLength(2);
     expect(cp!.files.find((f) => f.path === "a.txt")?.content).toBe("hello");
+  });
+
+  it("stores checkpoint data under ~/.carboncode/sessions", () => {
+    createCheckpoint({ rootDir: workspace, name: "home-path", paths: [] });
+    expect(existsSync(join(homeDir, ".carboncode", "sessions"))).toBe(true);
+    expect(existsSync(join(homeDir, ".reasonix"))).toBe(false);
   });
 
   it("records non-existent files with content: null", () => {

@@ -604,7 +604,7 @@ export function removeSkillPath(
 }
 
 export function searchEnabled(path: string = defaultConfigPath()): boolean {
-  const env = process.env.REASONIX_SEARCH;
+  const env = process.env.CARBONCODE_SEARCH ?? process.env.REASONIX_SEARCH;
   if (env === "off" || env === "false" || env === "0") return false;
   const cfg = readConfig(path).search;
   if (cfg === false) return false;
