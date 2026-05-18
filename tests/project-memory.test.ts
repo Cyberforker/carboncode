@@ -1,4 +1,4 @@
-/** REASONIX.md project-memory loader — filesystem-backed tests in a temp dir. */
+/** Carbon project-memory loader — filesystem-backed tests in a temp dir. */
 
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -21,30 +21,39 @@ const BASE = "You are a test assistant.";
 
 describe("project-memory", () => {
   let root: string;
-  const originalEnv = process.env.REASONIX_MEMORY;
+  const originalCarbonEnv = process.env.CARBONCODE_MEMORY;
+  const originalReasonixEnv = process.env.REASONIX_MEMORY;
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), "reasonix-mem-"));
+    root = mkdtempSync(join(tmpdir(), "carbon-mem-"));
+    // biome-ignore lint/performance/noDelete: avoid leaking "undefined" into env
+    delete process.env.CARBONCODE_MEMORY;
     // biome-ignore lint/performance/noDelete: avoid leaking "undefined" into env
     delete process.env.REASONIX_MEMORY;
   });
 
   afterEach(() => {
     rmSync(root, { recursive: true, force: true });
-    if (originalEnv === undefined) {
+    if (originalCarbonEnv === undefined) {
+      // biome-ignore lint/performance/noDelete: same reason
+      delete process.env.CARBONCODE_MEMORY;
+    } else {
+      process.env.CARBONCODE_MEMORY = originalCarbonEnv;
+    }
+    if (originalReasonixEnv === undefined) {
       // biome-ignore lint/performance/noDelete: same reason
       delete process.env.REASONIX_MEMORY;
     } else {
-      process.env.REASONIX_MEMORY = originalEnv;
+      process.env.REASONIX_MEMORY = originalReasonixEnv;
     }
   });
 
   describe("readProjectMemory", () => {
-    it("returns null when REASONIX.md is absent", () => {
+    it("returns null when no project memory candidate is absent", () => {
       expect(readProjectMemory(root)).toBeNull();
     });
 
-    it("returns null when REASONIX.md is empty / whitespace-only", () => {
+    it("returns null when CARBON.md is empty / whitespace-only", () => {
       writeFileSync(join(root, PROJECT_MEMORY_FILE), "   \n\n\t  \n", "utf8");
       expect(readProjectMemory(root)).toBeNull();
     });
@@ -71,31 +80,46 @@ describe("project-memory", () => {
       expect(mem?.content.length).toBeLessThan(PROJECT_MEMORY_MAX_CHARS + 64);
     });
 
-    it("falls back to AGENTS.md when REASONIX.md is absent", () => {
+    it("reads AGENTS.md when present", () => {
       writeFileSync(join(root, "AGENTS.md"), "open-spec content\n", "utf8");
       const mem = readProjectMemory(root);
       expect(mem?.content).toBe("open-spec content");
       expect(mem?.path.endsWith("AGENTS.md")).toBe(true);
     });
 
-    it("falls back to AGENT.md (singular) when neither REASONIX.md nor AGENTS.md exists", () => {
+    it("falls back to CARBON.md when AGENTS.md is absent", () => {
+      writeFileSync(join(root, "CARBON.md"), "carbon content\n", "utf8");
+      const mem = readProjectMemory(root);
+      expect(mem?.content).toBe("carbon content");
+      expect(mem?.path.endsWith("CARBON.md")).toBe(true);
+    });
+
+    it("falls back to legacy REASONIX.md when AGENTS.md and CARBON.md are absent", () => {
+      writeFileSync(join(root, "REASONIX.md"), "legacy content\n", "utf8");
+      const mem = readProjectMemory(root);
+      expect(mem?.content).toBe("legacy content");
+      expect(mem?.path.endsWith("REASONIX.md")).toBe(true);
+    });
+
+    it("falls back to AGENT.md (singular) when no higher-priority candidate exists", () => {
       writeFileSync(join(root, "AGENT.md"), "singular variant\n", "utf8");
       const mem = readProjectMemory(root);
       expect(mem?.content).toBe("singular variant");
       expect(mem?.path.endsWith("AGENT.md")).toBe(true);
     });
 
-    it("prefers REASONIX.md when multiple candidates exist", () => {
-      writeFileSync(join(root, "REASONIX.md"), "reasonix wins\n", "utf8");
-      writeFileSync(join(root, "AGENTS.md"), "agents loses\n", "utf8");
+    it("prefers AGENTS.md when multiple candidates exist", () => {
+      writeFileSync(join(root, "REASONIX.md"), "reasonix loses\n", "utf8");
+      writeFileSync(join(root, "CARBON.md"), "carbon loses\n", "utf8");
+      writeFileSync(join(root, "AGENTS.md"), "agents wins\n", "utf8");
       writeFileSync(join(root, "AGENT.md"), "agent loses too\n", "utf8");
       const mem = readProjectMemory(root);
-      expect(mem?.content).toBe("reasonix wins");
-      expect(mem?.path.endsWith("REASONIX.md")).toBe(true);
+      expect(mem?.content).toBe("agents wins");
+      expect(mem?.path.endsWith("AGENTS.md")).toBe(true);
     });
 
     it("PROJECT_MEMORY_FILES priority matches the documented read order", () => {
-      expect(PROJECT_MEMORY_FILES).toEqual(["REASONIX.md", "AGENTS.md", "AGENT.md"]);
+      expect(PROJECT_MEMORY_FILES).toEqual(["AGENTS.md", "CARBON.md", "REASONIX.md", "AGENT.md"]);
     });
   });
 
@@ -111,8 +135,8 @@ describe("project-memory", () => {
   });
 
   describe("resolveProjectMemoryWritePath", () => {
-    it("returns REASONIX.md path when no candidate exists yet (fresh project)", () => {
-      expect(resolveProjectMemoryWritePath(root).endsWith("REASONIX.md")).toBe(true);
+    it("returns CARBON.md path when no candidate exists yet (fresh project)", () => {
+      expect(resolveProjectMemoryWritePath(root).endsWith("CARBON.md")).toBe(true);
     });
 
     it("writes to the existing AGENTS.md when present (don't fragment)", () => {
@@ -120,10 +144,20 @@ describe("project-memory", () => {
       expect(resolveProjectMemoryWritePath(root).endsWith("AGENTS.md")).toBe(true);
     });
 
-    it("REASONIX.md still wins as the write target when it coexists with AGENTS.md", () => {
+    it("writes to the existing CARBON.md when present", () => {
+      writeFileSync(join(root, "CARBON.md"), "x", "utf8");
+      expect(resolveProjectMemoryWritePath(root).endsWith("CARBON.md")).toBe(true);
+    });
+
+    it("keeps writing to legacy REASONIX.md when it is the only existing candidate", () => {
+      writeFileSync(join(root, "REASONIX.md"), "x", "utf8");
+      expect(resolveProjectMemoryWritePath(root).endsWith("REASONIX.md")).toBe(true);
+    });
+
+    it("AGENTS.md wins as the write target when it coexists with legacy REASONIX.md", () => {
       writeFileSync(join(root, "REASONIX.md"), "x", "utf8");
       writeFileSync(join(root, "AGENTS.md"), "y", "utf8");
-      expect(resolveProjectMemoryWritePath(root).endsWith("REASONIX.md")).toBe(true);
+      expect(resolveProjectMemoryWritePath(root).endsWith("AGENTS.md")).toBe(true);
     });
   });
 
@@ -132,14 +166,25 @@ describe("project-memory", () => {
       expect(memoryEnabled()).toBe(true);
     });
 
-    it.each(["off", "false", "0"])("returns false for REASONIX_MEMORY=%s", (val) => {
+    it.each(["off", "false", "0"])("returns false for CARBONCODE_MEMORY=%s", (val) => {
+      process.env.CARBONCODE_MEMORY = val;
+      expect(memoryEnabled()).toBe(false);
+    });
+
+    it.each(["off", "false", "0"])("keeps legacy REASONIX_MEMORY=%s as an opt-out", (val) => {
       process.env.REASONIX_MEMORY = val;
       expect(memoryEnabled()).toBe(false);
     });
 
+    it("lets CARBONCODE_MEMORY override a legacy REASONIX_MEMORY setting", () => {
+      process.env.CARBONCODE_MEMORY = "on";
+      process.env.REASONIX_MEMORY = "off";
+      expect(memoryEnabled()).toBe(true);
+    });
+
     it("returns true for unrelated env values (on, 1, truthy, etc.)", () => {
       for (const val of ["on", "1", "true", "yes"]) {
-        process.env.REASONIX_MEMORY = val;
+        process.env.CARBONCODE_MEMORY = val;
         expect(memoryEnabled()).toBe(true);
       }
     });
@@ -158,7 +203,7 @@ describe("project-memory", () => {
       );
       const out = applyProjectMemory(BASE, root);
       expect(out.length).toBeGreaterThan(BASE.length);
-      expect(out).toMatch(/# Project memory \(REASONIX\.md\)/);
+      expect(out).toMatch(/# Project memory \(CARBON\.md\)/);
       expect(out).toContain("snake_case");
       // Fenced block present.
       expect(out).toMatch(/```\n[\s\S]*```/);
@@ -168,13 +213,13 @@ describe("project-memory", () => {
       writeFileSync(join(root, "AGENTS.md"), "open-spec rules\n", "utf8");
       const out = applyProjectMemory(BASE, root);
       expect(out).toMatch(/# Project memory \(AGENTS\.md\)/);
-      expect(out).not.toMatch(/# Project memory \(REASONIX\.md\)/);
+      expect(out).not.toMatch(/# Project memory \(CARBON\.md\)/);
       expect(out).toContain("open-spec rules");
     });
 
-    it("no-ops when REASONIX_MEMORY=off, even with a file present", () => {
+    it("no-ops when CARBONCODE_MEMORY=off, even with a file present", () => {
       writeFileSync(join(root, PROJECT_MEMORY_FILE), "content\n", "utf8");
-      process.env.REASONIX_MEMORY = "off";
+      process.env.CARBONCODE_MEMORY = "off";
       expect(applyProjectMemory(BASE, root)).toBe(BASE);
     });
 

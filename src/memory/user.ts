@@ -1,4 +1,4 @@
-/** User-private memory pinned into the immutable prefix; distinct from committable REASONIX.md. */
+/** User-private memory pinned into the immutable prefix; distinct from committable CARBON.md. */
 
 import { createHash } from "node:crypto";
 import {
@@ -23,6 +23,10 @@ import { applyProjectMemory, memoryEnabled } from "./project.js";
 
 export const USER_MEMORY_DIR = "memory";
 export const MEMORY_INDEX_FILE = "MEMORY.md";
+export const CARBON_HOME_DIR = ".carboncode";
+export const LEGACY_REASONIX_HOME_DIR = ".reasonix";
+export const GLOBAL_CARBON_MEMORY_FILE = "CARBON.md";
+export const LEGACY_REASONIX_MEMORY_FILE = "REASONIX.md";
 /** Cap on the index file content loaded into the prefix, per scope. */
 export const MEMORY_INDEX_MAX_CHARS = 4000;
 
@@ -49,7 +53,7 @@ export interface MemoryEntry {
 }
 
 export interface MemoryStoreOptions {
-  /** Override `~/.reasonix` — tests set this to a tmpdir. */
+  /** Override `~/.carboncode` — tests set this to a tmpdir. */
   homeDir?: string;
   /** Absolute sandbox root. Required to use `scope: "project"`. */
   projectRoot?: string;
@@ -138,7 +142,7 @@ export class MemoryStore {
   private readonly projectRoot: string | undefined;
 
   constructor(opts: MemoryStoreOptions = {}) {
-    this.homeDir = opts.homeDir ?? join(homedir(), ".reasonix");
+    this.homeDir = opts.homeDir ?? join(homedir(), CARBON_HOME_DIR);
     this.projectRoot = opts.projectRoot ? resolve(opts.projectRoot) : undefined;
   }
 
@@ -305,11 +309,9 @@ export class MemoryStore {
   }
 }
 
-/** Freeform `#g` destination, distinct from MEMORY.md's curated index of named files. */
-export function readGlobalReasonixMemory(
-  homeDir: string = join(homedir(), ".reasonix"),
+function readFreeformMemoryFile(
+  path: string,
 ): { path: string; content: string; originalChars: number; truncated: boolean } | null {
-  const path = join(homeDir, "REASONIX.md");
   if (!existsSync(path)) return null;
   let raw: string;
   try {
@@ -330,15 +332,39 @@ export function readGlobalReasonixMemory(
   return { path, content, originalChars, truncated };
 }
 
-export function applyGlobalReasonixMemory(basePrompt: string, homeDir?: string): string {
-  if (!memoryEnabled()) return basePrompt;
-  const dir = homeDir ?? join(homedir(), ".reasonix");
-  const mem = readGlobalReasonixMemory(dir);
-  if (!mem) return basePrompt;
+/** Freeform `#g` destination, distinct from MEMORY.md's curated index of named files. */
+export function readGlobalCarbonMemory(
+  homeDir: string = homedir(),
+): { path: string; content: string; originalChars: number; truncated: boolean } | null {
+  const carbonPath = join(homeDir, CARBON_HOME_DIR, GLOBAL_CARBON_MEMORY_FILE);
+  if (existsSync(carbonPath)) return readFreeformMemoryFile(carbonPath);
+  return readFreeformMemoryFile(
+    join(homeDir, LEGACY_REASONIX_HOME_DIR, LEGACY_REASONIX_MEMORY_FILE),
+  );
+}
+
+/** Compatibility for callers that still pass the old `~/.reasonix` directory directly. */
+export function readGlobalReasonixMemory(
+  homeDir: string = join(homedir(), LEGACY_REASONIX_HOME_DIR),
+): { path: string; content: string; originalChars: number; truncated: boolean } | null {
+  return readFreeformMemoryFile(join(homeDir, LEGACY_REASONIX_MEMORY_FILE));
+}
+
+function globalFreeformLabel(path: string): string {
+  const normalized = path.replace(/\\/g, "/");
+  return normalized.includes(`${LEGACY_REASONIX_HOME_DIR}/${LEGACY_REASONIX_MEMORY_FILE}`)
+    ? "~/.reasonix/REASONIX.md (legacy)"
+    : "~/.carboncode/CARBON.md";
+}
+
+function applyFreeformGlobalMemory(
+  basePrompt: string,
+  mem: { path: string; content: string },
+): string {
   return [
     basePrompt,
     "",
-    "# Global memory (~/.reasonix/REASONIX.md)",
+    `# Global memory (${globalFreeformLabel(mem.path)})`,
     "",
     "Cross-project notes the user pinned via the `#g` prompt prefix. Treat as authoritative — same level of trust as project memory.",
     "",
@@ -346,6 +372,23 @@ export function applyGlobalReasonixMemory(basePrompt: string, homeDir?: string):
     mem.content,
     "```",
   ].join("\n");
+}
+
+export function applyGlobalCarbonMemory(basePrompt: string, homeDir?: string): string {
+  if (!memoryEnabled()) return basePrompt;
+  const mem = readGlobalCarbonMemory(homeDir ?? homedir());
+  if (!mem) return basePrompt;
+  return applyFreeformGlobalMemory(basePrompt, mem);
+}
+
+export function applyGlobalReasonixMemory(
+  basePrompt: string,
+  homeDir: string = join(homedir(), LEGACY_REASONIX_HOME_DIR),
+): string {
+  if (!memoryEnabled()) return basePrompt;
+  const mem = readGlobalReasonixMemory(homeDir);
+  if (!mem) return basePrompt;
+  return applyFreeformGlobalMemory(basePrompt, mem);
 }
 
 /** Effective priority: entry's own field wins, else the config default for its type, else undefined. */
@@ -391,7 +434,7 @@ export function applyUserMemory(
   if (global) {
     parts.push(
       "",
-      "# User memory — global (~/.reasonix/memory/global/MEMORY.md)",
+      "# User memory — global (~/.carboncode/memory/global/MEMORY.md)",
       "",
       "Cross-project facts and preferences the user has told you in prior sessions. TREAT AS AUTHORITATIVE — don't re-verify via filesystem or web. One-liners index detail files; call `recall_memory` for full bodies only when the one-liner isn't enough.",
       "",
@@ -423,10 +466,7 @@ export function applyMemoryStack(
   const homeDir = opts.homeDir;
   const cfg = opts.cfg;
   const withProject = applyProjectMemory(basePrompt, rootDir);
-  const withGlobal = applyGlobalReasonixMemory(
-    withProject,
-    homeDir ? join(homeDir, ".reasonix") : undefined,
-  );
+  const withGlobal = applyGlobalCarbonMemory(withProject, homeDir);
   const withMemory = applyUserMemory(withGlobal, { projectRoot: rootDir, homeDir, cfg });
   const customSkillPaths = cfg?.skills?.paths
     ? resolveSkillPaths(cfg.skills.paths, rootDir)

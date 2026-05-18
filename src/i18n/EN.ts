@@ -696,8 +696,7 @@ export const EN: TranslationSchema = {
         "▸ new conversation — dropped {count} message(s) from context. Same session, fresh slate.",
       newInfoArchived:
         '▸ new conversation — dropped {count} message(s) from context. Prior transcript archived as "{archived}" (visible under Sessions).',
-      newInfoSystemReloaded:
-        " · REASONIX.md / project memory reloaded (next turn pays one cache miss)",
+      newInfoSystemReloaded: " · project memory reloaded (next turn pays one cache miss)",
       helpTitle: "Commands:",
       helpShellTitle: "Shell shortcut:",
       helpShell: "  !<cmd>                   run <cmd> in the sandbox root; output goes into",
@@ -708,11 +707,11 @@ export const EN: TranslationSchema = {
       helpShellExample: "                             Example: !git status   !ls src/   !npm test",
       helpMemoryTitle: "Quick memory:",
       helpMemoryPin:
-        "  #<note>                  append <note> to <project>/REASONIX.md (committable).",
+        "  #<note>                  append <note> to <project>/CARBON.md (committable).",
       helpMemoryPinEx:
         "                             Example: #findByEmail must be case-insensitive",
       helpMemoryGlobal:
-        "  #g <note>                append <note> to ~/.reasonix/REASONIX.md (global, never committed).",
+        "  #g <note>                append <note> to ~/.carboncode/CARBON.md (global, never committed).",
       helpMemoryGlobalEx: "                             Example: #g always run pnpm not npm",
       helpMemoryPinBoth:
         "                             Both pin into every future session's prefix. Faster than /memory.",
@@ -1020,11 +1019,11 @@ export const EN: TranslationSchema = {
     },
     memory: {
       disabled:
-        "memory is disabled (REASONIX_MEMORY=off in env). Unset the var to re-enable — no REASONIX.md or ~/.reasonix/memory content will be pinned in the meantime.",
+        "memory is disabled (CARBONCODE_MEMORY=off in env). Unset the var to re-enable — no CARBON.md, AGENTS.md, or ~/.carboncode/memory content will be pinned in the meantime.",
       noRoot:
-        "no working directory on this session — `/memory` needs a root to resolve REASONIX.md from. (Running in a test harness?)",
+        "no working directory on this session — `/memory` needs a root to resolve project memory from. (Running in a test harness?)",
       listEmpty:
-        "no user memories yet. The model can call `remember` to save one, or you can create files by hand in ~/.reasonix/memory/global/ or the per-project subdir.",
+        "no user memories yet. The model can call `remember` to save one, or you can create files by hand in ~/.carboncode/memory/global/ or the per-project subdir.",
       listHeader: "User memories ({count}):",
       listFooter: "View body: /memory show <name>   Delete: /memory forget <name>",
       showUsage: "usage: /memory show <name>  or  /memory show <scope>/<name>",
@@ -1042,8 +1041,9 @@ export const EN: TranslationSchema = {
       noMemory: "no memory pinned in {root}.",
       layers: "Three layers are available:",
       layerProject: "  1. {file} — committable team memory (in the repo).",
-      layerGlobal: "  2. ~/.reasonix/memory/global/ — your cross-project private memory.",
-      layerProjectHash: "  3. ~/.reasonix/memory/<project-hash>/ — this project's private memory.",
+      layerGlobal: "  2. ~/.carboncode/memory/global/ — your cross-project private memory.",
+      layerProjectHash:
+        "  3. ~/.carboncode/memory/<project-hash>/ — this project's private memory.",
       askModel: "Ask the model to `remember` something, or hand-edit files directly.",
       changesNote:
         "Changes take effect on next /new or launch — the system prompt is hashed once per session to keep the prefix cache warm.",
@@ -1077,12 +1077,12 @@ export const EN: TranslationSchema = {
     },
     init: {
       codeOnly:
-        "/init only works in code mode (it needs filesystem tools).\nRun `reasonix code [path]` to start a session rooted at the\nproject you want to initialize, then run /init.",
-      exists: "▸ REASONIX.md already exists at {path}",
+        "/init only works in code mode (it needs filesystem tools).\nRun `carboncode code [path]` to start a session rooted at the\nproject you want to initialize, then run /init.",
+      exists: "▸ project memory already exists at {path}",
       existsForce: "  /init force   regenerate from scratch (overwrites)",
       existsEdit: "  Or edit it by hand — it's just markdown. The current file is",
       existsPinned: "  pinned into the system prompt every launch as-is.",
-      info: "▸ /init — model will scan the project and synthesize REASONIX.md.\n  The result lands as a pending edit; review with /apply or /walk.",
+      info: "▸ /init — model will scan the project and synthesize CARBON.md.\n  The result lands as a pending edit; review with /apply or /walk.",
     },
     webSearchEngine: {
       currentEngine: "Current web search engine: {engine}",

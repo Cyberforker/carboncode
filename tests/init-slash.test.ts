@@ -20,7 +20,7 @@ function makeLoop(): CacheFirstLoop {
 describe("/init slash handler", () => {
   let tmp: string;
   beforeEach(() => {
-    tmp = mkdtempSync(join(tmpdir(), "reasonix-init-slash-"));
+    tmp = mkdtempSync(join(tmpdir(), "carbon-init-slash-"));
   });
   afterEach(() => {
     rmSync(tmp, { recursive: true, force: true });
@@ -33,11 +33,11 @@ describe("/init slash handler", () => {
     expect(result.resubmit).toBeUndefined();
   });
 
-  it("emits the structured init prompt as resubmit when REASONIX.md does not exist", () => {
+  it("emits the structured init prompt as resubmit when CARBON.md does not exist", () => {
     const loop = makeLoop();
     const result = handleSlash("init", [], loop, { codeRoot: tmp });
     expect(result.resubmit).toBeDefined();
-    expect(result.resubmit).toMatch(/Initialize REASONIX.md/);
+    expect(result.resubmit).toMatch(/Initialize CARBON.md/);
     // The hard length cap is the most important constraint — pin it.
     expect(result.resubmit).toMatch(/≤\s*80\s*lines/);
     // The "STOP after writing" line is load-bearing for flash; pin it
@@ -46,8 +46,8 @@ describe("/init slash handler", () => {
     expect(result.info).toMatch(/scan the project/);
   });
 
-  it("refuses overwriting an existing REASONIX.md without `force`", () => {
-    writeFileSync(join(tmp, "REASONIX.md"), "# pre-existing");
+  it("refuses overwriting an existing CARBON.md without `force`", () => {
+    writeFileSync(join(tmp, "CARBON.md"), "# pre-existing");
     const loop = makeLoop();
     const result = handleSlash("init", [], loop, { codeRoot: tmp });
     expect(result.resubmit).toBeUndefined();
@@ -55,17 +55,26 @@ describe("/init slash handler", () => {
     expect(result.info).toMatch(/\/init force/);
   });
 
-  it("`/init force` proceeds even when REASONIX.md exists", () => {
+  it("refuses overwriting an existing legacy REASONIX.md without `force`", () => {
     writeFileSync(join(tmp, "REASONIX.md"), "# pre-existing");
+    const loop = makeLoop();
+    const result = handleSlash("init", [], loop, { codeRoot: tmp });
+    expect(result.resubmit).toBeUndefined();
+    expect(result.info).toMatch(/already exists/);
+    expect(result.info).toContain("REASONIX.md");
+  });
+
+  it("`/init force` proceeds even when CARBON.md exists", () => {
+    writeFileSync(join(tmp, "CARBON.md"), "# pre-existing");
     const loop = makeLoop();
     const result = handleSlash("init", ["force"], loop, { codeRoot: tmp });
     expect(result.resubmit).toBeDefined();
-    expect(result.resubmit).toMatch(/Initialize REASONIX.md/);
+    expect(result.resubmit).toMatch(/Initialize CARBON.md/);
     expect(result.info).toMatch(/scan the project/);
   });
 
   it("`force` matching is case-insensitive", () => {
-    writeFileSync(join(tmp, "REASONIX.md"), "# pre-existing");
+    writeFileSync(join(tmp, "CARBON.md"), "# pre-existing");
     const loop = makeLoop();
     const result = handleSlash("init", ["FORCE"], loop, { codeRoot: tmp });
     expect(result.resubmit).toBeDefined();

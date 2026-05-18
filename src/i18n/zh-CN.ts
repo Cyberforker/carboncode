@@ -676,7 +676,7 @@ export const zhCN: TranslationSchema = {
       newInfo: "▸ 新对话 — 已从上下文中丢弃 {count} 条消息。同一会话，全新开始。",
       newInfoArchived:
         "▸ 新对话 — 已从上下文中丢弃 {count} 条消息。原对话已归档为「{archived}」，可在 Sessions 面板查看。",
-      newInfoSystemReloaded: " · REASONIX.md / 项目记忆已重新加载（下一轮一次性 cache miss）",
+      newInfoSystemReloaded: " · 项目记忆已重新加载（下一轮一次性 cache miss）",
       helpTitle: "命令：",
       helpShellTitle: "Shell 快捷方式：",
       helpShell: "  !<cmd>                   在沙箱根目录运行 <cmd>；输出进入对话",
@@ -684,11 +684,10 @@ export const zhCN: TranslationSchema = {
       helpShellConsent: "                             用户输入 = 明确同意。",
       helpShellExample: "                             示例：!git status   !ls src/   !npm test",
       helpMemoryTitle: "快速记忆：",
-      helpMemoryPin:
-        "  #<note>                  将 <note> 追加到 <project>/REASONIX.md（可提交）。",
+      helpMemoryPin: "  #<note>                  将 <note> 追加到 <project>/CARBON.md（可提交）。",
       helpMemoryPinEx: "                             示例：#findByEmail 必须区分大小写",
       helpMemoryGlobal:
-        "  #g <note>                将 <note> 追加到 ~/.reasonix/REASONIX.md（全局，不提交）。",
+        "  #g <note>                将 <note> 追加到 ~/.carboncode/CARBON.md（全局，不提交）。",
       helpMemoryGlobalEx: "                             示例：#g 始终使用 pnpm 而非 npm",
       helpMemoryPinBoth:
         "                             两者都固定到每个未来会话的前缀中。比 /memory 更快。",
@@ -967,11 +966,10 @@ export const zhCN: TranslationSchema = {
     },
     memory: {
       disabled:
-        "记忆已禁用（环境变量 REASONIX_MEMORY=off）。取消设置该变量以重新启用 — 此期间不会固定任何 REASONIX.md 或 ~/.reasonix/memory 内容。",
-      noRoot:
-        "此会话无工作目录 — `/memory` 需要一个根目录来解析 REASONIX.md。（在测试环境中运行？）",
+        "记忆已禁用（环境变量 CARBONCODE_MEMORY=off）。取消设置该变量以重新启用 — 此期间不会固定任何 CARBON.md、AGENTS.md 或 ~/.carboncode/memory 内容。",
+      noRoot: "此会话无工作目录 — `/memory` 需要一个根目录来解析项目记忆。（在测试环境中运行？）",
       listEmpty:
-        "尚无用户记忆。模型可以调用 `remember` 保存一个，或您可以在 ~/.reasonix/memory/global/ 或项目子目录中手动创建文件。",
+        "尚无用户记忆。模型可以调用 `remember` 保存一个，或您可以在 ~/.carboncode/memory/global/ 或项目子目录中手动创建文件。",
       listHeader: "用户记忆（{count}）：",
       listFooter: "查看正文：/memory show <name>   删除：/memory forget <name>",
       showUsage: "用法：/memory show <name>  或  /memory show <scope>/<name>",
@@ -989,8 +987,8 @@ export const zhCN: TranslationSchema = {
       noMemory: "在 {root} 中未固定记忆。",
       layers: "可用的三个层级：",
       layerProject: "  1. {file} — 可提交的团队记忆（在仓库中）。",
-      layerGlobal: "  2. ~/.reasonix/memory/global/ — 您的跨项目私有记忆。",
-      layerProjectHash: "  3. ~/.reasonix/memory/<project-hash>/ — 此项目的私有记忆。",
+      layerGlobal: "  2. ~/.carboncode/memory/global/ — 您的跨项目私有记忆。",
+      layerProjectHash: "  3. ~/.carboncode/memory/<project-hash>/ — 此项目的私有记忆。",
       askModel: "让模型 `remember` 某些内容，或直接手编辑文件。",
       changesNote: "更改在下次 /new 或启动时生效 — 系统提示词每会话哈希一次以保持前缀缓存热度。",
       subcommands:
@@ -1021,12 +1019,12 @@ export const zhCN: TranslationSchema = {
     },
     init: {
       codeOnly:
-        "/init 仅在代码模式下工作（需要文件系统工具）。\n运行 `reasonix code [path]` 启动一个以您要初始化的项目为根的会话，\n然后运行 /init。",
-      exists: "▸ REASONIX.md 已存在于 {path}",
+        "/init 仅在代码模式下工作（需要文件系统工具）。\n运行 `carboncode code [path]` 启动一个以您要初始化的项目为根的会话，\n然后运行 /init。",
+      exists: "▸ 项目记忆已存在于 {path}",
       existsForce: "  /init force   从头重新生成（覆盖）",
       existsEdit: "  或手动编辑 — 它只是 markdown。当前文件已",
       existsPinned: "  固定到每次启动的系统提示词中。",
-      info: "▸ /init — 模型将扫描项目并合成 REASONIX.md。\n  结果将作为待处理的编辑；使用 /apply 或 /walk 审查。",
+      info: "▸ /init — 模型将扫描项目并合成 CARBON.md。\n  结果将作为待处理的编辑；使用 /apply 或 /walk 审查。",
     },
     webSearchEngine: {
       currentEngine: "当前网页搜索引擎：{engine}",

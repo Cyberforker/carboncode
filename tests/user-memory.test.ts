@@ -1,4 +1,4 @@
-/** `~/.reasonix/memory/` store + prefix-loading composer — temp homeDir per test. */
+/** Carbon memory store + prefix-loading composer — temp homeDir per test. */
 
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -9,6 +9,7 @@ import {
   MEMORY_INDEX_FILE,
   MEMORY_INDEX_MAX_CHARS,
   MemoryStore,
+  applyGlobalCarbonMemory,
   applyGlobalReasonixMemory,
   applyMemoryStack,
   applyUserMemory,
@@ -21,15 +22,18 @@ const BASE = "You are a test assistant.";
 describe("user-memory", () => {
   let home: string;
   let projectRoot: string;
-  const originalEnv = process.env.REASONIX_MEMORY;
+  const originalCarbonEnv = process.env.CARBONCODE_MEMORY;
+  const originalReasonixEnv = process.env.REASONIX_MEMORY;
   const originalHome = process.env.HOME;
   const originalUserProfile = process.env.USERPROFILE;
 
   beforeEach(() => {
-    home = mkdtempSync(join(tmpdir(), "reasonix-umem-home-"));
-    projectRoot = mkdtempSync(join(tmpdir(), "reasonix-umem-proj-"));
+    home = mkdtempSync(join(tmpdir(), "carbon-umem-home-"));
+    projectRoot = mkdtempSync(join(tmpdir(), "carbon-umem-proj-"));
     process.env.HOME = home;
     process.env.USERPROFILE = home;
+    // biome-ignore lint/performance/noDelete: avoid leaking "undefined" into env
+    delete process.env.CARBONCODE_MEMORY;
     // biome-ignore lint/performance/noDelete: avoid leaking "undefined" into env
     delete process.env.REASONIX_MEMORY;
   });
@@ -37,11 +41,17 @@ describe("user-memory", () => {
   afterEach(() => {
     rmSync(home, { recursive: true, force: true });
     rmSync(projectRoot, { recursive: true, force: true });
-    if (originalEnv === undefined) {
+    if (originalCarbonEnv === undefined) {
+      // biome-ignore lint/performance/noDelete: same
+      delete process.env.CARBONCODE_MEMORY;
+    } else {
+      process.env.CARBONCODE_MEMORY = originalCarbonEnv;
+    }
+    if (originalReasonixEnv === undefined) {
       // biome-ignore lint/performance/noDelete: same
       delete process.env.REASONIX_MEMORY;
     } else {
-      process.env.REASONIX_MEMORY = originalEnv;
+      process.env.REASONIX_MEMORY = originalReasonixEnv;
     }
     if (originalHome === undefined) {
       // biome-ignore lint/performance/noDelete: env restoration needs absence, not "undefined"
@@ -333,7 +343,7 @@ describe("user-memory", () => {
       expect(a).toBe(b);
     });
 
-    it("respects REASONIX_MEMORY=off", () => {
+    it("respects CARBONCODE_MEMORY=off", () => {
       const store = new MemoryStore({ homeDir: home, projectRoot });
       store.write({
         name: "pref_one",
@@ -342,7 +352,7 @@ describe("user-memory", () => {
         description: "d",
         body: "b",
       });
-      process.env.REASONIX_MEMORY = "off";
+      process.env.CARBONCODE_MEMORY = "off";
       expect(applyUserMemory(BASE, { homeDir: home, projectRoot })).toBe(BASE);
     });
 
@@ -362,9 +372,9 @@ describe("user-memory", () => {
   });
 
   describe("applyMemoryStack", () => {
-    it("composes REASONIX.md → global memory → project memory", () => {
-      writeFileSync(join(projectRoot, "REASONIX.md"), "Pinned by REASONIX.md\n", "utf8");
-      // applyMemoryStack uses ~/.reasonix by default — redirect via HOME
+    it("composes CARBON.md → global memory → project memory", () => {
+      writeFileSync(join(projectRoot, "CARBON.md"), "Pinned by CARBON.md\n", "utf8");
+      // applyMemoryStack uses the user's Carbon home by default — redirect via HOME
       // isn't portable across Windows; use the public applyUserMemory
       // directly for the global/project part and compose manually to
       // check ordering is what the helper produces.
@@ -385,19 +395,19 @@ describe("user-memory", () => {
         body: "b",
       });
       const out = applyUserMemory(withProj, { homeDir: home, projectRoot });
-      // Order: REASONIX.md content → global → project. Each unique
+      // Order: CARBON.md content → global → project. Each unique
       // string should appear, and in that order.
-      const iReasonix = out.indexOf("Pinned by REASONIX.md");
+      const iCarbon = out.indexOf("Pinned by CARBON.md");
       const iGlobal = out.indexOf("g_pref");
       const iProject = out.indexOf("p_fact");
-      expect(iReasonix).toBeGreaterThan(BASE.length - 1);
-      expect(iGlobal).toBeGreaterThan(iReasonix);
+      expect(iCarbon).toBeGreaterThan(BASE.length - 1);
+      expect(iGlobal).toBeGreaterThan(iCarbon);
       expect(iProject).toBeGreaterThan(iGlobal);
     });
 
     it("applyMemoryStack injects no memory blocks when no memory is set", () => {
       // homeDir override required — otherwise the helper falls back to the
-      // dev's real ~/.reasonix and bleeds in whatever memory they have.
+      // dev's real Carbon home and bleeds in whatever memory they have.
       const out = applyMemoryStack(BASE, projectRoot, { homeDir: home });
       expect(out).toContain(BASE);
       expect(out).not.toMatch(/# Project memory/);
@@ -406,44 +416,63 @@ describe("user-memory", () => {
     });
   });
 
-  describe("applyGlobalReasonixMemory", () => {
-    it("loads ~/.reasonix/REASONIX.md when present", () => {
-      mkdirSync(home, { recursive: true });
-      writeFileSync(join(home, "REASONIX.md"), "- always pnpm not npm\n", "utf8");
-      const out = applyGlobalReasonixMemory(BASE, home);
+  describe("applyGlobalCarbonMemory", () => {
+    it("loads ~/.carboncode/CARBON.md when present", () => {
+      mkdirSync(join(home, ".carboncode"), { recursive: true });
+      writeFileSync(join(home, ".carboncode", "CARBON.md"), "- always pnpm not npm\n", "utf8");
+      const out = applyGlobalCarbonMemory(BASE, home);
       expect(out).toContain("# Global memory");
       expect(out).toContain("always pnpm not npm");
       expect(out.startsWith(BASE)).toBe(true);
     });
 
+    it("falls back to legacy ~/.reasonix/REASONIX.md when the Carbon file is missing", () => {
+      mkdirSync(join(home, ".reasonix"), { recursive: true });
+      writeFileSync(join(home, ".reasonix", "REASONIX.md"), "- legacy global note\n", "utf8");
+      const out = applyGlobalCarbonMemory(BASE, home);
+      expect(out).toContain("# Global memory");
+      expect(out).toContain("legacy global note");
+    });
+
     it("returns BASE unchanged when the file is missing", () => {
-      const out = applyGlobalReasonixMemory(BASE, home);
+      const out = applyGlobalCarbonMemory(BASE, home);
       expect(out).toBe(BASE);
     });
 
     it("returns BASE unchanged when the file is empty / whitespace-only", () => {
-      mkdirSync(home, { recursive: true });
-      writeFileSync(join(home, "REASONIX.md"), "   \n  \n", "utf8");
-      const out = applyGlobalReasonixMemory(BASE, home);
+      mkdirSync(join(home, ".carboncode"), { recursive: true });
+      writeFileSync(join(home, ".carboncode", "CARBON.md"), "   \n  \n", "utf8");
+      const out = applyGlobalCarbonMemory(BASE, home);
       expect(out).toBe(BASE);
     });
 
-    it("respects REASONIX_MEMORY=off opt-out", () => {
-      mkdirSync(home, { recursive: true });
-      writeFileSync(join(home, "REASONIX.md"), "- secret\n", "utf8");
-      const orig = process.env.REASONIX_MEMORY;
-      process.env.REASONIX_MEMORY = "off";
+    it("respects CARBONCODE_MEMORY=off opt-out", () => {
+      mkdirSync(join(home, ".carboncode"), { recursive: true });
+      writeFileSync(join(home, ".carboncode", "CARBON.md"), "- secret\n", "utf8");
+      const orig = process.env.CARBONCODE_MEMORY;
+      process.env.CARBONCODE_MEMORY = "off";
       try {
-        const out = applyGlobalReasonixMemory(BASE, home);
+        const out = applyGlobalCarbonMemory(BASE, home);
         expect(out).toBe(BASE);
       } finally {
         if (orig === undefined) {
           // biome-ignore lint/performance/noDelete: env key must lose presence
-          delete process.env.REASONIX_MEMORY;
+          delete process.env.CARBONCODE_MEMORY;
         } else {
-          process.env.REASONIX_MEMORY = orig;
+          process.env.CARBONCODE_MEMORY = orig;
         }
       }
+    });
+  });
+
+  describe("applyGlobalReasonixMemory compatibility", () => {
+    it("keeps the old direct ~/.reasonix directory argument working", () => {
+      const legacyDir = join(home, ".reasonix");
+      mkdirSync(legacyDir, { recursive: true });
+      writeFileSync(join(legacyDir, "REASONIX.md"), "- legacy direct argument\n", "utf8");
+      const out = applyGlobalReasonixMemory(BASE, legacyDir);
+      expect(out).toContain("legacy direct argument");
+      expect(out).toContain("~/.reasonix/REASONIX.md (legacy)");
     });
   });
 });

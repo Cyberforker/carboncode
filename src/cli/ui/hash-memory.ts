@@ -5,17 +5,17 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { resolveProjectMemoryWritePath } from "../../memory/project.js";
 
-const PROJECT_HEADER = `# Reasonix project memory
+const PROJECT_HEADER = `# Carbon Code project memory
 
 Notes the user pinned via the \`#\` prompt prefix. The whole file is
 loaded into the immutable system prefix every session — keep it terse.
 
 `;
 
-const GLOBAL_HEADER = `# Reasonix global memory
+const GLOBAL_HEADER = `# Carbon Code global memory
 
 Cross-project notes the user pinned via the \`#g\` prompt prefix. Loaded
-into every Reasonix session's prefix regardless of working directory.
+into every Carbon Code session's prefix regardless of working directory.
 Private to this machine — not committed anywhere.
 
 `;
@@ -64,8 +64,8 @@ export function appendProjectMemory(rootDir: string, note: string): AppendMemory
   return appendBulletToFile(resolveProjectMemoryWritePath(rootDir), note, PROJECT_HEADER);
 }
 
-export const GLOBAL_MEMORY_DIR = ".reasonix";
-export const GLOBAL_MEMORY_FILE = "REASONIX.md";
+export const GLOBAL_MEMORY_DIR = ".carboncode";
+export const GLOBAL_MEMORY_FILE = "CARBON.md";
 
 export function globalMemoryPath(homeDir: string = homedir()): string {
   return join(homeDir, GLOBAL_MEMORY_DIR, GLOBAL_MEMORY_FILE);

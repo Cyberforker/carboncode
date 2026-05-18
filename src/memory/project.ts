@@ -1,13 +1,13 @@
-/** Reads REASONIX.md → AGENTS.md → AGENT.md (first that exists); writes prefer the file already on disk. */
+/** Reads AGENTS.md → CARBON.md → legacy REASONIX.md → AGENT.md; writes prefer the file already on disk. */
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, join } from "node:path";
 
 /** Default WRITE target — created when no candidate exists yet. */
-export const PROJECT_MEMORY_FILE = "REASONIX.md";
+export const PROJECT_MEMORY_FILE = "CARBON.md";
 
 /** READ candidates, in priority order. AGENTS.md is the open spec at agents.md (Linux Foundation). */
-export const PROJECT_MEMORY_FILES = ["REASONIX.md", "AGENTS.md", "AGENT.md"] as const;
+export const PROJECT_MEMORY_FILES = ["AGENTS.md", "CARBON.md", "REASONIX.md", "AGENT.md"] as const;
 
 export const PROJECT_MEMORY_MAX_CHARS = 8000;
 
@@ -42,7 +42,7 @@ export function findProjectMemoryPath(rootDir: string): string | null {
   return null;
 }
 
-/** Path callers should write to: an existing candidate wins, otherwise rootDir/REASONIX.md. */
+/** Path callers should write to: an existing candidate wins, otherwise rootDir/CARBON.md. */
 export function resolveProjectMemoryWritePath(rootDir: string): string {
   return findProjectMemoryPath(rootDir) ?? join(rootDir, PROJECT_MEMORY_FILE);
 }
@@ -81,7 +81,7 @@ export function readProjectMemory(rootDir: string): ProjectMemory | null {
 }
 
 export function memoryEnabled(): boolean {
-  const env = process.env.REASONIX_MEMORY;
+  const env = process.env.CARBONCODE_MEMORY ?? process.env.REASONIX_MEMORY;
   if (env === "off" || env === "false" || env === "0") return false;
   return true;
 }

@@ -101,7 +101,7 @@ describe("appendProjectMemory", () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "reasonix-hashmem-"));
+    dir = mkdtempSync(join(tmpdir(), "carbon-hashmem-"));
   });
 
   afterEach(() => {
@@ -112,19 +112,19 @@ describe("appendProjectMemory", () => {
     }
   });
 
-  it("creates REASONIX.md with a header and the first bullet when absent", () => {
-    const path = join(dir, "REASONIX.md");
+  it("creates CARBON.md with a header and the first bullet when absent", () => {
+    const path = join(dir, "CARBON.md");
     expect(existsSync(path)).toBe(false);
     const result = appendProjectMemory(dir, "always use pnpm");
     expect(result.created).toBe(true);
     expect(result.path).toBe(path);
     const content = readFileSync(path, "utf8");
-    expect(content).toContain("# Reasonix project memory");
+    expect(content).toContain("# Carbon Code project memory");
     expect(content).toMatch(/- always use pnpm\n$/);
   });
 
-  it("appends to an existing REASONIX.md without disturbing earlier content", () => {
-    const path = join(dir, "REASONIX.md");
+  it("appends to an existing CARBON.md without disturbing earlier content", () => {
+    const path = join(dir, "CARBON.md");
     writeFileSync(path, "# Custom header\n\nSome existing note.\n", "utf8");
     const result = appendProjectMemory(dir, "always use pnpm");
     expect(result.created).toBe(false);
@@ -135,7 +135,7 @@ describe("appendProjectMemory", () => {
   });
 
   it("inserts a separator newline if the file lacks a trailing newline", () => {
-    const path = join(dir, "REASONIX.md");
+    const path = join(dir, "CARBON.md");
     writeFileSync(path, "no trailing newline", "utf8");
     appendProjectMemory(dir, "fresh note");
     const content = readFileSync(path, "utf8");
@@ -146,7 +146,7 @@ describe("appendProjectMemory", () => {
     appendProjectMemory(dir, "first");
     appendProjectMemory(dir, "second");
     appendProjectMemory(dir, "third");
-    const content = readFileSync(join(dir, "REASONIX.md"), "utf8");
+    const content = readFileSync(join(dir, "CARBON.md"), "utf8");
     const bullets = content.match(/- (first|second|third)/g);
     expect(bullets).toEqual(["- first", "- second", "- third"]);
   });
@@ -155,12 +155,22 @@ describe("appendProjectMemory", () => {
     expect(() => appendProjectMemory(dir, "   ")).toThrow(/cannot be empty/);
   });
 
-  it("respects nested rootDir paths (creates REASONIX.md in the given dir, not cwd)", () => {
+  it("respects nested rootDir paths (creates CARBON.md in the given dir, not cwd)", () => {
     const nested = join(dir, "subproject");
     mkdirSync(nested);
     const result = appendProjectMemory(nested, "scoped note");
-    expect(result.path).toBe(join(nested, "REASONIX.md"));
-    expect(existsSync(join(dir, "REASONIX.md"))).toBe(false);
+    expect(result.path).toBe(join(nested, "CARBON.md"));
+    expect(existsSync(join(dir, "CARBON.md"))).toBe(false);
+  });
+
+  it("appends to an existing legacy REASONIX.md instead of creating a second file", () => {
+    const path = join(dir, "REASONIX.md");
+    writeFileSync(path, "# Legacy header\n", "utf8");
+    const result = appendProjectMemory(dir, "legacy note");
+    expect(result.created).toBe(false);
+    expect(result.path).toBe(path);
+    expect(existsSync(join(dir, "CARBON.md"))).toBe(false);
+    expect(readFileSync(path, "utf8")).toMatch(/- legacy note\n$/);
   });
 });
 
@@ -168,7 +178,7 @@ describe("appendGlobalMemory", () => {
   let home: string;
 
   beforeEach(() => {
-    home = mkdtempSync(join(tmpdir(), "reasonix-globalmem-"));
+    home = mkdtempSync(join(tmpdir(), "carbon-globalmem-"));
   });
 
   afterEach(() => {
@@ -179,20 +189,20 @@ describe("appendGlobalMemory", () => {
     }
   });
 
-  it("creates ~/.reasonix/REASONIX.md (with parent dir) when missing", () => {
+  it("creates ~/.carboncode/CARBON.md (with parent dir) when missing", () => {
     const path = globalMemoryPath(home);
     expect(existsSync(path)).toBe(false);
     const result = appendGlobalMemory("always use pnpm", home);
     expect(result.created).toBe(true);
     expect(result.path).toBe(path);
     const content = readFileSync(path, "utf8");
-    expect(content).toContain("# Reasonix global memory");
+    expect(content).toContain("# Carbon Code global memory");
     expect(content).toMatch(/- always use pnpm\n$/);
   });
 
   it("appends to an existing global file", () => {
     const path = globalMemoryPath(home);
-    mkdirSync(join(home, ".reasonix"), { recursive: true });
+    mkdirSync(join(home, ".carboncode"), { recursive: true });
     writeFileSync(path, "# header\n\n- existing\n", "utf8");
     appendGlobalMemory("second", home);
     const content = readFileSync(path, "utf8");
@@ -205,7 +215,7 @@ describe("appendGlobalMemory", () => {
     // sane. The test environment's HOME is a tmpdir from the parent
     // afterEach setup, so this won't pollute the real user home.
     const path = globalMemoryPath();
-    expect(path).toMatch(/[/\\]\.reasonix[/\\]REASONIX\.md$/);
+    expect(path).toMatch(/[/\\]\.carboncode[/\\]CARBON\.md$/);
   });
 
   it("rejects empty notes", () => {
