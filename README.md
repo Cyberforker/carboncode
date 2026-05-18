@@ -58,6 +58,10 @@ export DEEPSEEK_API_KEY=sk-...
 
 Project rules should live in `AGENTS.md` or `CARBON.md` in the repository.
 
+Model presets use the current DeepSeek V4 API IDs: `flash` maps to
+`deepseek-v4-flash`, `pro` maps to `deepseek-v4-pro`, and `auto` starts on Flash
+with one-turn Pro escalation for harder turns.
+
 ## Release
 
 Publishing is tag-driven through GitHub Actions trusted publishing. Update

@@ -66,6 +66,18 @@ describe("Carbon broad Reasonix import", () => {
     expect(prompt).not.toContain("You are Reasonix Code");
   });
 
+  test("new-user model defaults expose official DeepSeek V4 API model IDs", () => {
+    const presets = readFileSync(resolve("src/cli/ui/presets.ts"), "utf8");
+    expect(presets).toContain('model: "deepseek-v4-flash"');
+    expect(presets).toContain('model: "deepseek-v4-pro"');
+
+    const qq = readFileSync(resolve("src/qq/use-qq-channel.ts"), "utf8");
+    expect(qq).toContain('"deepseek-v4-flash"');
+    expect(qq).toContain('"deepseek-v4-pro"');
+    expect(qq).not.toContain('"deepseek-chat"');
+    expect(qq).not.toContain('"deepseek-reasoner"');
+  });
+
   test("high-visibility source guidance does not point users at reasonix commands", () => {
     const files = [
       "src/cli/commands/commit.ts",

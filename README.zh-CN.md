@@ -56,6 +56,10 @@ export DEEPSEEK_API_KEY=sk-...
 
 项目规则建议写在仓库里的 `AGENTS.md` 或 `CARBON.md`。
 
+模型预设使用当前 DeepSeek V4 API ID：`flash` 对应 `deepseek-v4-flash`，
+`pro` 对应 `deepseek-v4-pro`，`auto` 默认从 Flash 开始，并在困难回合一次性升级
+到 Pro。
+
 ## 发布
 
 npm 发布由 GitHub Actions 的 tag 流程触发。先更新 `package.json`，提交发布版本，
