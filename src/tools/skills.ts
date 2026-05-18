@@ -127,8 +127,8 @@ export function registerSkillTools(
   });
 
   const installScopeDesc = hasProjectScope
-    ? "'project' (default) writes to <repo>/.reasonix/skills/, scoped to this workspace only; 'global' writes to ~/.reasonix/skills/, available in every project."
-    : "'global' (only option here — no project workspace) writes to ~/.reasonix/skills/.";
+    ? "'project' (default) writes to <repo>/.carboncode/skills/, scoped to this workspace only; 'global' writes to ~/.carboncode/skills/, available in every project."
+    : "'global' (only option here — no project workspace) writes to ~/.carboncode/skills/.";
 
   registry.register({
     name: "install_skill",

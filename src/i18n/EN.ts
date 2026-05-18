@@ -295,7 +295,8 @@ export const EN: TranslationSchema = {
       argsHint: "[list|paths|show <name>|<name> [args]]",
     },
     hooks: {
-      description: "list active hooks (settings.json under .reasonix/) · reload re-reads from disk",
+      description:
+        "list active hooks (settings.json under .carboncode/) · reload re-reads from disk",
       argsHint: "[reload]",
     },
     permissions: {
@@ -767,7 +768,7 @@ export const EN: TranslationSchema = {
       hooksNone: "no hooks configured.",
       hooksDropHint: "drop a settings.json with a `hooks` key into either of:",
       hooksProject: "  · {path} (project)",
-      hooksProjectFallback: "  · <project>/.reasonix/settings.json (project)",
+      hooksProjectFallback: "  · <project>/.carboncode/settings.json (project)",
       hooksGlobal: "  · {path} (global)",
       hooksEvents: "events: PreToolUse, PostToolUse, UserPromptSubmit, Stop",
       hooksExitCodes: "exit 0 = pass · exit 2 = block (Pre*) · other = warn",
@@ -1108,8 +1109,8 @@ export const EN: TranslationSchema = {
     skill: {
       listEmpty: "no skills found. Carbon Code reads skills from:",
       listProjectScope:
-        "  · <project>/.reasonix/skills/<name>/SKILL.md  (or <name>.md)  — project scope",
-      listGlobalScope: "  · ~/.reasonix/skills/<name>/SKILL.md  (or <name>.md)  — global scope",
+        "  · <project>/.carboncode/skills/<name>/SKILL.md  (or <name>.md)  — project scope",
+      listGlobalScope: "  · ~/.carboncode/skills/<name>/SKILL.md  (or <name>.md)  — global scope",
       listProjectOnly: "  (project scope is only active in `carboncode code`)",
       listFrontmatter: "Each file's frontmatter needs at least `name` and `description`.",
       listInvoke:

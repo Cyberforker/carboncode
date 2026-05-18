@@ -20,7 +20,7 @@ describe("bootstrapSemanticSearchInCodeMode", () => {
   });
 
   it("registers the tool when an index already exists", async () => {
-    const semanticDir = join(root, ".reasonix", "semantic");
+    const semanticDir = join(root, ".carboncode", "semantic");
     await fs.mkdir(semanticDir, { recursive: true });
     await fs.writeFile(
       join(semanticDir, "index.meta.json"),
@@ -43,7 +43,7 @@ describe("bootstrapSemanticSearchInCodeMode", () => {
   });
 
   it("skips the tool when the on-disk index targets a different provider", async () => {
-    const semanticDir = join(root, ".reasonix", "semantic");
+    const semanticDir = join(root, ".carboncode", "semantic");
     await fs.mkdir(semanticDir, { recursive: true });
     await fs.writeFile(
       join(semanticDir, "index.meta.json"),
@@ -64,6 +64,30 @@ describe("bootstrapSemanticSearchInCodeMode", () => {
     });
     expect(result.enabled).toBe(false);
     expect(tools.get("semantic_search")).toBeUndefined();
+  });
+
+  it("falls back to a legacy .reasonix semantic index when Carbon index is absent", async () => {
+    const semanticDir = join(root, ".reasonix", "semantic");
+    await fs.mkdir(semanticDir, { recursive: true });
+    await fs.writeFile(
+      join(semanticDir, "index.meta.json"),
+      JSON.stringify({
+        version: 1,
+        model: "nomic-embed-text",
+        dim: 768,
+        updatedAt: new Date().toISOString(),
+      }),
+      "utf8",
+    );
+    await fs.writeFile(join(semanticDir, "index.jsonl"), "", "utf8");
+
+    const result = await bootstrapSemanticSearchInCodeMode(tools, root, {
+      provider: "ollama",
+      model: "nomic-embed-text",
+    });
+
+    expect(result.enabled).toBe(true);
+    expect(tools.get("semantic_search")).toBeDefined();
   });
 
   it("silently skips (no prompt) when no index is built — even with Ollama present", async () => {

@@ -42,7 +42,7 @@ export interface HookConfig {
   cwd?: string;
 }
 
-/** Shape of `<scope>/.reasonix/settings.json` — only `hooks` for now. */
+/** Shape of `<scope>/.carboncode/settings.json` — only `hooks` for now. */
 export interface HookSettings {
   hooks?: Partial<Record<HookEvent, HookConfig[]>>;
 }
@@ -80,9 +80,10 @@ export interface HookReport {
 }
 
 export const HOOK_SETTINGS_FILENAME = "settings.json";
-export const HOOK_SETTINGS_DIRNAME = ".reasonix";
+export const HOOK_SETTINGS_DIRNAME = ".carboncode";
+export const LEGACY_HOOK_SETTINGS_DIRNAME = ".reasonix";
 
-/** Where the global settings.json lives. Equivalent to `~/.reasonix/settings.json`. */
+/** Where the global settings.json lives. Equivalent to `~/.carboncode/settings.json`. */
 export function globalSettingsPath(homeDirOverride?: string): string {
   return join(homeDirOverride ?? homedir(), HOOK_SETTINGS_DIRNAME, HOOK_SETTINGS_FILENAME);
 }
@@ -90,6 +91,14 @@ export function globalSettingsPath(homeDirOverride?: string): string {
 /** Where the project settings.json lives for a given root. */
 export function projectSettingsPath(projectRoot: string): string {
   return join(projectRoot, HOOK_SETTINGS_DIRNAME, HOOK_SETTINGS_FILENAME);
+}
+
+function legacyGlobalSettingsPath(homeDirOverride?: string): string {
+  return join(homeDirOverride ?? homedir(), LEGACY_HOOK_SETTINGS_DIRNAME, HOOK_SETTINGS_FILENAME);
+}
+
+function legacyProjectSettingsPath(projectRoot: string): string {
+  return join(projectRoot, LEGACY_HOOK_SETTINGS_DIRNAME, HOOK_SETTINGS_FILENAME);
 }
 
 function readSettingsFile(path: string): HookSettings | null {
@@ -105,6 +114,18 @@ function readSettingsFile(path: string): HookSettings | null {
   return null;
 }
 
+function readPreferredSettingsFile(
+  primary: string,
+  legacy: string,
+): {
+  path: string;
+  settings: HookSettings | null;
+} | null {
+  if (existsSync(primary)) return { path: primary, settings: readSettingsFile(primary) };
+  if (existsSync(legacy)) return { path: legacy, settings: readSettingsFile(legacy) };
+  return null;
+}
+
 /** Project hooks fire before global; within a scope, array order. */
 export interface LoadHookSettingsOptions {
   /** Absolute project root, if any. Without it, only global hooks load. */
@@ -116,13 +137,17 @@ export interface LoadHookSettingsOptions {
 export function loadHooks(opts: LoadHookSettingsOptions = {}): ResolvedHook[] {
   const out: ResolvedHook[] = [];
   if (opts.projectRoot) {
-    const projPath = projectSettingsPath(opts.projectRoot);
-    const settings = readSettingsFile(projPath);
-    if (settings) appendResolved(out, settings, "project", projPath);
+    const loaded = readPreferredSettingsFile(
+      projectSettingsPath(opts.projectRoot),
+      legacyProjectSettingsPath(opts.projectRoot),
+    );
+    if (loaded?.settings) appendResolved(out, loaded.settings, "project", loaded.path);
   }
-  const globalPath = globalSettingsPath(opts.homeDir);
-  const settings = readSettingsFile(globalPath);
-  if (settings) appendResolved(out, settings, "global", globalPath);
+  const loaded = readPreferredSettingsFile(
+    globalSettingsPath(opts.homeDir),
+    legacyGlobalSettingsPath(opts.homeDir),
+  );
+  if (loaded?.settings) appendResolved(out, loaded.settings, "global", loaded.path);
   return out;
 }
 

@@ -8,6 +8,7 @@ const MAX_DEPTH = 4;
 const SKIP_DIRS = new Set([
   "node_modules",
   ".git",
+  ".carboncode",
   ".reasonix",
   "dist",
   "build",

@@ -232,7 +232,7 @@ describe("dashboard server: endpoints", () => {
   it("GET /api/semantic reports incompatible on-disk index against current config", async () => {
     const proj = mkdtempSync(join(tmpdir(), "reasonix-dash-sem-"));
     try {
-      const semanticDir = join(proj, ".reasonix", "semantic");
+      const semanticDir = join(proj, ".carboncode", "semantic");
       await mkdir(semanticDir, { recursive: true });
       await writeFile(
         cfgPath,
@@ -294,7 +294,7 @@ describe("dashboard server: endpoints", () => {
   it("GET /api/skills lists and edits flat-format project skills (#586)", async () => {
     const proj = mkdtempSync(join(tmpdir(), "reasonix-dash-skills-"));
     try {
-      const skillsDir = join(proj, ".reasonix", "skills");
+      const skillsDir = join(proj, ".carboncode", "skills");
       const folderDir = join(skillsDir, "folder-skill");
       const flatPath = join(skillsDir, "flat-skill.md");
       await mkdir(folderDir, { recursive: true });
@@ -392,7 +392,7 @@ describe("dashboard server: endpoints", () => {
         getCurrentCwd: () => proj,
         audit: (e) => audited.push({ action: e.action }),
       });
-      const target = join(proj, ".reasonix", "skills", "silent-fail", "SKILL.md");
+      const target = join(proj, ".carboncode", "skills", "silent-fail", "SKILL.md");
 
       const noFrontmatter = await call(`${base}api/skills/project/silent-fail`, {
         method: "POST",

@@ -17,7 +17,14 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { loadResolvedSkillPaths } from "../../config.js";
 import { parseFrontmatter } from "../../frontmatter.js";
-import { SKILLS_DIRNAME, SKILL_FILE, SkillStore, validateSkillFrontmatter } from "../../skills.js";
+import {
+  CARBON_RUNTIME_DIRNAME,
+  LEGACY_REASONIX_RUNTIME_DIRNAME,
+  SKILLS_DIRNAME,
+  SKILL_FILE,
+  SkillStore,
+  validateSkillFrontmatter,
+} from "../../skills.js";
 import { readUsageLog } from "../../telemetry/usage.js";
 import type { DashboardContext } from "../context.js";
 import type { ApiResult } from "../router.js";
@@ -39,11 +46,19 @@ function parseBody(raw: string): WriteBody {
 const SAFE_NAME = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 
 function globalSkillsDir(): string {
-  return join(homedir(), ".reasonix", SKILLS_DIRNAME);
+  return join(homedir(), CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME);
 }
 
 function projectSkillsDir(rootDir: string): string {
-  return join(rootDir, ".reasonix", SKILLS_DIRNAME);
+  return join(rootDir, CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME);
+}
+
+function legacyGlobalSkillsDir(): string {
+  return join(homedir(), LEGACY_REASONIX_RUNTIME_DIRNAME, SKILLS_DIRNAME);
+}
+
+function legacyProjectSkillsDir(rootDir: string): string {
+  return join(rootDir, LEGACY_REASONIX_RUNTIME_DIRNAME, SKILLS_DIRNAME);
 }
 
 interface SkillListEntry {
@@ -154,6 +169,19 @@ function listSkills(dir: string, scope: "project" | "custom" | "global"): SkillL
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+function listSkillsFromDirs(
+  dirs: readonly string[],
+  scope: "project" | "custom" | "global",
+): SkillListEntry[] {
+  const byName = new Map<string, SkillListEntry>();
+  for (const dir of dirs) {
+    for (const skill of listSkills(dir, scope)) {
+      if (!byName.has(skill.name)) byName.set(skill.name, skill);
+    }
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function countSubagentRuns(usageLogPath: string): Map<string, number> {
   const cutoff = Date.now() - 7 * 86_400_000;
   const counts = new Map<string, number>();
@@ -186,9 +214,11 @@ export async function handleSkills(
     return {
       status: 200,
       body: {
-        global: tag(listSkills(globalSkillsDir(), "global")),
+        global: tag(listSkillsFromDirs([globalSkillsDir(), legacyGlobalSkillsDir()], "global")),
         custom: tag(customRoots.flatMap((root) => listSkills(root.dir, "custom"))),
-        project: cwd ? tag(listSkills(projectSkillsDir(cwd), "project")) : [],
+        project: cwd
+          ? tag(listSkillsFromDirs([projectSkillsDir(cwd), legacyProjectSkillsDir(cwd)], "project"))
+          : [],
         builtin: [
           {
             name: "explore",
@@ -224,7 +254,7 @@ export async function handleSkills(
       body: { error: "scope must be project | global (builtin is read-only)" },
     };
   }
-  let dir: string;
+  let dirs: string[];
   if (scope === "project") {
     if (!cwd) {
       return {
@@ -232,11 +262,12 @@ export async function handleSkills(
         body: { error: "no active project — open `/dashboard` from `carboncode code`" },
       };
     }
-    dir = projectSkillsDir(cwd);
+    dirs = [projectSkillsDir(cwd), legacyProjectSkillsDir(cwd)];
   } else {
-    dir = globalSkillsDir();
+    dirs = [globalSkillsDir(), legacyGlobalSkillsDir()];
   }
-  const resolved = resolveSkillPath(dir, name);
+  const resolved = dirs.map((dir) => resolveSkillPath(dir, name)).find(Boolean) ?? null;
+  const defaultDir = dirs[0]!;
 
   if (method === "GET") {
     if (!resolved) return { status: 404, body: { error: "skill not found" } };
@@ -255,7 +286,7 @@ export async function handleSkills(
     if ("error" in fm) {
       return { status: 400, body: { error: fm.error } };
     }
-    const target = resolved ?? defaultSkillPath(dir, name);
+    const target = resolved ?? defaultSkillPath(defaultDir, name);
     mkdirSync(dirname(target.path), { recursive: true });
     writeFileSync(target.path, contents, "utf8");
     ctx.audit?.({

@@ -20,9 +20,9 @@ function writeSkillDir(
 ): string {
   const parent =
     which === "global"
-      ? join(homeOrProject, ".reasonix", "skills")
+      ? join(homeOrProject, ".carboncode", "skills")
       : which === "project"
-        ? join(root, ".reasonix", "skills")
+        ? join(root, ".carboncode", "skills")
         : homeOrProject;
   const dir = join(parent, name);
   mkdirSync(dir, { recursive: true });
@@ -40,7 +40,7 @@ function writeFlatSkill(
   frontmatter: Record<string, string>,
   body: string,
 ): string {
-  const skills = join(dir, ".reasonix", "skills");
+  const skills = join(dir, ".carboncode", "skills");
   mkdirSync(skills, { recursive: true });
   const fmLines = ["---"];
   for (const [k, v] of Object.entries(frontmatter)) fmLines.push(`${k}: ${v}`);
@@ -99,7 +99,7 @@ describe("SkillStore", () => {
     expect(skills[0]?.description).toBe("Commit and push changes");
   });
 
-  it("surfaces project-scope skills from <projectRoot>/.reasonix/skills", () => {
+  it("surfaces project-scope skills from <projectRoot>/.carboncode/skills", () => {
     writeSkillDir(
       projectRoot,
       "project",
@@ -112,6 +112,31 @@ describe("SkillStore", () => {
     expect(list).toHaveLength(1);
     expect(list[0]?.scope).toBe("project");
     expect(list[0]?.path).toContain(projectRoot);
+  });
+
+  it("falls back to legacy .reasonix skills when Carbon skills are absent", () => {
+    const legacyProject = join(projectRoot, ".reasonix", "skills", "legacy-project");
+    mkdirSync(legacyProject, { recursive: true });
+    writeFileSync(
+      join(legacyProject, "SKILL.md"),
+      "---\ndescription: legacy project\n---\nlegacy body\n",
+      "utf8",
+    );
+
+    const legacyGlobal = join(home, ".reasonix", "skills");
+    mkdirSync(legacyGlobal, { recursive: true });
+    writeFileSync(
+      join(legacyGlobal, "legacy-global.md"),
+      "---\ndescription: legacy global\n---\nglobal body\n",
+      "utf8",
+    );
+
+    const list = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true }).list();
+
+    expect(list.map((s) => `${s.scope}:${s.name}`)).toEqual([
+      "global:legacy-global",
+      "project:legacy-project",
+    ]);
   });
 
   it("discovers .agents/skills as a default root (#870) — both project and global", () => {
@@ -163,7 +188,7 @@ describe("SkillStore", () => {
 
   it("skips dotfiles that would masquerade as skills", () => {
     writeSkillDir(projectRoot, "global", "ok", { description: "fine" }, "body", home);
-    const dotDir = join(home, ".reasonix", "skills");
+    const dotDir = join(home, ".carboncode", "skills");
     writeFileSync(join(dotDir, ".hidden.md"), "---\ndescription: x\n---\nbody\n", "utf8");
     const list = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true }).list();
     expect(list.map((s) => s.name)).toEqual(["ok"]);

@@ -17,6 +17,8 @@ import { NEGATIVE_CLAIM_RULE, TUI_FORMATTING_RULES } from "./prompt-fragments.js
 
 export const SKILLS_DIRNAME = "skills";
 export const SKILL_FILE = "SKILL.md";
+export const CARBON_RUNTIME_DIRNAME = ".carboncode";
+export const LEGACY_REASONIX_RUNTIME_DIRNAME = ".reasonix";
 /** Cap on the pinned skills-index block, mirrors memory-index cap. */
 export const SKILLS_INDEX_MAX_CHARS = 4000;
 /** Skill identifier shape — alnum + `_` + `-` + interior `.`, 1-64 chars. */
@@ -116,7 +118,7 @@ export class SkillStore {
     const out: Array<{ dir: string; scope: Exclude<SkillScope, "builtin"> }> = [];
     if (this.projectRoot) {
       out.push({
-        dir: join(this.projectRoot, ".reasonix", SKILLS_DIRNAME),
+        dir: join(this.projectRoot, CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME),
         scope: "project",
       });
       // #870: pick up `.agents/skills` automatically — common convention shared
@@ -125,10 +127,18 @@ export class SkillStore {
         dir: join(this.projectRoot, ".agents", SKILLS_DIRNAME),
         scope: "project",
       });
+      out.push({
+        dir: join(this.projectRoot, LEGACY_REASONIX_RUNTIME_DIRNAME, SKILLS_DIRNAME),
+        scope: "project",
+      });
     }
     for (const dir of this.customSkillPaths) out.push({ dir, scope: "custom" });
-    out.push({ dir: join(this.homeDir, ".reasonix", SKILLS_DIRNAME), scope: "global" });
+    out.push({ dir: join(this.homeDir, CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME), scope: "global" });
     out.push({ dir: join(this.homeDir, ".agents", SKILLS_DIRNAME), scope: "global" });
+    out.push({
+      dir: join(this.homeDir, LEGACY_REASONIX_RUNTIME_DIRNAME, SKILLS_DIRNAME),
+      scope: "global",
+    });
     return out.map((root, priority) => ({ ...root, priority, status: skillPathStatus(root.dir) }));
   }
 
@@ -181,8 +191,8 @@ export class SkillStore {
     }
     const root =
       scope === "project"
-        ? join(this.projectRoot ?? "", ".reasonix", SKILLS_DIRNAME)
-        : join(this.homeDir, ".reasonix", SKILLS_DIRNAME);
+        ? join(this.projectRoot ?? "", CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME)
+        : join(this.homeDir, CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME);
     const flat = join(root, `${name}.md`);
     const folder = join(root, name, SKILL_FILE);
     if (existsSync(folder)) {

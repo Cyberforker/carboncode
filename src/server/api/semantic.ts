@@ -13,8 +13,8 @@ import {
   saveSemanticEmbeddingConfig,
 } from "../../config.js";
 import {
-  INDEX_DIR_NAME,
   buildIndex,
+  existingSemanticIndexDir,
   indexCompatible,
   indexExists,
   querySemantic,
@@ -198,7 +198,8 @@ async function readIndexMeta(
   root: string,
   current: { provider: EmbeddingProvider; model: string },
 ): Promise<IndexMetaResponse | { exists: false }> {
-  const dir = join(root, INDEX_DIR_NAME);
+  const dir = await existingSemanticIndexDir(root);
+  if (!dir) return { exists: false };
   const dataPath = join(dir, "index.jsonl");
   const diskMeta = await readStoreIndexMeta(dir);
   if (!diskMeta) return { exists: false };

@@ -289,7 +289,7 @@ export const zhCN: TranslationSchema = {
       argsHint: "[list|paths|show <name>|<name> [args]]",
     },
     hooks: {
-      description: "列出活跃的 hooks（.reasonix/ 下的 settings.json）· reload 从磁盘重新读取",
+      description: "列出活跃的 hooks（.carboncode/ 下的 settings.json）· reload 从磁盘重新读取",
       argsHint: "[reload]",
     },
     permissions: {
@@ -737,7 +737,7 @@ export const zhCN: TranslationSchema = {
       hooksNone: "未配置 hooks。",
       hooksDropHint: "将包含 `hooks` 键的 settings.json 放入以下任一位置：",
       hooksProject: "  · {path}（项目）",
-      hooksProjectFallback: "  · <project>/.reasonix/settings.json（项目）",
+      hooksProjectFallback: "  · <project>/.carboncode/settings.json（项目）",
       hooksGlobal: "  · {path}（全局）",
       hooksEvents: "事件：PreToolUse, PostToolUse, UserPromptSubmit, Stop",
       hooksExitCodes: "exit 0 = 通过 · exit 2 = 阻止（Pre*）· 其他 = 警告",
@@ -1048,8 +1048,8 @@ export const zhCN: TranslationSchema = {
     skill: {
       listEmpty: "未找到技能。Carbon Code 从以下位置读取技能：",
       listProjectScope:
-        "  · <project>/.reasonix/skills/<name>/SKILL.md  （或 <name>.md） — 项目范围",
-      listGlobalScope: "  · ~/.reasonix/skills/<name>/SKILL.md  （或 <name>.md） — 全局范围",
+        "  · <project>/.carboncode/skills/<name>/SKILL.md  （或 <name>.md） — 项目范围",
+      listGlobalScope: "  · ~/.carboncode/skills/<name>/SKILL.md  （或 <name>.md） — 全局范围",
       listProjectOnly: "  （项目范围仅在 `carboncode code` 中活跃）",
       listFrontmatter: "每个文件的 frontmatter 至少需要 `name` 和 `description`。",
       listInvoke: "使用 `/skill <name> [args]` 调用技能，或让模型调用 `run_skill`。",

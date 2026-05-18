@@ -15,7 +15,8 @@ import {
 } from "./store.js";
 import type { IndexEntry, IndexIdentity, IndexMismatch, SearchHit } from "./store.js";
 
-export const INDEX_DIR_NAME = path.join(".reasonix", "semantic");
+export const INDEX_DIR_NAME = path.join(".carboncode", "semantic");
+export const LEGACY_INDEX_DIR_NAME = path.join(".reasonix", "semantic");
 
 type BuildOptions = {
   provider?: "ollama" | "openai-compat";
@@ -56,6 +57,35 @@ export interface BuildResult {
   durationMs: number;
 }
 
+export function semanticIndexDir(root: string): string {
+  return path.join(root, INDEX_DIR_NAME);
+}
+
+export function legacySemanticIndexDir(root: string): string {
+  return path.join(root, LEGACY_INDEX_DIR_NAME);
+}
+
+async function canReadIndexMeta(indexDir: string): Promise<boolean> {
+  try {
+    await fs.access(path.join(indexDir, "index.meta.json"));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function existingSemanticIndexDir(root: string): Promise<string | null> {
+  const current = semanticIndexDir(root);
+  if (await canReadIndexMeta(current)) return current;
+  const legacy = legacySemanticIndexDir(root);
+  if (await canReadIndexMeta(legacy)) return legacy;
+  return null;
+}
+
+async function preferredSemanticIndexDir(root: string): Promise<string> {
+  return (await existingSemanticIndexDir(root)) ?? semanticIndexDir(root);
+}
+
 function emptyBuckets(): SkipBuckets {
   return {
     defaultDir: 0,
@@ -71,7 +101,7 @@ function emptyBuckets(): SkipBuckets {
 
 export async function buildIndex(root: string, opts: BuildOptions = {}): Promise<BuildResult> {
   const t0 = Date.now();
-  const indexDir = path.join(root, INDEX_DIR_NAME);
+  const indexDir = semanticIndexDir(root);
   const resolved = resolveBuildEmbeddingConfig(opts);
 
   opts.onProgress?.({ phase: "setup" });
@@ -227,7 +257,7 @@ export async function querySemantic(
   query: string,
   opts: QueryOptions = {},
 ): Promise<SearchHit[] | null> {
-  const indexDir = path.join(root, INDEX_DIR_NAME);
+  const indexDir = await preferredSemanticIndexDir(root);
   const resolved = resolveQueryEmbeddingConfig(opts);
   const store = await openStore(indexDir, {
     provider: resolved.provider,
@@ -240,20 +270,16 @@ export async function querySemantic(
 }
 
 export async function indexExists(root: string): Promise<boolean> {
-  const meta = path.join(root, INDEX_DIR_NAME, "index.meta.json");
-  try {
-    await fs.access(meta);
-    return true;
-  } catch {
-    return false;
-  }
+  return (await existingSemanticIndexDir(root)) !== null;
 }
 
 export async function indexCompatible(
   root: string,
   opts: { provider?: "ollama" | "openai-compat"; model?: string; configPath?: string } = {},
 ): Promise<boolean> {
-  const meta = await readIndexMeta(path.join(root, INDEX_DIR_NAME));
+  const dir = await existingSemanticIndexDir(root);
+  if (!dir) return false;
+  const meta = await readIndexMeta(dir);
   if (!meta) return false;
   return compareIndexIdentity(meta, resolveIndexIdentity(opts)) === null;
 }

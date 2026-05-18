@@ -342,7 +342,7 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     cmd: "hooks",
     group: "advanced",
     argsHint: "[reload]",
-    summary: "list active hooks (settings.json under .reasonix/) · reload re-reads from disk",
+    summary: "list active hooks (settings.json under .carboncode/) · reload re-reads from disk",
   },
   {
     cmd: "permissions",

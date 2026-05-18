@@ -18,8 +18,16 @@ import {
 } from "../src/hooks.js";
 
 function writeSettings(dir: string, json: unknown): string {
-  const path = join(dir, ".reasonix", "settings.json");
-  mkdirSync(join(dir, ".reasonix"), { recursive: true });
+  return writeSettingsAt(dir, ".carboncode", json);
+}
+
+function writeLegacySettings(dir: string, json: unknown): string {
+  return writeSettingsAt(dir, ".reasonix", json);
+}
+
+function writeSettingsAt(dir: string, dotDir: ".carboncode" | ".reasonix", json: unknown): string {
+  const path = join(dir, dotDir, "settings.json");
+  mkdirSync(join(dir, dotDir), { recursive: true });
   writeFileSync(path, JSON.stringify(json), "utf8");
   return path;
 }
@@ -94,10 +102,19 @@ describe("loadHooks", () => {
   });
 
   it("tolerates malformed JSON without throwing", () => {
-    mkdirSync(join(home, ".reasonix"), { recursive: true });
-    writeFileSync(join(home, ".reasonix", "settings.json"), "{ not valid json", "utf8");
+    mkdirSync(join(home, ".carboncode"), { recursive: true });
+    writeFileSync(join(home, ".carboncode", "settings.json"), "{ not valid json", "utf8");
     expect(() => loadHooks({ homeDir: home })).not.toThrow();
     expect(loadHooks({ homeDir: home })).toEqual([]);
+  });
+
+  it("falls back to legacy .reasonix settings when Carbon settings are absent", () => {
+    writeLegacySettings(project, { hooks: { Stop: [{ command: "echo legacy" }] } });
+
+    const hooks = loadHooks({ homeDir: home, projectRoot: project });
+
+    expect(hooks.map((h) => `${h.scope}:${h.command}`)).toEqual(["project:echo legacy"]);
+    expect(hooks[0]?.source).toBe(join(project, ".reasonix", "settings.json"));
   });
 
   it("project scope is skipped when projectRoot omitted", () => {
@@ -107,8 +124,8 @@ describe("loadHooks", () => {
   });
 
   it("paths reported by *SettingsPath helpers are absolute", () => {
-    expect(globalSettingsPath(home)).toBe(join(home, ".reasonix", "settings.json"));
-    expect(projectSettingsPath(project)).toBe(join(project, ".reasonix", "settings.json"));
+    expect(globalSettingsPath(home)).toBe(join(home, ".carboncode", "settings.json"));
+    expect(projectSettingsPath(project)).toBe(join(project, ".carboncode", "settings.json"));
   });
 });
 

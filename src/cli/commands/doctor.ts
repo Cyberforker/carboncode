@@ -13,7 +13,11 @@ import {
 import { loadDotenv } from "../../env.js";
 import { loadHooks } from "../../hooks.js";
 import { t } from "../../i18n/index.js";
-import { indexExists } from "../../index/semantic/builder.js";
+import {
+  INDEX_DIR_NAME,
+  LEGACY_INDEX_DIR_NAME,
+  indexExists,
+} from "../../index/semantic/builder.js";
 import { checkOllamaStatus } from "../../index/semantic/ollama-launcher.js";
 import { listSessions } from "../../memory/session.js";
 import { detectProxyUrl } from "../../net/proxy.js";
@@ -396,16 +400,19 @@ async function checkOllama(projectRoot: string): Promise<Check> {
 function readSemanticMeta(
   projectRoot: string,
 ): { provider: "ollama" | "openai-compat"; model: string } | null {
-  try {
-    const raw = readFileSync(join(projectRoot, ".reasonix", "semantic", "index.meta.json"), "utf8");
-    const parsed = JSON.parse(raw) as { provider?: string; model?: string };
-    return {
-      provider: parsed.provider === "openai-compat" ? "openai-compat" : "ollama",
-      model: typeof parsed.model === "string" ? parsed.model : "",
-    };
-  } catch {
-    return null;
+  for (const dir of [INDEX_DIR_NAME, LEGACY_INDEX_DIR_NAME]) {
+    try {
+      const raw = readFileSync(join(projectRoot, dir, "index.meta.json"), "utf8");
+      const parsed = JSON.parse(raw) as { provider?: string; model?: string };
+      return {
+        provider: parsed.provider === "openai-compat" ? "openai-compat" : "ollama",
+        model: typeof parsed.model === "string" ? parsed.model : "",
+      };
+    } catch {
+      /* try the next known index directory */
+    }
   }
+  return null;
 }
 
 async function checkProject(projectRoot: string): Promise<Check> {
