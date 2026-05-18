@@ -5,6 +5,8 @@ export interface ApprovalRequest {
   type: "edit" | "shell";
   command?: string;
   destructive?: boolean;
+  network?: boolean;
+  reason?: string;
   path?: string;
   preview?: string;
 }

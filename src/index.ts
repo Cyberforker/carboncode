@@ -1,4 +1,5 @@
 export { AgentRunner } from "./agent.js";
+export { formatApprovalRequest, isApprovalAccepted } from "./approval.js";
 export { DeepSeekClient } from "./client.js";
 export { defaultConfigPath, loadApiKey, loadBaseUrl, readConfig, writeConfig } from "./config.js";
 export { runDoctor } from "./doctor.js";
@@ -16,5 +17,5 @@ export {
   searchContent,
   searchFiles,
 } from "./tools/filesystem.js";
-export { runApprovedShellCommand } from "./tools/shell.js";
+export { classifyShellCommand, runApprovedShellCommand } from "./tools/shell.js";
 export { VERSION } from "./version.js";

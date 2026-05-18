@@ -3,6 +3,11 @@ import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { Command } from "commander";
 import { AgentRunner } from "../agent.js";
+import {
+  type ApprovalPromptRequest,
+  formatApprovalRequest,
+  isApprovalAccepted,
+} from "../approval.js";
 import { DeepSeekClient } from "../client.js";
 import {
   defaultConfigPath,
@@ -147,12 +152,11 @@ export async function main(argv = process.argv): Promise<void> {
   await buildProgram().parseAsync(argv);
 }
 
-async function approveInteractively(request: { type: string; command?: string; path?: string }) {
-  const subject = request.command ?? request.path ?? request.type;
+async function approveInteractively(request: ApprovalPromptRequest) {
   const rl = createInterface({ input, output });
   try {
-    const answer = await rl.question(`批准 ${request.type} ${subject}? [y/N] `);
-    return /^y(es)?$/i.test(answer.trim());
+    const answer = await rl.question(formatApprovalRequest(request));
+    return isApprovalAccepted(answer, request);
   } finally {
     rl.close();
   }

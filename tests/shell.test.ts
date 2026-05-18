@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { runApprovedShellCommand } from "../src/tools/shell.js";
+import { classifyShellCommand, runApprovedShellCommand } from "../src/tools/shell.js";
 
 describe("shell approvals", () => {
   test("does not run without explicit approval", async () => {
@@ -20,5 +20,16 @@ describe("shell approvals", () => {
     });
 
     expect(result).toMatchObject({ approved: true, exitCode: 0, stdout: "ran" });
+  });
+
+  test("classifies network and destructive shell commands", () => {
+    expect(classifyShellCommand("npm install")).toMatchObject({
+      network: true,
+      destructive: false,
+    });
+    expect(classifyShellCommand("rm -rf dist")).toMatchObject({
+      network: false,
+      destructive: true,
+    });
   });
 });
