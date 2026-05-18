@@ -24,7 +24,7 @@ describe("formatLoopError", () => {
     );
     const out = formatLoopError(raw);
     expect(out).toMatch(/Authentication failed/);
-    expect(out).toMatch(/reasonix setup/);
+    expect(out).toMatch(/carboncode setup/);
     expect(out).toMatch(/DEEPSEEK_API_KEY/);
     // Inner error.message survives the unwrap
     expect(out).toContain("Your api key is invalid");
@@ -82,7 +82,7 @@ describe("formatLoopError", () => {
     const raw = new Error('DeepSeek 503: {"error":{"message":"Service unavailable"}}');
     const out = formatLoopError(raw);
     expect(out).toMatch(/service unavailable \(503\)/);
-    expect(out).toMatch(/DeepSeek-side problem, not Reasonix/);
+    expect(out).toMatch(/DeepSeek-side problem, not Carbon Code/);
     expect(out).toMatch(/Already retried 4×/);
     expect(out).toContain("status.deepseek.com");
     expect(out).not.toMatch(/main API answered/);
@@ -140,7 +140,7 @@ describe("formatLoopError — zh-CN runtime switch", () => {
     );
     expect(out).toContain("认证失败");
     expect(out).toContain("Authentication Fails");
-    expect(out).toContain("reasonix setup");
+    expect(out).toContain("carboncode setup");
   });
 });
 

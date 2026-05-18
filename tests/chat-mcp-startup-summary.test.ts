@@ -258,7 +258,7 @@ describe("chatCommand MCP startup summary states", { timeout: 15_000 }, () => {
     });
 
     expect(props.startupInfoHints).toEqual([
-      "\u2139 no MCP servers configured \u2014 try: `reasonix setup` to re-pick, or `reasonix mcp install filesystem`",
+      "\u2139 no MCP servers configured \u2014 try: `carboncode setup` to re-pick, or `carboncode mcp install filesystem`",
       COPY_HINT,
     ]);
   });
@@ -279,7 +279,7 @@ describe("chatCommand MCP startup summary states", { timeout: 15_000 }, () => {
       lang: "zh-CN",
     });
     expect(props.startupInfoHints).toEqual([
-      "\u2139 未配置 MCP 服务器 —— 可尝试：`reasonix setup` 重新选择，或 `reasonix mcp install filesystem`",
+      "\u2139 未配置 MCP 服务器 —— 可尝试：`carboncode setup` 重新选择，或 `carboncode mcp install filesystem`",
       COPY_HINT,
     ]);
   });

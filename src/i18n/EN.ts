@@ -35,20 +35,20 @@ export const EN: TranslationSchema = {
     index: "Build (or incrementally refresh) a local semantic search index.",
   },
   stats: {
-    usageHint: "run `reasonix chat`, `reasonix code`, or `reasonix run <task>` — every turn",
-    usageDetail: "appends one line to the log and `reasonix stats` will roll it up.",
+    usageHint: "run `carboncode chat`, `carboncode code`, or `carboncode run <task>` — every turn",
+    usageDetail: "appends one line to the log and `carboncode stats` will roll it up.",
   },
   run: {
     missingApiKey:
       "DEEPSEEK_API_KEY is not set and stdin is not a TTY (cannot prompt).\n" +
-      "Set the env var, or run `reasonix chat` once interactively to save a key.\n",
+      "Set the env var, or run `carboncode chat` once interactively to save a key.\n",
   },
   sessions: {
     emptyHint:
-      "no saved sessions yet — run `reasonix chat` (sessions are auto-saved unless --no-session).",
+      "no saved sessions yet — run `carboncode chat` (sessions are auto-saved unless --no-session).",
   },
   ui: {
-    welcome: "Run `reasonix` any time to start chatting — your settings are remembered.",
+    welcome: "Run `carboncode` any time to start chatting — your settings are remembered.",
     taglineChat: "DeepSeek-native agent",
     taglineCode: "DeepSeek-native coding agent",
     taglineSub: "cache-first · flash-first",
@@ -117,7 +117,7 @@ export const EN: TranslationSchema = {
       footer: "Run /keys for the full keyboard + mouse reference",
     },
     keysReference: {
-      topic: "Reasonix keys + mouse reference",
+      topic: "Carbon Code keys + mouse reference",
       sections: [
         {
           title: "keyboard",
@@ -193,7 +193,7 @@ export const EN: TranslationSchema = {
     ephemeralHint: "disable session persistence for this run",
     mcpSpecHint: "MCP server spec (repeatable)",
     mcpPrefixHint: "prefix MCP tool names with this string",
-    noConfigHint: "ignore ~/.reasonix/config.json for this run",
+    noConfigHint: "ignore ~/.carboncode/config.json for this run",
     presetHintShort: "model bundle — auto|flash|pro",
     budgetHintShort: "session USD cap",
     transcriptHintShort: "JSONL transcript path",
@@ -241,7 +241,7 @@ export const EN: TranslationSchema = {
   },
   code: {
     workspaceConflict:
-      "⚠ workspace contains another agent platform's files ({platforms}). Reasonix Code may read them as project content; relaunch with --dir <your-project> if that's not what you want.\n",
+      "⚠ workspace contains another agent platform's files ({platforms}). Carbon Code Code may read them as project content; relaunch with --dir <your-project> if that's not what you want.\n",
     systemAppendEmpty: "--system-append is empty — no prompt text will be appended\n",
     systemAppendFileReadError:
       'Error: cannot read --system-append-file "{filePath}": {errorDetails}\n',
@@ -287,7 +287,7 @@ export const EN: TranslationSchema = {
       argsHint: "[name]",
     },
     memory: {
-      description: "show / manage pinned memory (REASONIX.md + ~/.reasonix/memory)",
+      description: "show / manage pinned memory (CARBON.md + ~/.carboncode/CARBON.md)",
       argsHint: "[list|show <name>|forget <name>|clear <scope> confirm]",
     },
     skill: {
@@ -300,7 +300,7 @@ export const EN: TranslationSchema = {
     },
     permissions: {
       description:
-        "show / edit shell allowlist (builtin read-only · per-project: ~/.reasonix/config.json)",
+        "show / edit shell allowlist (builtin read-only · per-project: ~/.carboncode/config.json)",
       argsHint: "[list|add <prefix>|remove <prefix|N>|clear confirm]",
     },
     dashboard: {
@@ -344,7 +344,7 @@ export const EN: TranslationSchema = {
       description: "connect, inspect, or disconnect the QQ channel for this session",
       argsHint: "[connect [appId appSecret [sandbox]]|status|disconnect]",
     },
-    setup: { description: "reminds you to exit and run `reasonix setup`" },
+    setup: { description: "reminds you to exit and run `carboncode setup`" },
     semantic: {
       description: "show semantic_search status — built? Ollama installed? how to enable",
     },
@@ -358,7 +358,7 @@ export const EN: TranslationSchema = {
     exit: { description: "quit the TUI" },
     init: {
       description:
-        "scan the project and synthesize a baseline REASONIX.md (model writes; review with /apply). `force` overwrites an existing file.",
+        "scan the project and synthesize a baseline CARBON.md (model writes; review with /apply). `force` overwrites an existing file.",
       argsHint: "[force]",
     },
     apply: {
@@ -422,7 +422,7 @@ export const EN: TranslationSchema = {
   wizard: {
     languageTitle: "Choose your language",
     languageSubtitle: "Detected from your system locale. Switch later via /language.",
-    welcomeTitle: "Welcome to Reasonix.",
+    welcomeTitle: "Welcome to Carbon Code.",
     apiKeyPrompt: "Paste your DeepSeek API key to get started.",
     apiKeyGetOne: "Get one at: https://platform.deepseek.com/api_keys",
     apiKeySavedLocally: "Saved locally to {path}",
@@ -449,7 +449,7 @@ export const EN: TranslationSchema = {
     },
     reviewLabelTheme: "Theme",
     presetTitle: "Pick a preset",
-    mcpTitle: "Which MCP servers should Reasonix wire up for you?",
+    mcpTitle: "Which MCP servers should Carbon Code wire up for you?",
     mcpUserArgsHint: "(you'll provide {arg})",
     mcpFooterMulti:
       "[↑↓] navigate  ·  [Space] toggle  ·  [Enter] confirm  ·  [Esc] cancel  ·  empty = skip",
@@ -662,16 +662,16 @@ export const EN: TranslationSchema = {
   },
   errors: {
     contextOverflow:
-      "Context overflow (DeepSeek 400): session history is {requested}, past the model's prompt limit (V4: 1M tokens; legacy chat/reasoner: 131k). Usually a single tool result grew too big. Reasonix caps new tool results at 8k tokens and auto-heals oversized history on session load — a restart often clears it. If it still overflows, run /new to start fresh, or open /sessions and press [d] to delete this session.",
+      "Context overflow (DeepSeek 400): session history is {requested}, past the model's prompt limit (V4: 1M tokens; legacy chat/reasoner: 131k). Usually a single tool result grew too big. Carbon Code caps new tool results at 8k tokens and auto-heals oversized history on session load — a restart often clears it. If it still overflows, run /new to start fresh, or open /sessions and press [d] to delete this session.",
     contextOverflowTooMany: "too many tokens",
     auth401:
-      "Authentication failed (DeepSeek 401): {inner}. Your API key is rejected. Fix with `reasonix setup` or `export DEEPSEEK_API_KEY=sk-...`. Get one at https://platform.deepseek.com/api_keys.",
+      "Authentication failed (DeepSeek 401): {inner}. Your API key is rejected. Fix with `carboncode setup` or `export DEEPSEEK_API_KEY=sk-...`. Get one at https://platform.deepseek.com/api_keys.",
     balance402:
       "Out of balance (DeepSeek 402): {inner}. Top up at https://platform.deepseek.com/top_up — the panel header shows your balance once it's non-zero.",
     badparam422: "Invalid parameter (DeepSeek 422): {inner}",
     badrequest400: "Bad request (DeepSeek 400): {inner}",
     deepseek5xxHead:
-      "DeepSeek service unavailable ({status}) — this is a DeepSeek-side problem, not Reasonix. Already retried 4× with backoff.",
+      "DeepSeek service unavailable ({status}) — this is a DeepSeek-side problem, not Carbon Code. Already retried 4× with backoff.",
     deepseek5xxReachable:
       " DeepSeek's main API answered our health check, but /chat/completions is failing — partial outage on their side.",
     deepseek5xxUnreachable:
@@ -736,8 +736,8 @@ export const EN: TranslationSchema = {
       helpPresetPro:
         "  pro    v4-pro   always                  ~3× flash (5/31) · hard multi-turn work",
       helpSessionsTitle: "Sessions (auto-enabled by default, named 'default'):",
-      helpSessionCustom: "  reasonix chat --session <name>   use a different named session",
-      helpSessionNone: "  reasonix chat --no-session       disable persistence for this run",
+      helpSessionCustom: "  carboncode chat --session <name>   use a different named session",
+      helpSessionNone: "  carboncode chat --no-session       disable persistence for this run",
       retryNone: "nothing to retry — no prior user message in this session's log.",
       retryInfo: '▸ retrying: "{preview}"',
       loopTuiOnly: "/loop is only available in the interactive TUI (not in run/replay).",
@@ -864,7 +864,7 @@ export const EN: TranslationSchema = {
       proArmed:
         "▸ /pro armed — your NEXT message runs on {model} regardless of preset. Auto-disarms after one turn. Use /preset max for a persistent switch.",
       budgetNoCap:
-        "no session budget set — Reasonix will keep going until you stop it. Set one with: /budget <usd>   (e.g. /budget 5)",
+        "no session budget set — Carbon Code will keep going until you stop it. Set one with: /budget <usd>   (e.g. /budget 5)",
       budgetStatus:
         "budget: ${spent} of ${cap} ({pct}%) · /budget off to clear, /budget <usd> to change",
       budgetOff: "budget → off (no cap)",
@@ -968,14 +968,14 @@ export const EN: TranslationSchema = {
     },
     plans: {
       noSession:
-        "no session attached — `/plans` is per-session. Run `reasonix code` in a project to get a session.",
+        "no session attached — `/plans` is per-session. Run `carboncode code` in a project to get a session.",
       activePlan: "▸ active plan{label} — {done}/{total} step{s} done · last touched {when}",
       activeNone: "▸ active plan: (none)",
       noArchives:
         "no archived plans yet for this session — they auto-archive when every step is done",
       archivedHeader: "Archived ({count}):",
       replayNoSession:
-        "no session attached — `/replay` is per-session. Run `reasonix code` in a project to get a session.",
+        "no session attached — `/replay` is per-session. Run `carboncode code` in a project to get a session.",
       replayNoArchives:
         "no archived plans yet for this session — `/replay` lights up once a plan completes (auto-archives when every step is done).",
       replayInvalidIndex:
@@ -995,9 +995,9 @@ export const EN: TranslationSchema = {
       doneAllOk: "▸ marked {count} step(s) done.",
     },
     jobs: {
-      codeOnly: "/jobs is only available inside `reasonix code`.",
-      killCodeOnly: "/kill is only available inside `reasonix code`.",
-      logsCodeOnly: "/logs is only available inside `reasonix code`.",
+      codeOnly: "/jobs is only available inside `carboncode code`.",
+      killCodeOnly: "/kill is only available inside `carboncode code`.",
+      logsCodeOnly: "/logs is only available inside `carboncode code`.",
       empty:
         "◈ jobs · 0 running · 0 total\n  (run_background spawns one — dev servers, watchers, long-running scripts)",
       header: "◈ jobs · {running} running · {total} total",
@@ -1054,17 +1054,17 @@ export const EN: TranslationSchema = {
     },
     mcp: {
       noServers:
-        'no MCP servers attached. Run `reasonix setup` to pick some, or launch with --mcp "<spec>". `reasonix mcp list` shows the catalog.',
+        'no MCP servers attached. Run `carboncode setup` to pick some, or launch with --mcp "<spec>". `carboncode mcp list` shows the catalog.',
       toolsLabel: "  tools     {count}",
       resourcesHint: "`/resource` to browse+read",
       promptsHint: "`/prompt` to browse+fetch",
       awarenessOnly:
         "Chat mode consumes tools today; resources+prompts are surfaced here for awareness.",
       catalogHint:
-        "Full catalog: `reasonix mcp list` · deeper diagnosis: `reasonix mcp inspect <spec>`.",
+        "Full catalog: `carboncode mcp list` · deeper diagnosis: `carboncode mcp inspect <spec>`.",
       fallbackServers: "MCP servers ({count}):",
       fallbackTools: "Tools in registry ({count}):",
-      fallbackChange: "To change this set, exit and run `reasonix setup`.",
+      fallbackChange: "To change this set, exit and run `carboncode setup`.",
       usageDisableEnable:
         "usage: /mcp {action} <name>  ·  pick a name shown in /mcp (anonymous servers can't be named-toggled).",
       usageReconnect: "usage: /mcp reconnect <name>  ·  pick a name shown in /mcp.",
@@ -1106,11 +1106,11 @@ export const EN: TranslationSchema = {
       confirmedDetail: " ({endpoint})",
     },
     skill: {
-      listEmpty: "no skills found. Reasonix reads skills from:",
+      listEmpty: "no skills found. Carbon Code reads skills from:",
       listProjectScope:
         "  · <project>/.reasonix/skills/<name>/SKILL.md  (or <name>.md)  — project scope",
       listGlobalScope: "  · ~/.reasonix/skills/<name>/SKILL.md  (or <name>.md)  — global scope",
-      listProjectOnly: "  (project scope is only active in `reasonix code`)",
+      listProjectOnly: "  (project scope is only active in `carboncode code`)",
       listFrontmatter: "Each file's frontmatter needs at least `name` and `description`.",
       listInvoke:
         "Invoke a skill with `/skill <name> [args]` or by asking the model to call `run_skill`.",
@@ -1203,7 +1203,8 @@ export const EN: TranslationSchema = {
     allowOnce: "allow once",
     allowOnceDesc: "permit this access; remember the directory for the rest of this session",
     allowAlways: "allow always",
-    allowAlwaysDesc: "remember `{prefix}` for this project (persisted in ~/.reasonix/config.json)",
+    allowAlwaysDesc:
+      "remember `{prefix}` for this project (persisted in ~/.carboncode/config.json)",
     deny: "deny",
     denyDesc: "press Tab to add context telling the model why",
     pathLabel: "path",
@@ -1252,7 +1253,7 @@ export const EN: TranslationSchema = {
     linesBelowPlural: "  \u2193 {count} lines below  (\u2193/j or Space/PgDn)",
   },
   sessionPicker: {
-    header: " \u25c8 REASONIX \u00b7 pick a session ",
+    header: " \u25c8 CARBON CODE \u00b7 pick a session ",
     title: "pick a session \u2014 {workspace}",
     messages: "{count} message",
     messagesPlural: "{count} messages",
@@ -1274,7 +1275,7 @@ export const EN: TranslationSchema = {
     daysAgo: "{count} days ago",
   },
   workspacePicker: {
-    header: " ◈ REASONIX · pick a workspace ",
+    header: " ◈ CARBON CODE · pick a workspace ",
     title: "pick a workspace — {workspace}",
     sessions: "{count} session",
     sessionsPlural: "{count} sessions",
@@ -1286,7 +1287,7 @@ export const EN: TranslationSchema = {
     searchEmpty: "  no workspaces match this search",
   },
   modelPicker: {
-    header: " \u25c8 REASONIX \u00b7 pick a setup ",
+    header: " \u25c8 CARBON CODE \u00b7 pick a setup ",
     loading: "  \u00b7  loading catalog\u2026",
     catalogEmpty: "  \u00b7  catalog empty \u2014 using known fallbacks",
     modelsAvailable: "  \u00b7  {count} models available",
@@ -1362,7 +1363,7 @@ export const EN: TranslationSchema = {
   },
   startup: {
     codeRooted:
-      '\u25b8 reasonix code: rooted at {rootDir}, session "{session}" \u00b7 {tools} native tool(s){semantic}',
+      '\u25b8 carboncode code: rooted at {rootDir}, session "{session}" \u00b7 {tools} native tool(s){semantic}',
     ephemeral: "(ephemeral)",
     semanticOn: " \u00b7 semantic_search on",
   },
@@ -1523,7 +1524,7 @@ export const EN: TranslationSchema = {
     verySlow: "very slow \u00b7 {ms}ms",
     slowToast: "\u26a0 MCP `{name}` slow \u00b7 {seconds}s p95 over the last {sampleSize} calls",
     emptyHint:
-      "\u2139 no MCP servers configured \u2014 try: `reasonix setup` to re-pick, or `reasonix mcp install filesystem`",
+      "\u2139 no MCP servers configured \u2014 try: `carboncode setup` to re-pick, or `carboncode mcp install filesystem`",
   },
   denyContextInput: {
     description:
@@ -1565,8 +1566,8 @@ export const EN: TranslationSchema = {
     bridged: "\u2713 installed {name} - bridged",
     bridgeFailed: "\u25b2 installed {name} - bridge failed: {reason}",
     bridgeReloadFailed:
-      "\u2713 installed {name} - restart `reasonix code` to bridge (reload failed: {message})",
-    restartBridge: "\u2713 installed {name} - restart `reasonix code` to bridge",
+      "\u2713 installed {name} - restart `carboncode code` to bridge (reload failed: {message})",
+    restartBridge: "\u2713 installed {name} - restart `carboncode code` to bridge",
     needsEnv: "  \u00b7  needs env: {env}",
     badgeOfficial: "[off]",
     badgeSmithery: "[smt]",
@@ -1579,7 +1580,7 @@ export const EN: TranslationSchema = {
   },
   mcpBrowser: {
     title: "\u25c8 MCP browser",
-    empty: "No MCP servers attached. Run `reasonix setup` to pick some, or launch with --mcp.",
+    empty: "No MCP servers attached. Run `carboncode setup` to pick some, or launch with --mcp.",
     serverCount: "{count} server{s}",
     footer: "\u2191\u2193 pick \u00b7 [r] reconnect \u00b7 [d] disable \u00b7 esc quit",
   },
@@ -1593,13 +1594,13 @@ export const EN: TranslationSchema = {
     reconnectDetail: "tearing down \u00b7 re-handshake \u00b7 listing tools",
     disabledDetail: "via /mcp disable {name}",
     failedSetupHint:
-      "→ run `reasonix setup` to remove this entry, or fix the underlying issue (missing npm package, network, etc.).",
+      "→ run `carboncode setup` to remove this entry, or fix the underlying issue (missing npm package, network, etc.).",
     failedSetupConfigHint:
-      "→ run `reasonix setup` to remove broken entries from your saved config.",
+      "→ run `carboncode setup` to remove broken entries from your saved config.",
   },
   checkpointPicker: {
     title: "restore a checkpoint \u2014 {workspace}",
-    header: " \u25c8 REASONIX \u00b7 pick a checkpoint ",
+    header: " \u25c8 CARBON CODE \u00b7 pick a checkpoint ",
     empty: "  no checkpoints in this workspace yet - see /checkpoint to make one",
     more: "     \u2026 {hidden} more",
     footer: "  \u2191\u2193 pick  \u00b7  \u23ce restore  \u00b7  [d] forget  \u00b7  esc quit",
@@ -1615,7 +1616,7 @@ export const EN: TranslationSchema = {
     rejectHint: "Drops the proposal. Model continues with the original remaining steps.",
   },
   diffApp: {
-    title: "reasonix diff",
+    title: "carboncode diff",
     turnLabel: "turn {turn} ({current}/{total})",
     turnsAligned: "{count} turns aligned",
     paneEmpty: "(no records on this side for this turn)",

@@ -31,7 +31,7 @@ export interface TranscriptRecord {
 
 export interface TranscriptMeta {
   version: 1;
-  source: string; // e.g. "reasonix chat", "bench/baseline", "bench/reasonix"
+  source: string; // e.g. "carboncode chat", "bench/baseline", "bench/reasonix"
   model?: string;
   task?: string;
   mode?: string;

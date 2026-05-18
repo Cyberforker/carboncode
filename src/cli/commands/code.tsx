@@ -1,5 +1,5 @@
 /**
- * `reasonix code [dir]` — opinionated wrapper around `reasonix chat` for
+ * `carboncode code [dir]` — opinionated wrapper around `carboncode chat` for
  * code-editing workflows.
  *
  * What it does differently from plain chat:
@@ -70,7 +70,7 @@ export async function codeCommand(opts: CodeOptions = {}): Promise<void> {
   const resolvedModel = opts.model ?? resolvePreset(loadPreset()).model;
   // Bridge .env + ~/.reasonix/config.json into process.env so buildCodeToolset's
   // eager DeepSeekClient constructions (subagent client; semantic embedder) can
-  // pick up a key the user already configured via `reasonix setup`. chatCommand
+  // pick up a key the user already configured via `carboncode setup`. chatCommand
   // does the same dance — code.tsx wraps chatCommand but must also seed env
   // before buildCodeToolset runs, which is BEFORE chatCommand.
   loadDotenv();

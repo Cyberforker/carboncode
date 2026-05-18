@@ -101,7 +101,7 @@ export function registerSkillTools(
       if (skill.runAs === "subagent") {
         if (!subagentRunner) {
           return JSON.stringify({
-            error: `run_skill: skill ${JSON.stringify(name)} is marked runAs=subagent but no subagent runner is configured for this session. Skill authors who need isolation should run inside reasonix code (or a library setup that passes subagentRunner to registerSkillTools).`,
+            error: `run_skill: skill ${JSON.stringify(name)} is marked runAs=subagent but no subagent runner is configured for this session. Skill authors who need isolation should run inside carboncode code (or a library setup that passes subagentRunner to registerSkillTools).`,
           });
         }
         if (!rawArgs) {
@@ -214,7 +214,7 @@ export function registerSkillTools(
       if (scope === "project" && !hasProjectScope) {
         return JSON.stringify({
           error:
-            "install_skill: scope='project' requires a workspace — run from `reasonix code`, or use scope='global'",
+            "install_skill: scope='project' requires a workspace — run from `carboncode code`, or use scope='global'",
         });
       }
 

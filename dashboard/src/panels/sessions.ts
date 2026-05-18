@@ -1,10 +1,10 @@
 import { useCallback, useState } from "preact/hooks";
 import { ChatMessage } from "../components/chat-internals.js";
+import { t, useLang } from "../i18n/index.js";
 import { api } from "../lib/api.js";
 import { fmtBytes, fmtNum, fmtRelativeTime } from "../lib/format.js";
 import { html } from "../lib/html.js";
 import { usePoll } from "../lib/use-poll.js";
-import { t, useLang } from "../i18n/index.js";
 
 interface SessionEntry {
   name: string;
@@ -175,9 +175,10 @@ export function SessionsPanel() {
             ? html`<div style="color:var(--fg-3);font-size:13px;text-align:center;padding:60px 20px">
                 ${t("sessions.pickHint")}
               </div>`
-            : (() => {
-                const isCurrent = currentSession === open.name;
-                return html`
+            : (
+                () => {
+                  const isCurrent = currentSession === open.name;
+                  return html`
                 <div class="sessions-detail-h">
                   <span class="name">
                     ${isCurrent ? html`<span class="pill ok" style="margin-right:6px">${t("sessions.activePill")}</span>` : null}
@@ -186,7 +187,10 @@ export function SessionsPanel() {
                   <span class="ws">
                     ${
                       open.messages
-                        ? t("sessions.messages", { count: open.messages.length, s: open.messages.length === 1 ? "" : "s" })
+                        ? t("sessions.messages", {
+                            count: open.messages.length,
+                            s: open.messages.length === 1 ? "" : "s",
+                          })
                         : t("common.loading")
                     }
                   </span>
@@ -212,7 +216,7 @@ export function SessionsPanel() {
                         <div class="card-h"><span class="title">${t("sessions.resumeTitle")}</span></div>
                         <div class="card-b" style="font-size:12.5px;color:var(--fg-2)">
                           ${t("sessions.resumeDesc")}
-                          <code class="mono" style="display:block;margin-top:8px;padding:8px 10px;background:var(--bg-input);border-radius:var(--r);color:var(--fg-0);font-size:12px;user-select:all">reasonix chat --session ${open.name}</code>
+                          <code class="mono" style="display:block;margin-top:8px;padding:8px 10px;background:var(--bg-input);border-radius:var(--r);color:var(--fg-0);font-size:12px;user-select:all">carboncode chat --session ${open.name}</code>
                         </div>
                       </div>`
                     : null
@@ -249,7 +253,8 @@ export function SessionsPanel() {
                         : html`<div style="color:var(--fg-3)">${t("sessions.emptyTranscript")}</div>`
                 }
               `;
-              })()
+                }
+              )()
         }
       </div>
     </div>

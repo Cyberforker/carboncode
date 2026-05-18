@@ -128,7 +128,7 @@ program
 
 // `reasonix` with no subcommand → setup wizard on first run, otherwise `code`
 // in the current directory. Filesystem-less chat stays reachable via
-// `reasonix chat`.
+// `carboncode chat`.
 program.action(async (opts: { continue?: boolean }) => {
   const cfg = readConfig();
   const mode = resolveBareCommandMode(cfg);

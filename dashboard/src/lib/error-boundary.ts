@@ -26,7 +26,7 @@ function buildIssueBody({ error, source, info }: ErrorReport): string {
     "```",
     "",
     "**Environment**",
-    `- Reasonix: ${MODE}`,
+    `- Carbon Code: ${MODE}`,
     `- Browser: ${ua}`,
     `- URL: ${location.pathname} (token redacted)`,
     "",

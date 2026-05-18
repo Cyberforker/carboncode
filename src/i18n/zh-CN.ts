@@ -35,20 +35,21 @@ export const zhCN: TranslationSchema = {
     index: "构建（或增量刷新）本地语义搜索索引。",
   },
   stats: {
-    usageHint: "运行 `reasonix chat`、`reasonix code` 或 `reasonix run <task>` — 每次对话都会记录",
-    usageDetail: "每次对话在日志中追加一行，`reasonix stats` 会将其汇总统计。",
+    usageHint:
+      "运行 `carboncode chat`、`carboncode code` 或 `carboncode run <task>` — 每次对话都会记录",
+    usageDetail: "每次对话在日志中追加一行，`carboncode stats` 会将其汇总统计。",
   },
   run: {
     missingApiKey:
       "未设置 DEEPSEEK_API_KEY 且标准输入不是 TTY（无法交互式输入）。\n" +
-      "请设置环境变量，或先运行 `reasonix chat` 交互一次以保存密钥。\n",
+      "请设置环境变量，或先运行 `carboncode chat` 交互一次以保存密钥。\n",
   },
   sessions: {
     emptyHint:
-      "暂无已保存的会话 — 运行 `reasonix chat`（会话会自动保存，除非使用了 --no-session）。",
+      "暂无已保存的会话 — 运行 `carboncode chat`（会话会自动保存，除非使用了 --no-session）。",
   },
   ui: {
-    welcome: "随时运行 `reasonix` 开始聊天 — 您的设置将被记住。",
+    welcome: "随时运行 `carboncode` 开始聊天 — 您的设置将被记住。",
     taglineChat: "DeepSeek 原生智能体",
     taglineCode: "DeepSeek 原生代码智能体",
     taglineSub: "缓存优先 · Flash 优先",
@@ -113,7 +114,7 @@ export const zhCN: TranslationSchema = {
       footer: "运行 /keys 查看完整键盘 + 鼠标参考",
     },
     keysReference: {
-      topic: "Reasonix 键盘 + 鼠标参考",
+      topic: "Carbon Code 键盘 + 鼠标参考",
       sections: [
         {
           title: "键盘",
@@ -189,7 +190,7 @@ export const zhCN: TranslationSchema = {
     ephemeralHint: "禁用本次运行的会话持久化",
     mcpSpecHint: "MCP 服务器规格（可重复）",
     mcpPrefixHint: "用此字符串为 MCP 工具名添加前缀",
-    noConfigHint: "本次运行忽略 ~/.reasonix/config.json",
+    noConfigHint: "本次运行忽略 ~/.carboncode/config.json",
     presetHintShort: "模型组合 — auto|flash|pro",
     budgetHintShort: "会话美元上限",
     transcriptHintShort: "JSONL 转录稿路径",
@@ -236,7 +237,7 @@ export const zhCN: TranslationSchema = {
   },
   code: {
     workspaceConflict:
-      "⚠ 工作区包含另一个智能体平台的文件 ({platforms})。Reasonix Code 可能会将其作为项目内容读取；如果不是您想要的，请使用 --dir <your-project> 重新启动。\n",
+      "⚠ 工作区包含另一个智能体平台的文件 ({platforms})。Carbon Code Code 可能会将其作为项目内容读取；如果不是您想要的，请使用 --dir <your-project> 重新启动。\n",
     systemAppendEmpty: "--system-append 为空 — 不会追加任何提示文本\n",
     systemAppendFileReadError: '错误：无法读取 --system-append-file "{filePath}"：{errorDetails}\n',
   },
@@ -280,7 +281,7 @@ export const zhCN: TranslationSchema = {
       argsHint: "[name]",
     },
     memory: {
-      description: "显示 / 管理固定记忆（REASONIX.md + ~/.reasonix/memory）",
+      description: "显示 / 管理固定记忆（CARBON.md + ~/.carboncode/CARBON.md）",
       argsHint: "[list|show <name>|forget <name>|clear <scope> confirm]",
     },
     skill: {
@@ -292,7 +293,7 @@ export const zhCN: TranslationSchema = {
       argsHint: "[reload]",
     },
     permissions: {
-      description: "显示 / 编辑 shell 允许列表（内置只读 · 项目级：~/.reasonix/config.json）",
+      description: "显示 / 编辑 shell 允许列表（内置只读 · 项目级：~/.carboncode/config.json）",
       argsHint: "[list|add <prefix>|remove <prefix|N>|clear confirm]",
     },
     dashboard: {
@@ -335,7 +336,7 @@ export const zhCN: TranslationSchema = {
       description: "连接、查看或断开当前会话的 QQ 通道",
       argsHint: "[connect [appId appSecret [sandbox]]|status|disconnect]",
     },
-    setup: { description: "提醒您退出并运行 `reasonix setup`" },
+    setup: { description: "提醒您退出并运行 `carboncode setup`" },
     semantic: {
       description: "显示 semantic_search 状态 — 已构建？Ollama 已安装？如何启用",
     },
@@ -348,7 +349,7 @@ export const zhCN: TranslationSchema = {
     exit: { description: "退出 TUI" },
     init: {
       description:
-        "扫描项目并合成基线 REASONIX.md（模型写入；使用 /apply 审查）。`force` 覆盖已有文件。",
+        "扫描项目并合成基线 CARBON.md（模型写入；使用 /apply 审查）。`force` 覆盖已有文件。",
       argsHint: "[force]",
     },
     apply: {
@@ -411,7 +412,7 @@ export const zhCN: TranslationSchema = {
   wizard: {
     languageTitle: "选择语言",
     languageSubtitle: "已根据系统语言自动选中。之后可用 /language 切换。",
-    welcomeTitle: "欢迎使用 Reasonix。",
+    welcomeTitle: "欢迎使用 Carbon Code。",
     apiKeyPrompt: "粘贴你的 DeepSeek API key 开始使用。",
     apiKeyGetOne: "在此获取：https://platform.deepseek.com/api_keys",
     apiKeySavedLocally: "保存在本地：{path}",
@@ -436,7 +437,7 @@ export const zhCN: TranslationSchema = {
     },
     reviewLabelTheme: "主题",
     presetTitle: "选择预设",
-    mcpTitle: "Reasonix 要为你接入哪些 MCP 服务器？",
+    mcpTitle: "Carbon Code 要为你接入哪些 MCP 服务器？",
     mcpUserArgsHint: "（需要你提供 {arg}）",
     mcpFooterMulti: "[↑↓] 移动  ·  [空格] 选择  ·  [Enter] 确认  ·  [Esc] 取消  ·  全不选 = 跳过",
     mcpArgsTitle: "配置 {name}",
@@ -645,16 +646,16 @@ export const zhCN: TranslationSchema = {
   },
   errors: {
     contextOverflow:
-      "上下文溢出（DeepSeek 400）：会话历史已达 {requested}，超出模型 prompt 上限（V4：1M tokens；旧版 chat/reasoner：131k）。通常是单个工具结果太大。Reasonix 默认将新工具结果限制在 8k tokens，并在会话加载时自动修复超大历史 — 重启常能清掉。如果仍然溢出，运行 /new 重新开始，或打开 /sessions 选中后按 [d] 删除该会话。",
+      "上下文溢出（DeepSeek 400）：会话历史已达 {requested}，超出模型 prompt 上限（V4：1M tokens；旧版 chat/reasoner：131k）。通常是单个工具结果太大。Carbon Code 默认将新工具结果限制在 8k tokens，并在会话加载时自动修复超大历史 — 重启常能清掉。如果仍然溢出，运行 /new 重新开始，或打开 /sessions 选中后按 [d] 删除该会话。",
     contextOverflowTooMany: "tokens 数量过多",
     auth401:
-      "认证失败（DeepSeek 401）：{inner}。你的 API key 被拒绝。运行 `reasonix setup` 或 `export DEEPSEEK_API_KEY=sk-...` 修复。在 https://platform.deepseek.com/api_keys 获取 key。",
+      "认证失败（DeepSeek 401）：{inner}。你的 API key 被拒绝。运行 `carboncode setup` 或 `export DEEPSEEK_API_KEY=sk-...` 修复。在 https://platform.deepseek.com/api_keys 获取 key。",
     balance402:
       "余额不足（DeepSeek 402）：{inner}。在 https://platform.deepseek.com/top_up 充值 — 余额非零时面板顶栏会显示。",
     badparam422: "参数错误（DeepSeek 422）：{inner}",
     badrequest400: "请求错误（DeepSeek 400）：{inner}",
     deepseek5xxHead:
-      "DeepSeek 服务不可用（{status}） — 这是 DeepSeek 服务端问题，不是 Reasonix 故障。已按指数退避重试 4 次。",
+      "DeepSeek 服务不可用（{status}） — 这是 DeepSeek 服务端问题，不是 Carbon Code 故障。已按指数退避重试 4 次。",
     deepseek5xxReachable:
       " DeepSeek 主 API 健康检查通过，但 /chat/completions 在挂 — 他们那边部分服务异常。",
     deepseek5xxUnreachable:
@@ -706,8 +707,8 @@ export const zhCN: TranslationSchema = {
       helpPresetPro:
         "  pro    始终使用 v4-pro                     约 3 倍 flash · 用于困难的多轮工作",
       helpSessionsTitle: "会话（默认自动启用，命名为 'default'）：",
-      helpSessionCustom: "  reasonix chat --session <name>   使用不同的命名会话",
-      helpSessionNone: "  reasonix chat --no-session       禁用本次运行的持久化",
+      helpSessionCustom: "  carboncode chat --session <name>   使用不同的命名会话",
+      helpSessionNone: "  carboncode chat --no-session       禁用本次运行的持久化",
       retryNone: "没有可重试的内容 — 此会话日志中没有先前的用户消息。",
       retryInfo: '▸ 重试中："{preview}"',
       loopTuiOnly: "/loop 仅在交互式 TUI 中可用（不在 run/replay 中）。",
@@ -823,7 +824,7 @@ export const zhCN: TranslationSchema = {
       proArmed:
         "▸ /pro 已启用 — 您的下一条消息将在 {model} 上运行，无论预设如何。一轮后自动解除。使用 /preset max 进行持久切换。",
       budgetNoCap:
-        "未设置会话预算 — Reasonix 将持续运行直到您停止。使用以下方式设置：/budget <usd>   （例如 /budget 5）",
+        "未设置会话预算 — Carbon Code 将持续运行直到您停止。使用以下方式设置：/budget <usd>   （例如 /budget 5）",
       budgetStatus: "预算：${spent} / ${cap}（{pct}%）· /budget off 清除，/budget <usd> 更改",
       budgetOff: "budget → 关闭（无上限）",
       budgetUsage:
@@ -917,13 +918,13 @@ export const zhCN: TranslationSchema = {
       statusDash: "  仪表板  {url}（在浏览器中打开 · /dashboard stop）",
     },
     plans: {
-      noSession: "未附加会话 — `/plans` 是按会话的。在项目中运行 `reasonix code` 以获取会话。",
+      noSession: "未附加会话 — `/plans` 是按会话的。在项目中运行 `carboncode code` 以获取会话。",
       activePlan: "▸ 活跃计划{label} — {done}/{total} 步骤已完成 · 最后触及 {when}",
       activeNone: "▸ 活跃计划：（无）",
       noArchives: "此会话尚无归档计划 — 当每个步骤完成时自动归档",
       archivedHeader: "已归档（{count}）：",
       replayNoSession:
-        "未附加会话 — `/replay` 是按会话的。在项目中运行 `reasonix code` 以获取会话。",
+        "未附加会话 — `/replay` 是按会话的。在项目中运行 `carboncode code` 以获取会话。",
       replayNoArchives:
         "此会话尚无归档计划 — `/replay` 在计划完成后启用（每个步骤完成时自动归档）。",
       replayInvalidIndex:
@@ -942,9 +943,9 @@ export const zhCN: TranslationSchema = {
       doneAllOk: "▸ 已标记 {count} 个步骤为完成。",
     },
     jobs: {
-      codeOnly: "/jobs 仅在 `reasonix code` 中可用。",
-      killCodeOnly: "/kill 仅在 `reasonix code` 中可用。",
-      logsCodeOnly: "/logs 仅在 `reasonix code` 中可用。",
+      codeOnly: "/jobs 仅在 `carboncode code` 中可用。",
+      killCodeOnly: "/kill 仅在 `carboncode code` 中可用。",
+      logsCodeOnly: "/logs 仅在 `carboncode code` 中可用。",
       empty:
         "◈ 作业 · 0 运行中 · 共 0 个\n  （run_background 生成一个 — 开发服务器、监视器、长时间运行的脚本）",
       header: "◈ 作业 · {running} 运行中 · 共 {total} 个",
@@ -998,15 +999,15 @@ export const zhCN: TranslationSchema = {
     },
     mcp: {
       noServers:
-        '未附加 MCP 服务器。运行 `reasonix setup` 选择一些，或使用 --mcp "<spec>" 启动。`reasonix mcp list` 显示目录。',
+        '未附加 MCP 服务器。运行 `carboncode setup` 选择一些，或使用 --mcp "<spec>" 启动。`carboncode mcp list` 显示目录。',
       toolsLabel: "  工具     {count}",
       resourcesHint: "`/resource` 浏览+读取",
       promptsHint: "`/prompt` 浏览+获取",
       awarenessOnly: "聊天模式目前消耗工具；资源+提示在此展示供了解。",
-      catalogHint: "完整目录：`reasonix mcp list` · 深度诊断：`reasonix mcp inspect <spec>`。",
+      catalogHint: "完整目录：`carboncode mcp list` · 深度诊断：`carboncode mcp inspect <spec>`。",
       fallbackServers: "MCP 服务器（{count}）：",
       fallbackTools: "注册表中的工具（{count}）：",
-      fallbackChange: "要更改此设置，请退出并运行 `reasonix setup`。",
+      fallbackChange: "要更改此设置，请退出并运行 `carboncode setup`。",
       usageDisableEnable:
         "用法：/mcp {action} <name>  ·  从 /mcp 列表中挑一个名字（匿名服务器无法按名切换）。",
       usageReconnect: "用法：/mcp reconnect <name>  ·  从 /mcp 列表中挑一个名字。",
@@ -1045,11 +1046,11 @@ export const zhCN: TranslationSchema = {
       confirmedDetail: "（{endpoint}）",
     },
     skill: {
-      listEmpty: "未找到技能。Reasonix 从以下位置读取技能：",
+      listEmpty: "未找到技能。Carbon Code 从以下位置读取技能：",
       listProjectScope:
         "  · <project>/.reasonix/skills/<name>/SKILL.md  （或 <name>.md） — 项目范围",
       listGlobalScope: "  · ~/.reasonix/skills/<name>/SKILL.md  （或 <name>.md） — 全局范围",
-      listProjectOnly: "  （项目范围仅在 `reasonix code` 中活跃）",
+      listProjectOnly: "  （项目范围仅在 `carboncode code` 中活跃）",
       listFrontmatter: "每个文件的 frontmatter 至少需要 `name` 和 `description`。",
       listInvoke: "使用 `/skill <name> [args]` 调用技能，或让模型调用 `run_skill`。",
       listHeader: "用户技能（{count}）：",
@@ -1137,7 +1138,7 @@ export const zhCN: TranslationSchema = {
     allowOnce: "允许一次",
     allowOnceDesc: "本次允许，本会话内此目录不再询问",
     allowAlways: "始终允许",
-    allowAlwaysDesc: "记住 `{prefix}`，本项目永久允许（写入 ~/.reasonix/config.json）",
+    allowAlwaysDesc: "记住 `{prefix}`，本项目永久允许（写入 ~/.carboncode/config.json）",
     deny: "拒绝",
     denyDesc: "按 Tab 添加说明，告诉模型原因",
     pathLabel: "路径",
@@ -1183,7 +1184,7 @@ export const zhCN: TranslationSchema = {
     linesBelowPlural: "  ↓ 下方 {count} 行（↓/j 或 Space/PgDn）",
   },
   sessionPicker: {
-    header: " ◈ REASONIX · 选择会话 ",
+    header: " ◈ CARBON CODE · 选择会话 ",
     title: "选择会话 — {workspace}",
     messages: "{count} 条消息",
     messagesPlural: "{count} 条消息",
@@ -1204,7 +1205,7 @@ export const zhCN: TranslationSchema = {
     daysAgo: "{count} 天前",
   },
   workspacePicker: {
-    header: " ◈ REASONIX · 选择工作区 ",
+    header: " ◈ CARBON CODE · 选择工作区 ",
     title: "选择工作区 — {workspace}",
     sessions: "{count} 个会话",
     sessionsPlural: "{count} 个会话",
@@ -1216,7 +1217,7 @@ export const zhCN: TranslationSchema = {
     searchEmpty: "  没有匹配的工作区",
   },
   modelPicker: {
-    header: " ◈ REASONIX · 选择配置 ",
+    header: " ◈ CARBON CODE · 选择配置 ",
     loading: "  ·  加载目录…",
     catalogEmpty: "  ·  目录为空 — 使用已知备选",
     modelsAvailable: "  ·  {count} 个模型可用",
@@ -1289,7 +1290,7 @@ export const zhCN: TranslationSchema = {
   },
   startup: {
     codeRooted:
-      '▸ reasonix code：根目录 {rootDir}，会话 "{session}" · {tools} 个原生工具{semantic}',
+      '▸ carboncode code：根目录 {rootDir}，会话 "{session}" · {tools} 个原生工具{semantic}',
     ephemeral: "（临时）",
     semanticOn: " · 语义搜索已开启",
   },
@@ -1448,7 +1449,7 @@ export const zhCN: TranslationSchema = {
     verySlow: "非常慢 \u00b7 {ms}ms",
     slowToast: "\u26a0 MCP `{name}` 响应缓慢 \u00b7 P95 {seconds}s \u00b7 最近 {sampleSize} 次调用",
     emptyHint:
-      "\u2139 未配置 MCP 服务器 —— 可尝试：`reasonix setup` 重新选择，或 `reasonix mcp install filesystem`",
+      "\u2139 未配置 MCP 服务器 —— 可尝试：`carboncode setup` 重新选择，或 `carboncode mcp install filesystem`",
   },
   denyContextInput: {
     description: "告诉模型你为什么拒绝了。模型下次会看到你的理由作为额外的上下文。",
@@ -1488,8 +1489,8 @@ export const zhCN: TranslationSchema = {
     notInstalled: "未安装：{name}",
     bridged: "✓ 已安装 {name} — 已桥接",
     bridgeFailed: "▲ 已安装 {name} — 桥接失败：{reason}",
-    bridgeReloadFailed: "✓ 已安装 {name} — 重启 `reasonix code` 以桥接（重载失败：{message}）",
-    restartBridge: "✓ 已安装 {name} — 重启 `reasonix code` 以桥接",
+    bridgeReloadFailed: "✓ 已安装 {name} — 重启 `carboncode code` 以桥接（重载失败：{message}）",
+    restartBridge: "✓ 已安装 {name} — 重启 `carboncode code` 以桥接",
     needsEnv: "  ·  需要环境变量：{env}",
     badgeOfficial: "[官方]",
     badgeSmithery: "[三方]",
@@ -1501,7 +1502,7 @@ export const zhCN: TranslationSchema = {
   },
   mcpBrowser: {
     title: "◈ MCP 浏览器",
-    empty: "没有挂载 MCP 服务器。运行 `reasonix setup` 选择一些，或使用 --mcp 启动。",
+    empty: "没有挂载 MCP 服务器。运行 `carboncode setup` 选择一些，或使用 --mcp 启动。",
     serverCount: "{count} 个服务器",
     footer: "↑↓ 选择 · [r] 重连 · [d] 禁用 · Esc 退出",
   },
@@ -1514,12 +1515,13 @@ export const zhCN: TranslationSchema = {
     initDetail: "初始化 → tools/list → resources/list",
     reconnectDetail: "断开旧连接 · 重新握手 · 列出工具",
     disabledDetail: "通过 /mcp disable {name}",
-    failedSetupHint: "→ 运行 `reasonix setup` 移除此条目，或修复底层问题（缺少 npm 包、网络等）。",
-    failedSetupConfigHint: "→ 运行 `reasonix setup` 从已保存配置中移除损坏的条目。",
+    failedSetupHint:
+      "→ 运行 `carboncode setup` 移除此条目，或修复底层问题（缺少 npm 包、网络等）。",
+    failedSetupConfigHint: "→ 运行 `carboncode setup` 从已保存配置中移除损坏的条目。",
   },
   checkpointPicker: {
     title: "恢复检查点 \u2014 {workspace}",
-    header: " \u25c8 REASONIX \u00b7 选择检查点 ",
+    header: " \u25c8 CARBON CODE \u00b7 选择检查点 ",
     empty: "  此工作区暂无检查点 — 参见 /checkpoint 创建",
     more: "     … 还有 {hidden} 个",
     footer: "  ↑↓ 选择  ·  ⏎ 恢复  ·  [d] 删除  ·  Esc 退出",
@@ -1535,7 +1537,7 @@ export const zhCN: TranslationSchema = {
     rejectHint: "放弃修改。模型继续按原步骤执行。",
   },
   diffApp: {
-    title: "reasonix diff",
+    title: "carboncode diff",
     turnLabel: "第 {turn} 轮（{current}/{total}）",
     turnsAligned: "{count} 轮已对齐",
     paneEmpty: "（此轮该侧无记录）",

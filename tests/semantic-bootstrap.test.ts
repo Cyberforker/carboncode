@@ -69,8 +69,8 @@ describe("bootstrapSemanticSearchInCodeMode", () => {
   it("silently skips (no prompt) when no index is built — even with Ollama present", async () => {
     // The contract: bootstrap NEVER prompts at startup, regardless of
     // local Ollama state. Setup happens via the explicit
-    // `reasonix index` command + `/semantic` slash. This is the
-    // load-bearing UX guarantee — `npx reasonix code` must be silent
+    // `carboncode index` command + `/semantic` slash. This is the
+    // load-bearing UX guarantee — `npx carboncode code` must be silent
     // for users who haven't opted in.
     const result = await bootstrapSemanticSearchInCodeMode(tools, root);
     expect(result.enabled).toBe(false);

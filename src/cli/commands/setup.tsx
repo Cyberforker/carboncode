@@ -1,9 +1,9 @@
 /**
- * `reasonix setup` — re-mount the first-run wizard on demand so users
+ * `carboncode setup` — re-mount the first-run wizard on demand so users
  * can reconfigure (add/remove MCP servers, switch preset) without
  * editing JSON by hand.
  *
- * Invoked both explicitly (`reasonix setup`) and implicitly (the no-args
+ * Invoked both explicitly (`carboncode setup`) and implicitly (the no-args
  * entry point when `setupCompleted` is false).
  */
 

@@ -154,14 +154,14 @@ export async function mcpListCommand(opts: McpListOptions = {}): Promise<void> {
   for (const e of shown) printEntry(e);
   if (ranked.length > limit) {
     console.log(
-      `  … ${ranked.length - limit} more loaded — use \`reasonix mcp search <query>\` to filter`,
+      `  … ${ranked.length - limit} more loaded — use \`carboncode mcp search <query>\` to filter`,
     );
   }
   if (result.hasMore) {
-    console.log("  ▸ more pages available — `reasonix mcp list --pages <n>` or --all");
+    console.log("  ▸ more pages available — `carboncode mcp list --pages <n>` or --all");
   }
   console.log("");
-  console.log("Install:  reasonix mcp install <name>");
+  console.log("Install:  carboncode mcp install <name>");
 }
 
 function matchFilter(query: string): (e: RegistryEntry) => boolean {
@@ -172,7 +172,7 @@ function matchFilter(query: string): (e: RegistryEntry) => boolean {
 export async function mcpSearchCommand(query: string, opts: McpSearchOptions = {}): Promise<void> {
   const q = query.trim();
   if (!q) {
-    console.error("usage: reasonix mcp search <query>");
+    console.error("usage: carboncode mcp search <query>");
     process.exit(1);
   }
   const handle = await openRegistry({ noCache: opts.refresh, onProgress: progressToStderr });
@@ -240,7 +240,7 @@ function findEntry(entries: RegistryEntry[], name: string): RegistryEntry | null
 export async function mcpInstallCommand(name: string, opts: McpInstallOptions = {}): Promise<void> {
   const target = name.trim();
   if (!target) {
-    console.error("usage: reasonix mcp install <name>");
+    console.error("usage: carboncode mcp install <name>");
     process.exit(1);
   }
 
@@ -266,7 +266,7 @@ export async function mcpInstallCommand(name: string, opts: McpInstallOptions = 
       `No MCP server named "${target}" found after walking ${handle.cache.pagination.pagesLoaded} page(s) of the ${handle.source} registry.`,
     );
     if (handle.cache.pagination.nextCursor !== null) {
-      console.error(`Try: reasonix mcp install ${target} --max-pages 100`);
+      console.error(`Try: carboncode mcp install ${target} --max-pages 100`);
     }
     process.exit(1);
   }
@@ -314,7 +314,7 @@ export async function mcpInstallCommand(name: string, opts: McpInstallOptions = 
   }
   console.log("");
   console.log(
-    "Use it:  reasonix chat   (or `reasonix code`) — the server will be bridged automatically.",
+    "Use it:  carboncode chat   (or `carboncode code`) — the server will be bridged automatically.",
   );
 }
 

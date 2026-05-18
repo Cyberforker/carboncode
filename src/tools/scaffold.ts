@@ -50,7 +50,7 @@ export function registerScaffoldTools(
           type: "string",
           enum: ["project", "global"],
           description:
-            "`project` = `.reasonix/skills/` under the workspace (default, requires `reasonix code`); `global` = `~/.reasonix/skills/` shared across all repos.",
+            "`project` = `.reasonix/skills/` under the workspace (default, requires `carboncode code`); `global` = `~/.reasonix/skills/` shared across all repos.",
         },
         allowed_tools: {
           type: "array",
@@ -144,7 +144,7 @@ export function registerScaffoldTools(
   registry.register({
     name: "add_mcp_server",
     description:
-      'Register a new MCP server in the user\'s Reasonix config (`mcp` array). Takes effect on the next session — does NOT spawn the server now. Use stdio for local commands (npx packages, local binaries), `sse` or `streamable-http` for remote endpoints. Pass `from_catalog: "<name>"` (e.g. `"filesystem"`, `"memory"`, `"github"`) to auto-fill `command` + `args` from the bundled catalog — the user still has to supply user-args (filesystem: a sandbox dir; github: GITHUB_PERSONAL_ACCESS_TOKEN in env). Refuses to add a server whose name collides with an existing entry.',
+      'Register a new MCP server in the user\'s Carbon Code config (`mcp` array). Takes effect on the next session — does NOT spawn the server now. Use stdio for local commands (npx packages, local binaries), `sse` or `streamable-http` for remote endpoints. Pass `from_catalog: "<name>"` (e.g. `"filesystem"`, `"memory"`, `"github"`) to auto-fill `command` + `args` from the bundled catalog — the user still has to supply user-args (filesystem: a sandbox dir; github: GITHUB_PERSONAL_ACCESS_TOKEN in env). Refuses to add a server whose name collides with an existing entry.',
     parameters: {
       type: "object",
       properties: {

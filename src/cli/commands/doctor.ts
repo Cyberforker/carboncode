@@ -130,7 +130,7 @@ async function checkApiKey(): Promise<Check> {
     label: "api key      ",
     level: "fail",
     detail:
-      "not set — `reasonix setup` to save one, or export DEEPSEEK_API_KEY. Get a key at https://platform.deepseek.com/api_keys",
+      "not set — `carboncode setup` to save one, or export DEEPSEEK_API_KEY. Get a key at https://platform.deepseek.com/api_keys",
   };
 }
 
@@ -141,7 +141,7 @@ async function checkConfig(): Promise<Check> {
       id: "config",
       label: "config       ",
       level: "warn",
-      detail: "missing — running with library defaults. `reasonix setup` writes one.",
+      detail: "missing — running with library defaults. `carboncode setup` writes one.",
     };
   }
   try {
@@ -327,7 +327,7 @@ async function checkOllama(projectRoot: string): Promise<Check> {
       id: "semantic",
       label: "semantic     ",
       level: "ok",
-      detail: "not in use (no semantic index built; `reasonix index` to enable)",
+      detail: "not in use (no semantic index built; `carboncode index` to enable)",
     };
   }
   const meta = readSemanticMeta(projectRoot);
@@ -410,7 +410,7 @@ function readSemanticMeta(
 
 async function checkProject(projectRoot: string): Promise<Check> {
   // Heuristic: a "real" project has either .git, REASONIX.md, or
-  // package.json. Lacking all three, `reasonix code` still works but
+  // package.json. Lacking all three, `carboncode code` still works but
   // @-mentions and the project-memory pin won't surface much.
   const markers = [".git", "REASONIX.md", "package.json", "pyproject.toml", "Cargo.toml", "go.mod"];
   const found = markers.filter((m) => existsSync(join(projectRoot, m)));
@@ -419,7 +419,7 @@ async function checkProject(projectRoot: string): Promise<Check> {
       id: "project",
       label: "project      ",
       level: "warn",
-      detail: `${projectRoot} has none of: ${markers.slice(0, 3).join(", ")} … — \`reasonix code\` will still run, but @-mentions and project memory have nothing to anchor`,
+      detail: `${projectRoot} has none of: ${markers.slice(0, 3).join(", ")} … — \`carboncode code\` will still run, but @-mentions and project memory have nothing to anchor`,
     };
   }
   return {

@@ -74,7 +74,7 @@ export function setLang(lang: DashboardLang): void {
     headers: { "Content-Type": "application/json", "X-Reasonix-Token": TOKEN },
     body: JSON.stringify({ lang: toBackendLang(lang) }),
     keepalive: true,
-  }).catch((err) => console.error("[reasonix dashboard] lang persist:", err));
+  }).catch((err) => console.error("[carboncode dashboard] lang persist:", err));
 }
 
 export function onLangChange(cb: Listener): () => void {

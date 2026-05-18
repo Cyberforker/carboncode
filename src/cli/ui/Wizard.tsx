@@ -3,7 +3,7 @@
  *
  * Walks a new user through: language → theme → API key → preset pick → MCP
  * server pick → per-server args → save. Saved output lives in
- * `~/.reasonix/config.json` so the next `reasonix chat` starts with
+ * `~/.reasonix/config.json` so the next `carboncode chat` starts with
  * everything already wired.
  */
 
@@ -47,7 +47,7 @@ export interface WizardProps {
   onCancel?: () => void;
   /** Skip the API-key step if a key already exists (env or config). */
   existingApiKey?: string;
-  /** Force the API-key step so `reasonix setup` can replace a saved key. */
+  /** Force the API-key step so `carboncode setup` can replace a saved key. */
   forceApiKeyStep?: boolean;
   /** Verifies the submitted key before the wizard can continue. */
   validateApiKey?: (apiKey: string) => Promise<ApiKeyValidationResult>;
@@ -748,7 +748,7 @@ function deriveInitialCatalog(existingSpecs: string[]): string[] {
 
 /**
  * Build the `--mcp` spec string for a catalog entry. Same format
- * `mcpCommandFor` produces for `reasonix mcp list`, minus the leading
+ * `mcpCommandFor` produces for `carboncode mcp list`, minus the leading
  * `--mcp "..."` wrapper — we store the inner spec directly.
  */
 export function buildSpec(name: string, argsByName: Record<string, string>): string {

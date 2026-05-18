@@ -22,7 +22,7 @@ export interface ErrorReport {
 }
 
 export function reportAppError(error: unknown, source: string, info?: string): void {
-  console.error(`[reasonix dashboard] ${source}:`, error, info);
+  console.error(`[carboncode dashboard] ${source}:`, error, info);
   appBus.dispatchEvent(
     new CustomEvent("error", { detail: { error, source, info, ts: Date.now() } }),
   );
