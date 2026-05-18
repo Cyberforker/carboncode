@@ -58,6 +58,19 @@ export DEEPSEEK_API_KEY=sk-...
 
 Project rules should live in `AGENTS.md` or `CARBON.md` in the repository.
 
+## Release
+
+Publishing is tag-driven through GitHub Actions trusted publishing. Update
+`package.json`, commit the release, then push a matching semver tag:
+
+```bash
+git tag v0.1.0
+git push origin main --tags
+```
+
+The `Publish npm package` workflow verifies the package, checks that the tag
+matches `package.json`, and runs `npm publish --access public --provenance`.
+
 ## Current Scope
 
 This repository currently imports the Reasonix main codebase and productizes it

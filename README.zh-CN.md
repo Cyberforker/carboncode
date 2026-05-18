@@ -56,6 +56,19 @@ export DEEPSEEK_API_KEY=sk-...
 
 项目规则建议写在仓库里的 `AGENTS.md` 或 `CARBON.md`。
 
+## 发布
+
+npm 发布由 GitHub Actions 的 tag 流程触发。先更新 `package.json`，提交发布版本，
+再推送匹配的 semver tag：
+
+```bash
+git tag v0.1.0
+git push origin main --tags
+```
+
+`Publish npm package` workflow 会先验证包、检查 tag 是否与 `package.json` 版本一致，
+然后执行 `npm publish --access public --provenance`。
+
 ## 当前范围
 
 当前策略是“导入 Reasonix 主体，然后做 Carbon Code 产品化”。第一轮产品化覆盖
