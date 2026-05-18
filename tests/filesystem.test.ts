@@ -5,6 +5,9 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   applyEdit,
   createWorkspaceTools,
+  listFiles,
+  previewEdit,
+  readProjectFile,
   searchContent,
   searchFiles,
 } from "../src/tools/filesystem.js";
@@ -73,5 +76,52 @@ describe("filesystem tools", () => {
       tools.editFile({ path: "file.ts", search: "hello", replace: "bye" }),
     ).resolves.toContain("用户未批准");
     expect(readFileSync(path, "utf8")).toBe("hello\n");
+  });
+
+  test("lists project files while skipping dependencies and simple gitignore patterns", async () => {
+    const root = makeRoot();
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(join(root, "node_modules", "pkg"), { recursive: true });
+    writeFileSync(join(root, ".gitignore"), "secret.log\nignored-dir/\n", "utf8");
+    writeFileSync(join(root, "src", "main.ts"), "ok\n", "utf8");
+    writeFileSync(join(root, "secret.log"), "hidden\n", "utf8");
+    mkdirSync(join(root, "ignored-dir"), { recursive: true });
+    writeFileSync(join(root, "ignored-dir", "hidden.ts"), "hidden\n", "utf8");
+    writeFileSync(join(root, "node_modules", "pkg", "index.js"), "hidden\n", "utf8");
+
+    await expect(listFiles(root)).resolves.toBe(".gitignore\nsrc/main.ts");
+  });
+
+  test("truncates large file reads with a clear footer", async () => {
+    const root = makeRoot();
+    writeFileSync(join(root, "large.txt"), "0123456789abcdef", "utf8");
+
+    await expect(readProjectFile(root, "large.txt", { maxBytes: 8 })).resolves.toBe(
+      "01234567\n[... truncated at 8 bytes; file has 16 bytes ...]",
+    );
+  });
+
+  test("passes a real diff preview into edit approval", async () => {
+    const root = makeRoot();
+    const path = join(root, "file.ts");
+    writeFileSync(path, "const name = 'Reasonix';\n", "utf8");
+    const expectedPreview = await previewEdit(root, path, {
+      search: "Reasonix",
+      replace: "Carbon Code",
+    });
+    let preview = "";
+    const tools = createWorkspaceTools(root, {
+      approve: async (request) => {
+        preview = request.preview ?? "";
+        return true;
+      },
+    });
+
+    await tools.editFile({ path: "file.ts", search: "Reasonix", replace: "Carbon Code" });
+
+    expect(preview).toBe(expectedPreview);
+    expect(preview).toContain("@@");
+    expect(preview).toContain("- Reasonix");
+    expect(preview).toContain("+ Carbon Code");
   });
 });

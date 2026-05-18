@@ -1,6 +1,7 @@
 import type { ChatMessage, ChatRequest, ChatResponse, ToolCall, ToolSpec } from "./client.js";
 import { MODEL_PROFILES, type ModelProfile, resolveModelProfile } from "./models.js";
 import { loadProjectRules, renderRulesForPrompt } from "./rules.js";
+import { estimateUsageCost } from "./pricing.js";
 import { createWorkspaceTools, type Approve } from "./tools/filesystem.js";
 import { runApprovedShellCommand } from "./tools/shell.js";
 
@@ -28,10 +29,22 @@ export interface AgentRunResult {
   summary: string;
   changedFiles: string[];
   totalTokens: number;
+  costUsd?: number;
   messages: ChatMessage[];
 }
 
 const TOOL_SPECS: ToolSpec[] = [
+  {
+    type: "function",
+    function: {
+      name: "list_files",
+      description: "列出项目文件，默认跳过依赖目录和 .gitignore 忽略项。",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
   {
     type: "function",
     function: {
@@ -116,6 +129,7 @@ export class AgentRunner {
     const tools = createWorkspaceTools(this.opts.rootDir, { approve: this.opts.approve });
     const changed = new Set<string>();
     let totalTokens = 0;
+    let costUsd = 0;
     let summary = "";
 
     for (let turn = 0; turn < (this.opts.maxTurns ?? 8); turn++) {
@@ -127,8 +141,13 @@ export class AgentRunner {
         reasoningEffort: this.profile.reasoningEffort,
       });
       totalTokens += usageTokens(response.usage);
+      costUsd += estimateUsageCost(this.profile.model, normalizeUsage(response.usage)).usd;
       const toolCalls = response.toolCalls ?? [];
-      messages.push({ role: "assistant", content: response.content ?? "" });
+      messages.push({
+        role: "assistant",
+        content: response.content ?? "",
+        ...(toolCalls.length > 0 ? { tool_calls: toolCalls } : {}),
+      });
 
       if (toolCalls.length === 0) {
         summary = response.content ?? "";
@@ -149,6 +168,7 @@ export class AgentRunner {
       summary,
       changedFiles: [...changed].sort(),
       totalTokens,
+      costUsd,
       messages,
     };
   }
@@ -160,6 +180,8 @@ export class AgentRunner {
   ): Promise<string> {
     const args = parseToolArgs(call.function.arguments);
     switch (call.function.name) {
+      case "list_files":
+        return tools.listFiles({});
       case "read_file":
         return tools.readFile({ path: requireString(args.path, "path") });
       case "search_files":
@@ -195,6 +217,40 @@ export class AgentRunner {
         return `未知工具: ${call.function.name}`;
     }
   }
+}
+
+function normalizeUsage(usage: unknown) {
+  if (!usage || typeof usage !== "object") {
+    return { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+  }
+  const record = usage as Record<string, unknown>;
+  return {
+    promptTokens:
+      typeof record.promptTokens === "number"
+        ? record.promptTokens
+        : typeof record.prompt_tokens === "number"
+          ? record.prompt_tokens
+          : 0,
+    completionTokens:
+      typeof record.completionTokens === "number"
+        ? record.completionTokens
+        : typeof record.completion_tokens === "number"
+          ? record.completion_tokens
+          : 0,
+    totalTokens: usageTokens(usage),
+    promptCacheHitTokens:
+      typeof record.promptCacheHitTokens === "number"
+        ? record.promptCacheHitTokens
+        : typeof record.prompt_cache_hit_tokens === "number"
+          ? record.prompt_cache_hit_tokens
+          : 0,
+    promptCacheMissTokens:
+      typeof record.promptCacheMissTokens === "number"
+        ? record.promptCacheMissTokens
+        : typeof record.prompt_cache_miss_tokens === "number"
+          ? record.prompt_cache_miss_tokens
+          : undefined,
+  };
 }
 
 function buildSystemPrompt(rules: string): string {

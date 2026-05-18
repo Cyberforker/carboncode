@@ -11,6 +11,11 @@ export interface ApprovalRequest {
 
 export type Approve = (request: ApprovalRequest) => Promise<boolean> | boolean;
 
+interface IgnoreRule {
+  pattern: string;
+  directoryOnly: boolean;
+}
+
 const DEFAULT_SKIP_DIRS = new Set([
   ".git",
   ".hg",
@@ -60,6 +65,7 @@ async function walkFiles(
   rootDir: string,
   visitor: (full: string, rel: string) => Promise<void>,
   includeDeps = false,
+  ignoreRules: readonly IgnoreRule[] = [],
 ): Promise<void> {
   async function walk(dir: string): Promise<void> {
     let entries: import("node:fs").Dirent[];
@@ -71,15 +77,41 @@ async function walkFiles(
     entries.sort((a, b) => a.name.localeCompare(b.name));
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
+      const rel = toDisplayRel(rootDir, full);
+      if (isIgnored(rel, entry.isDirectory(), ignoreRules)) continue;
       if (entry.isDirectory()) {
         if (!includeDeps && DEFAULT_SKIP_DIRS.has(entry.name)) continue;
         await walk(full);
       } else if (entry.isFile()) {
-        await visitor(full, toDisplayRel(rootDir, full));
+        await visitor(full, rel);
       }
     }
   }
   await walk(rootDir);
+}
+
+export async function listFiles(
+  rootDir: string,
+  opts: { includeDeps?: boolean; maxBytes?: number } = {},
+): Promise<string> {
+  const ignoreRules = await loadSimpleGitignore(rootDir);
+  const files: string[] = [];
+  let bytes = 0;
+  const maxBytes = opts.maxBytes ?? 32_000;
+  await walkFiles(
+    rootDir,
+    async (_full, rel) => {
+      if (bytes + rel.length + 1 > maxBytes) {
+        files.push("[... file list truncated ...]");
+        return;
+      }
+      files.push(rel);
+      bytes += rel.length + 1;
+    },
+    opts.includeDeps,
+    ignoreRules,
+  );
+  return files.length ? files.join("\n") : "(no files)";
 }
 
 export async function searchFiles(
@@ -97,6 +129,7 @@ export async function searchFiles(
   const matches: string[] = [];
   let bytes = 0;
   const maxBytes = opts.maxBytes ?? 32_000;
+  const ignoreRules = await loadSimpleGitignore(rootDir);
   await walkFiles(
     rootDir,
     async (_full, rel) => {
@@ -111,6 +144,7 @@ export async function searchFiles(
       bytes += rel.length + 1;
     },
     opts.includeDeps,
+    ignoreRules,
   );
   return matches.length ? matches.join("\n") : "(no matches)";
 }
@@ -131,6 +165,7 @@ export async function searchContent(
   const matches: string[] = [];
   let bytes = 0;
   const maxBytes = opts.maxBytes ?? 64_000;
+  const ignoreRules = await loadSimpleGitignore(rootDir);
   await walkFiles(
     rootDir,
     async (full, rel) => {
@@ -161,16 +196,41 @@ export async function searchContent(
       }
     },
     opts.includeDeps,
+    ignoreRules,
   );
   return matches.length ? matches.join("\n") : "(no matches)";
 }
 
-export async function readProjectFile(rootDir: string, userPath: string): Promise<string> {
+export async function readProjectFile(
+  rootDir: string,
+  userPath: string,
+  opts: { maxBytes?: number } = {},
+): Promise<string> {
   const full = resolveInside(rootDir, userPath);
-  return fs.readFile(full, "utf8");
+  const raw = await fs.readFile(full);
+  if (opts.maxBytes !== undefined && raw.length > opts.maxBytes) {
+    return `${raw.subarray(0, opts.maxBytes).toString("utf8")}\n[... truncated at ${opts.maxBytes} bytes; file has ${raw.length} bytes ...]`;
+  }
+  return raw.toString("utf8");
 }
 
 export async function applyEdit(
+  rootDir: string,
+  abs: string,
+  args: { search: string; replace: string },
+): Promise<string> {
+  const preview = await previewEdit(rootDir, abs, args);
+  const before = await fs.readFile(abs, "utf8");
+  const lineEnding = before.includes("\r\n") ? "\r\n" : "\n";
+  const search = args.search.replace(/\r?\n/g, lineEnding);
+  const replace = args.replace.replace(/\r?\n/g, lineEnding);
+  const firstIdx = before.indexOf(search);
+  const after = before.slice(0, firstIdx) + replace + before.slice(firstIdx + search.length);
+  await fs.writeFile(abs, after, "utf8");
+  return preview;
+}
+
+export async function previewEdit(
   rootDir: string,
   abs: string,
   args: { search: string; replace: string },
@@ -190,8 +250,6 @@ export async function applyEdit(
       `edit_file: search text appears multiple times in ${toDisplayRel(rootDir, abs)} — include more context to disambiguate`,
     );
   }
-  const after = before.slice(0, firstIdx) + replace + before.slice(firstIdx + search.length);
-  await fs.writeFile(abs, after, "utf8");
   const startLine = before.slice(0, firstIdx).split(/\r?\n/).length;
   return `edited ${toDisplayRel(rootDir, abs)} (${search.length}->${replace.length} chars)\n${renderEditDiff(
     search,
@@ -204,27 +262,61 @@ export function createWorkspaceTools(
   rootDir: string,
   opts: { approve: Approve },
 ): {
+  listFiles(args?: { includeDeps?: boolean }): Promise<string>;
   readFile(args: { path: string }): Promise<string>;
   searchFiles(args: { pattern: string; includeDeps?: boolean }): Promise<string>;
   searchContent(args: { pattern: string; includeDeps?: boolean }): Promise<string>;
   editFile(args: { path: string; search: string; replace: string }): Promise<string>;
 } {
   return {
-    readFile: async (args) => readProjectFile(rootDir, args.path),
+    listFiles: async (args = {}) => listFiles(rootDir, { includeDeps: args.includeDeps }),
+    readFile: async (args) => readProjectFile(rootDir, args.path, { maxBytes: 64_000 }),
     searchFiles: async (args) => searchFiles(rootDir, args.pattern, { includeDeps: args.includeDeps }),
     searchContent: async (args) =>
       searchContent(rootDir, args.pattern, { includeDeps: args.includeDeps }),
     editFile: async (args) => {
       const abs = resolveInside(rootDir, args.path);
+      const preview = await previewEdit(rootDir, abs, args);
       const approved = await opts.approve({
         type: "edit",
         path: args.path,
-        preview: `${args.search}\n---\n${args.replace}`,
+        preview,
       });
       if (!approved) return `用户未批准编辑: ${args.path}`;
       return applyEdit(rootDir, abs, args);
     },
   };
+}
+
+async function loadSimpleGitignore(rootDir: string): Promise<IgnoreRule[]> {
+  let raw = "";
+  try {
+    raw = await fs.readFile(path.join(rootDir, ".gitignore"), "utf8");
+  } catch {
+    return [];
+  }
+  const rules: IgnoreRule[] = [];
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("!")) continue;
+    const directoryOnly = trimmed.endsWith("/");
+    const pattern = trimmed.replace(/^\/+/, "").replace(/\/+$/, "");
+    if (pattern) rules.push({ pattern, directoryOnly });
+  }
+  return rules;
+}
+
+function isIgnored(rel: string, isDir: boolean, rules: readonly IgnoreRule[]): boolean {
+  for (const rule of rules) {
+    if (rule.directoryOnly && !isDir && !rel.startsWith(`${rule.pattern}/`)) continue;
+    if (rule.pattern.includes("/")) {
+      if (rel === rule.pattern || rel.startsWith(`${rule.pattern}/`)) return true;
+      continue;
+    }
+    const parts = rel.split("/");
+    if (parts.includes(rule.pattern)) return true;
+  }
+  return false;
 }
 
 function renderEditDiff(search: string, replace: string, startLine: number): string {

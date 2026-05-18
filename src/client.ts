@@ -4,6 +4,7 @@ export interface ChatMessage {
   role: ChatRole;
   content: string;
   tool_call_id?: string;
+  tool_calls?: ToolCall[];
 }
 
 export interface ToolCall {
@@ -37,6 +38,8 @@ export interface ChatUsage {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+  promptCacheHitTokens?: number;
+  promptCacheMissTokens?: number;
 }
 
 export interface ChatResponse {
@@ -44,6 +47,17 @@ export interface ChatResponse {
   toolCalls: ToolCall[];
   usage: ChatUsage;
   raw: unknown;
+}
+
+export interface ModelInfo {
+  id: string;
+  object: "model";
+  owned_by: string;
+}
+
+export interface ModelList {
+  object: "list";
+  data: ModelInfo[];
 }
 
 export interface DeepSeekClientOptions {
@@ -105,6 +119,8 @@ export class DeepSeekClient {
           prompt_tokens?: number;
           completion_tokens?: number;
           total_tokens?: number;
+          prompt_cache_hit_tokens?: number;
+          prompt_cache_miss_tokens?: number;
         };
       };
       const message = raw.choices?.[0]?.message ?? {};
@@ -115,11 +131,33 @@ export class DeepSeekClient {
           promptTokens: raw.usage?.prompt_tokens ?? 0,
           completionTokens: raw.usage?.completion_tokens ?? 0,
           totalTokens: raw.usage?.total_tokens ?? 0,
+          promptCacheHitTokens: raw.usage?.prompt_cache_hit_tokens ?? 0,
+          promptCacheMissTokens:
+            raw.usage?.prompt_cache_miss_tokens ??
+            Math.max(0, (raw.usage?.prompt_tokens ?? 0) - (raw.usage?.prompt_cache_hit_tokens ?? 0)),
         },
         raw,
       };
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  async listModels(opts: { signal?: AbortSignal } = {}): Promise<ModelList> {
+    const response = await this.fetchImpl(`${this.baseUrl}/models`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      signal: opts.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`DeepSeek ${response.status}: ${await response.text()}`);
+    }
+    const raw = (await response.json()) as ModelList;
+    if (!raw || raw.object !== "list" || !Array.isArray(raw.data)) {
+      throw new Error("DeepSeek models response 格式无效");
+    }
+    return raw;
   }
 }

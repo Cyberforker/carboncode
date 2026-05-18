@@ -11,7 +11,9 @@ import {
   readConfig,
   saveSetup,
 } from "../config.js";
+import { runDoctor } from "../doctor.js";
 import { loadDotenv } from "../env.js";
+import { runInteractiveSession } from "../interactive.js";
 import { MODEL_PROFILES, resolveModelProfile } from "../models.js";
 import { SessionStore, defaultSessionDir } from "../session.js";
 import { VERSION } from "../version.js";
@@ -50,6 +52,22 @@ export function buildProgram(): Command {
     });
 
   program
+    .command("doctor")
+    .description("检查本机配置和 DeepSeek API 连通性")
+    .action(async () => {
+      loadDotenv();
+      const apiKey = loadApiKey();
+      if (!apiKey) {
+        throw new Error("未找到 DEEPSEEK_API_KEY。请设置环境变量或运行 carboncode setup。");
+      }
+      const result = await runDoctor({
+        client: new DeepSeekClient({ apiKey, baseUrl: loadBaseUrl(), timeoutMs: 30_000 }),
+      });
+      output.write(`${result.lines.join("\n")}\n`);
+      if (!result.ok) process.exitCode = 1;
+    });
+
+  program
     .command("run <task>")
     .description("非交互执行一个代码任务")
     .option("-m, --model <profile>", "模型 profile: auto|flash|pro")
@@ -83,11 +101,43 @@ export function buildProgram(): Command {
         }
         output.write(`${result.summary}\n`);
         output.write(`Tokens: ${result.totalTokens}\n`);
+        if (result.costUsd !== undefined) {
+          output.write(`费用估算: $${result.costUsd.toFixed(6)}\n`);
+        }
       },
     );
 
-  program.action(() => {
-    program.help();
+  program.action(async () => {
+    loadDotenv();
+    const cfg = readConfig();
+    const apiKey = loadApiKey();
+    if (!apiKey) {
+      output.write("未找到 DEEPSEEK_API_KEY。请先运行 carboncode setup。\n");
+      return;
+    }
+    const store = new SessionStore(defaultSessionDir());
+    const rl = createInterface({ input, output });
+    try {
+      await runInteractiveSession({
+        sessionName: cfg.session ?? "default",
+        io: {
+          write: (line) => output.write(`${line}\n`),
+          question: (prompt) => rl.question(prompt),
+        },
+        loadMessages: (name) => store.load(name),
+        saveMessages: (name, messages) => store.save(name, messages),
+        createRunner: (initialMessages) =>
+          new AgentRunner({
+            rootDir: process.cwd(),
+            client: new DeepSeekClient({ apiKey, baseUrl: loadBaseUrl() }),
+            profile: cfg.profile,
+            initialMessages,
+            approve: approveInteractively,
+          }),
+      });
+    } finally {
+      rl.close();
+    }
   });
 
   return program;
