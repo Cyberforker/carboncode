@@ -26,6 +26,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli/index.ts",
+    "prepack": "npm run verify",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test && npm run build"
