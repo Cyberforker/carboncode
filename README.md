@@ -64,8 +64,20 @@ with one-turn Pro escalation for harder turns.
 
 ## Release
 
-Publishing is tag-driven through GitHub Actions trusted publishing. Update
-`package.json`, commit the release, then push a matching semver tag:
+The first npm publish is a one-time bootstrap because npm trusted publishing can
+only be configured after the package exists:
+
+```bash
+npm whoami
+npm publish --dry-run --access public
+npm publish --access public
+npm install -g npm@^11.10.0
+npm trust github @carboncode/cli --repo Yapie0/carboncode --file publish.yml --env npm
+```
+
+After trusted publishing is configured, releases are tag-driven through GitHub
+Actions. Update `package.json`, commit the release, then push a matching semver
+tag:
 
 ```bash
 git tag v0.1.0
@@ -73,7 +85,9 @@ git push origin main --tags
 ```
 
 The `Publish npm package` workflow verifies the package, checks that the tag
-matches `package.json`, and runs `npm publish --access public --provenance`.
+matches `package.json`, and runs `npm publish --access public --provenance`. If
+the exact version already exists with the same `gitHead`, the workflow treats the
+tag as an idempotent release marker and skips the publish step.
 
 ## Current Scope
 
