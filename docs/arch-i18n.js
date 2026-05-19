@@ -3,15 +3,15 @@
 (function () {
   "use strict";
 
-  var R = window.Reasonix;
+  var R = window.CarbonCode;
   if (!R) return;
 
   var en = {
     "arch.badge": "Cache · Repair · Cost · Modules",
-    "arch.title.line1": "Reasonix Architecture",
+    "arch.title.line1": "Carbon Code Architecture",
     "arch.title.line2": "how it works under the hood",
     "arch.sub":
-      "Reasonix is <strong>opinionated, not general</strong>. Every abstraction is justified by a DeepSeek-specific behavior or economic property. The product north star: a coding agent that stays cheap enough to leave on.",
+      "Carbon Code is <strong>opinionated, not general</strong>. Every abstraction is justified by a DeepSeek-specific behavior or economic property. The product north star: a coding agent that stays cheap enough to leave on.",
 
     "arch.toc.title": "On this page",
     "arch.toc.philosophy": "Design philosophy",
@@ -32,7 +32,7 @@
 
     "ph.title": "Design philosophy",
     "ph.body1":
-      "Reasonix is <strong>opinionated, not general</strong>. Every abstraction is justified by a DeepSeek-specific behavior or economic property. If it's generic, we don't ship it.",
+      "Carbon Code is <strong>opinionated, not general</strong>. Every abstraction is justified by a DeepSeek-specific behavior or economic property. If it's generic, we don't ship it.",
     "ph.body2":
       "The product north star: <strong>coding agent that stays cheap enough to leave on</strong>. A tool that quietly burns $200/month on a background project is one nobody uses. Every subsystem below is answerable to that goal.",
 
@@ -73,16 +73,16 @@
     "p2.pass4":
       "<strong><code>storm</code></strong> — identical <code>(tool, args)</code> tuple within a sliding window → suppress the call, inject a reflection turn.",
 
-    "p3.title": "Pillar 3 — Cost Control (v0.6)",
+    "p3.title": "Pillar 3 — Cost Control",
     "p3.problem":
-      "<strong>Problem.</strong> Coding agents that default to the frontier model (v4-pro, ~12× flash cost) and accumulate full tool results in context are $150–$250/month for active users. Most turns don't need frontier reasoning; most sessions re-pay for tool results that were only useful once.",
+      "<strong>Problem.</strong> Coding agents that default to the frontier model (deepseek-v4-pro, ~12× flash cost) and accumulate full tool results in context are $150–$250/month for active users. Most turns don't need frontier reasoning; most sessions re-pay for tool results that were only useful once.",
     "p3.solution":
       "<strong>Solution.</strong> Four complementary mechanisms, none of which require manual tuning in the common case:",
     "p3.h.tiers": "4.1 Tiered defaults (flash-first)",
     "p3.tiers.body":
       "The three presets trade <strong>model tier</strong> and <strong>reasoning effort</strong>:",
     "p3.tiers.aux":
-      "All auxiliary calls — <code>forceSummaryAfterIterLimit</code>, subagent spawns, truncation repair retries — hard-code <code>v4-flash + effort=high</code> regardless of the user's preset. There's no reason to pay pro rates for paraphrasing tool results or for an <code>explore</code> subagent's grep chain.",
+      "All auxiliary calls — <code>forceSummaryAfterIterLimit</code>, subagent spawns, truncation repair retries — hard-code <code>deepseek-v4-flash + effort=high</code> regardless of the user's preset. There's no reason to pay pro rates for paraphrasing tool results or for an <code>explore</code> subagent's grep chain.",
     "p3.h.compact": "4.2 Turn-end auto-compaction",
     "p3.compact.body":
       "Every tool result in the log exceeding <code>TURN_END_RESULT_CAP_TOKENS</code> (3000) is shrunk to that cap when a turn ends. The model had the full text for the turn that read it; subsequent turns see a compact summary and can re-read if needed. One extra <code>read_file</code> call is vastly cheaper than dragging 12 KB through every future prompt.",
@@ -90,7 +90,7 @@
       "A proactive 40% context-ratio threshold runs the same shrink pre-emptively inside long multi-iter turns before the 80% emergency threshold fires.",
     "p3.h.pro": "4.3 /pro single-turn arming",
     "p3.pro.body":
-      "Users who predict a hard task type <code>/pro</code>; the <strong>next</strong> turn runs on <code>v4-pro</code>, then auto-disarms. No preset churn, no forgotten revert. Armed state is visible as a yellow <code>⇧ pro armed</code> pill in the header.",
+      "Users who predict a hard task type <code>/pro</code>; the <strong>next</strong> turn runs on <code>deepseek-v4-pro</code>, then auto-disarms. No preset churn, no forgotten revert. Armed state is visible as a yellow <code>⇧ pro armed</code> pill in the header.",
     "p3.h.escalation": "4.4 Failure-signal auto-escalation",
     "p3.esc.body":
       "The loop counts visible "flash is struggling" events per turn:",
@@ -99,7 +99,7 @@
     "p3.esc.e2":
       "ToolCallRepair fires (scavenge / truncation-fix / storm-break)",
     "p3.esc.threshold":
-      "Once the count hits <code>FAILURE_ESCALATION_THRESHOLD</code> (3), the <strong>remainder of the current turn</strong> runs on <code>v4-pro</code>. Announced via a yellow warning row — no silent cost surprises. Counter + escalation flag reset at every turn start.",
+      "Once the count hits <code>FAILURE_ESCALATION_THRESHOLD</code> (3), the <strong>remainder of the current turn</strong> runs on <code>deepseek-v4-pro</code>. Announced via a yellow warning row — no silent cost surprises. Counter + escalation flag reset at every turn start.",
     "p3.esc.pill":
       "Header shows a red <code>⇧ pro escalated</code> pill while the turn is on pro.",
     "p3.h.transparency": "Cost transparency",
@@ -128,10 +128,10 @@
 
   var zh = {
     "arch.badge": "缓存 · 修复 · 成本 · 模块",
-    "arch.title.line1": "Reasonix 架构",
+    "arch.title.line1": "Carbon Code 架构",
     "arch.title.line2": "底层原理详解",
     "arch.sub":
-      "Reasonix <strong>有明确取舍，不追求通用</strong>。每一个抽象都有对应的 DeepSeek 特有行为或经济特性作为依据。产品北极星：一个便宜到可以一直挂着跑的编程 Agent。",
+      "Carbon Code <strong>有明确取舍，不追求通用</strong>。每一个抽象都有对应的 DeepSeek 特有行为或经济特性作为依据。产品北极星：一个便宜到可以一直挂着跑的编程 Agent。",
 
     "arch.toc.title": "本页目录",
     "arch.toc.philosophy": "设计哲学",
@@ -152,7 +152,7 @@
 
     "ph.title": "设计哲学",
     "ph.body1":
-      "Reasonix <strong>有明确取舍，不追求通用</strong>。每一个抽象都有对应的 DeepSeek 特有行为或经济特性作为依据。不通用的，就不加进来。",
+      "Carbon Code <strong>有明确取舍，不追求通用</strong>。每一个抽象都有对应的 DeepSeek 特有行为或经济特性作为依据。不通用的，就不加进来。",
     "ph.body2":
       "产品北极星：<strong>便宜到可以一直挂着跑的编程 Agent</strong>。一个在后台项目上悄悄烧掉 $200/月的工具没人会用。以下每一个子系统都要对这个目标负责。",
 
@@ -193,16 +193,16 @@
     "p2.pass4":
       "<strong><code>storm</code></strong> — 滑动窗口内出现相同 <code>(tool, args)</code> 元组时压制该调用并注入反思轮。",
 
-    "p3.title": "支柱三 — 成本控制（v0.6）",
+    "p3.title": "支柱三 — 成本控制",
     "p3.problem":
-      "<strong>问题。</strong>默认使用旗舰模型（v4-pro，约 12× flash 成本）并在上下文中积累完整工具结果的编程 agent，活跃用户每月 $150–$250。大多数轮次不需要旗舰推理；大多数 session 都在重复支付只用了一次的工具结果。",
+      "<strong>问题。</strong>默认使用旗舰模型（deepseek-v4-pro，约 12× flash 成本）并在上下文中积累完整工具结果的编程 agent，活跃用户每月 $150–$250。大多数轮次不需要旗舰推理；大多数 session 都在重复支付只用了一次的工具结果。",
     "p3.solution":
       "<strong>解决方案。</strong>四个互补机制，常规场景下无需手动调整：",
     "p3.h.tiers": "4.1 分层默认（flash 优先）",
     "p3.tiers.body":
       "三个预设在<strong>模型层级</strong>和<strong>推理力度</strong>之间做权衡：",
     "p3.tiers.aux":
-      "所有辅助调用——<code>forceSummaryAfterIterLimit</code>、subagent 派生、截断修复重试——无论用户预设如何，均硬编码为 <code>v4-flash + effort=high</code>。没有理由以 pro 价格来"把工具结果改写成散文"或跑 <code>explore</code> subagent 的 grep 链。",
+      "所有辅助调用——<code>forceSummaryAfterIterLimit</code>、subagent 派生、截断修复重试——无论用户预设如何，均硬编码为 <code>deepseek-v4-flash + effort=high</code>。没有理由以 pro 价格来"把工具结果改写成散文"或跑 <code>explore</code> subagent 的 grep 链。",
     "p3.h.compact": "4.2 轮末自动压缩",
     "p3.compact.body":
       "每轮结束时，日志中超过 <code>TURN_END_RESULT_CAP_TOKENS</code>（3000）的工具结果会被压缩到该上限。读它的那一轮模型拿到了完整文本；后续轮次看到的是紧凑摘要，需要时可以重新读取。多一次 <code>read_file</code> 调用远比每次 prompt 都拖 12 KB 便宜。",
@@ -210,7 +210,7 @@
       "当上下文占比达到 40% 时会主动提前触发相同压缩，而不是等到 80% 的紧急阈值才处理。",
     "p3.h.pro": "4.3 /pro 单轮唤醒",
     "p3.pro.body":
-      "预判当前任务较难时输入 <code>/pro</code>；<strong>下一轮</strong>在 <code>v4-pro</code> 上运行，随后自动解除。无需反复切预设，不会忘记还原。标头会显示黄色 <code>⇧ pro armed</code> 标签。",
+      "预判当前任务较难时输入 <code>/pro</code>；<strong>下一轮</strong>在 <code>deepseek-v4-pro</code> 上运行，随后自动解除。无需反复切预设，不会忘记还原。标头会显示黄色 <code>⇧ pro armed</code> 标签。",
     "p3.h.escalation": "4.4 失败信号自动升级",
     "p3.esc.body":
       "循环统计每轮的"flash 在挣扎"事件：",
@@ -219,7 +219,7 @@
     "p3.esc.e2":
       "ToolCallRepair 触发（scavenge / truncation-fix / storm-break）",
     "p3.esc.threshold":
-      "计数达到 <code>FAILURE_ESCALATION_THRESHOLD</code>（3）后，<strong>当前轮的剩余部分</strong>切换到 <code>v4-pro</code>，并通过黄色警告行通知用户——不会有静默涨费。计数器和升级标志在每轮开始时重置。",
+      "计数达到 <code>FAILURE_ESCALATION_THRESHOLD</code>（3）后，<strong>当前轮的剩余部分</strong>切换到 <code>deepseek-v4-pro</code>，并通过黄色警告行通知用户——不会有静默涨费。计数器和升级标志在每轮开始时重置。",
     "p3.esc.pill":
       "该轮在 pro 上运行时，标头显示红色 <code>⇧ pro escalated</code> 标签。",
     "p3.h.transparency": "成本透明度",

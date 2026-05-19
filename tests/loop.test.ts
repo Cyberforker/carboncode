@@ -1893,9 +1893,12 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
       expect(order).toEqual(["a", "b", "c"]);
     });
 
-    it("REASONIX_TOOL_DISPATCH=serial forces serial dispatch", async () => {
-      const prev = process.env.REASONIX_TOOL_DISPATCH;
-      process.env.REASONIX_TOOL_DISPATCH = "serial";
+    it("CARBONCODE_TOOL_DISPATCH=serial forces serial dispatch", async () => {
+      const prev = process.env.CARBONCODE_TOOL_DISPATCH;
+      const prevReasonix = process.env.REASONIX_TOOL_DISPATCH;
+      process.env.CARBONCODE_TOOL_DISPATCH = "serial";
+      // biome-ignore lint/performance/noDelete: isolate the Carbon env var behavior
+      delete process.env.REASONIX_TOOL_DISPATCH;
       try {
         const client = makeClient([
           makeMultiToolResponse([
@@ -1905,11 +1908,16 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
           { content: "ok" },
         ]);
         const tools = new ToolRegistry();
+        let active = 0;
+        let maxActive = 0;
         tools.register({
           name: "slow_read",
           parallelSafe: true,
           fn: async () => {
+            active += 1;
+            maxActive = Math.max(maxActive, active);
             await new Promise((r) => setTimeout(r, 80));
+            active -= 1;
             return "x";
           },
         });
@@ -1920,24 +1928,29 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
           stream: false,
         });
 
-        const t0 = Date.now();
         for await (const _ of loop.step("go")) {
           // drain
         }
-        const elapsed = Date.now() - t0;
 
-        expect(elapsed).toBeGreaterThan(150);
+        expect(maxActive).toBe(1);
       } finally {
         if (prev === undefined) {
           // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
+          delete process.env.CARBONCODE_TOOL_DISPATCH;
+        } else process.env.CARBONCODE_TOOL_DISPATCH = prev;
+        if (prevReasonix === undefined) {
+          // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
           delete process.env.REASONIX_TOOL_DISPATCH;
-        } else process.env.REASONIX_TOOL_DISPATCH = prev;
+        } else process.env.REASONIX_TOOL_DISPATCH = prevReasonix;
       }
     });
 
-    it("REASONIX_PARALLEL_MAX caps the chunk size", async () => {
-      const prev = process.env.REASONIX_PARALLEL_MAX;
-      process.env.REASONIX_PARALLEL_MAX = "2";
+    it("CARBONCODE_PARALLEL_MAX caps the chunk size", async () => {
+      const prev = process.env.CARBONCODE_PARALLEL_MAX;
+      const prevReasonix = process.env.REASONIX_PARALLEL_MAX;
+      process.env.CARBONCODE_PARALLEL_MAX = "2";
+      // biome-ignore lint/performance/noDelete: isolate the Carbon env var behavior
+      delete process.env.REASONIX_PARALLEL_MAX;
       try {
         const client = makeClient([
           makeMultiToolResponse([
@@ -1949,11 +1962,16 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
           { content: "ok" },
         ]);
         const tools = new ToolRegistry();
+        let active = 0;
+        let maxActive = 0;
         tools.register({
           name: "slow_read",
           parallelSafe: true,
           fn: async () => {
+            active += 1;
+            maxActive = Math.max(maxActive, active);
             await new Promise((r) => setTimeout(r, 80));
+            active -= 1;
             return "x";
           },
         });
@@ -1964,19 +1982,72 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
           stream: false,
         });
 
-        const t0 = Date.now();
         for await (const _ of loop.step("go")) {
           // drain
         }
-        const elapsed = Date.now() - t0;
 
-        expect(elapsed).toBeGreaterThan(150);
-        expect(elapsed).toBeLessThan(280);
+        expect(maxActive).toBe(2);
       } finally {
         if (prev === undefined) {
           // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
+          delete process.env.CARBONCODE_PARALLEL_MAX;
+        } else process.env.CARBONCODE_PARALLEL_MAX = prev;
+        if (prevReasonix === undefined) {
+          // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
           delete process.env.REASONIX_PARALLEL_MAX;
-        } else process.env.REASONIX_PARALLEL_MAX = prev;
+        } else process.env.REASONIX_PARALLEL_MAX = prevReasonix;
+      }
+    });
+
+    it("legacy REASONIX dispatch env vars remain supported", async () => {
+      const prevCarbon = process.env.CARBONCODE_TOOL_DISPATCH;
+      const prevReasonix = process.env.REASONIX_TOOL_DISPATCH;
+      // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
+      delete process.env.CARBONCODE_TOOL_DISPATCH;
+      process.env.REASONIX_TOOL_DISPATCH = "serial";
+      try {
+        const client = makeClient([
+          makeMultiToolResponse([
+            { name: "slow_read", args: '{"k":1}' },
+            { name: "slow_read", args: '{"k":2}' },
+          ]),
+          { content: "ok" },
+        ]);
+        const tools = new ToolRegistry();
+        let active = 0;
+        let maxActive = 0;
+        tools.register({
+          name: "slow_read",
+          parallelSafe: true,
+          fn: async () => {
+            active += 1;
+            maxActive = Math.max(maxActive, active);
+            await new Promise((r) => setTimeout(r, 80));
+            active -= 1;
+            return "x";
+          },
+        });
+        const loop = new CacheFirstLoop({
+          client,
+          prefix: new ImmutablePrefix({ system: "s", toolSpecs: tools.specs() }),
+          tools,
+          stream: false,
+        });
+
+        for await (const _ of loop.step("go")) {
+          // drain
+        }
+
+        expect(maxActive).toBe(1);
+      } finally {
+        if (prevCarbon === undefined) {
+          // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
+          delete process.env.CARBONCODE_TOOL_DISPATCH;
+        } else process.env.CARBONCODE_TOOL_DISPATCH = prevCarbon;
+        if (prevReasonix === undefined) {
+          // biome-ignore lint/performance/noDelete: env restore must remove the key, not stringify "undefined"
+          delete process.env.REASONIX_TOOL_DISPATCH;
+        } else process.env.REASONIX_TOOL_DISPATCH = prevReasonix;
       }
     });
   });

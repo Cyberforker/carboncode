@@ -1,8 +1,8 @@
-# Reasonix Architecture
+# Carbon Code Architecture
 
 ## Design philosophy
 
-Reasonix is **opinionated, not general**. Every abstraction is justified by a
+Carbon Code is **opinionated, not general**. Every abstraction is justified by a
 DeepSeek-specific behavior or economic property. If it's generic, we don't
 ship it.
 
@@ -55,8 +55,8 @@ same shape it would under a fully serial dispatch.
 
 | Env var | Default | Effect |
 |---|---|---|
-| `REASONIX_PARALLEL_MAX` | `3` (hard cap `16`) | Max chunk size. |
-| `REASONIX_TOOL_DISPATCH=serial` | unset | Forces serial dispatch — escape hatch. |
+| `CARBONCODE_PARALLEL_MAX` | `3` (hard cap `16`) | Max chunk size. |
+| `CARBONCODE_TOOL_DISPATCH=serial` | unset | Forces serial dispatch — escape hatch. |
 
 Built-in opt-ins: read-only filesystem (`read_file`, `list_directory`,
 `directory_tree`, `search_files`, `search_content`, `get_file_info`),
@@ -86,9 +86,9 @@ opt in only when the server explicitly declares parallel safety.
 4. **`storm`** — identical `(tool, args)` tuple within a sliding window →
    suppress the call, inject a reflection turn.
 
-### Pillar 3 — Cost Control *(v0.6)*
+### Pillar 3 — Cost Control
 
-**Problem.** Coding agents that default to the frontier model (v4-pro, ~12×
+**Problem.** Coding agents that default to the frontier model (deepseek-v4-pro, ~12×
 flash cost) and accumulate full tool results in context are $150-$250/month
 for active users. Most turns don't need frontier reasoning; most sessions
 re-pay for tool results that were only useful once.
@@ -102,12 +102,12 @@ The three presets trade **model tier** and **reasoning effort**:
 
 | Preset | Model | Effort | Cost |
 |---|---|---|---:|
-| `flash` | `v4-flash` | `max` | 1× |
-| `auto` (default) | `v4-flash` → `v4-pro` on hard turns | `max` | 1–3× |
-| `pro` | `v4-pro` | `max` | ~12× |
+| `flash` | `deepseek-v4-flash` | `max` | 1× |
+| `auto` (default) | `deepseek-v4-flash` → `deepseek-v4-pro` on hard turns | `max` | 1–3× |
+| `pro` | `deepseek-v4-pro` | `max` | ~12× |
 
 All auxiliary calls — `forceSummaryAfterIterLimit`, subagent spawns,
-truncation repair retries — hard-code `v4-flash + effort=high` regardless
+truncation repair retries — hard-code `deepseek-v4-flash + effort=high` regardless
 of the user's preset. There's no reason to pay pro rates for "paraphrase
 these tool results into prose" or for an `explore` subagent's grep chain.
 
@@ -125,7 +125,7 @@ inside long multi-iter turns before the 80% emergency threshold fires.
 #### 4.3 `/pro` single-turn arming
 
 Users who predict a hard task type `/pro`; the **next** turn runs on
-`v4-pro`, then auto-disarms. No preset churn, no forgotten revert. Armed
+`deepseek-v4-pro`, then auto-disarms. No preset churn, no forgotten revert. Armed
 state is visible as a yellow `⇧ pro armed` pill in the header.
 
 #### 4.4 Failure-signal auto-escalation
@@ -135,7 +135,7 @@ The loop counts visible "flash is struggling" events per turn:
 - ToolCallRepair fires (scavenge / truncation-fix / storm-break)
 
 Once the count hits `FAILURE_ESCALATION_THRESHOLD` (3), the **remainder of
-the current turn** runs on `v4-pro`. Announced via a yellow warning row —
+the current turn** runs on `deepseek-v4-pro`. Announced via a yellow warning row —
 no silent cost surprises. Counter + escalation flag reset at every turn
 start.
 
@@ -161,7 +161,7 @@ src/
 │   └── storm.ts
 ├── prompt-fragments.ts     # TUI_FORMATTING_RULES, NEGATIVE_CLAIM_RULE —
 │                           #   reused by main + subagent + skill prompts
-├── code/prompt.ts          # reasonix code main system prompt
+├── code/prompt.ts          # carboncode code main system prompt
 ├── tools/                  # Tool implementations
 │   ├── filesystem.ts       # read / list / search / edit / write
 │   ├── shell.ts            # run_command + run_background (JobRegistry)
@@ -173,13 +173,13 @@ src/
 │   └── web.ts              # web_search, web_fetch (multi-engine: Mojeek, SearXNG or Metaso)
 ├── mcp/                    # MCP client + bridge (stdio + SSE)
 ├── memory.ts               # ImmutablePrefix / AppendOnlyLog / VolatileScratch
-├── project-memory.ts       # REASONIX.md loader
-├── user-memory.ts          # ~/.reasonix/memory/ store (project + global)
+├── project-memory.ts       # CARBON.md loader
+├── user-memory.ts          # ~/.carboncode/memory/ store (project + global)
 ├── skills.ts               # built-in explore + research skills
 ├── session.ts              # JSONL session persistence
 ├── telemetry.ts            # cost + cache-hit accounting + SessionSummary
 ├── tokenizer.ts            # DeepSeek V3 tokenizer (ported)
-├── usage.ts                # ~/.reasonix/usage.jsonl roll-up
+├── usage.ts                # ~/.carboncode/usage.jsonl roll-up
 ├── types.ts                # ChatMessage, ToolCall, ToolSpec
 ├── index.ts                # library barrel
 └── cli/
@@ -218,24 +218,13 @@ means editing one handler file and one registry line.
 
 ## Design evolution
 
-- **v0.0.x** — Pillar 1 end-to-end, repair pipeline complete, Ink TUI scaffold.
-- **v0.1** — τ-bench numbers published, streaming polish, transcript replay.
-- **v0.3** — MCP client (stdio + SSE), session persistence.
-- **v0.4.x** — `reasonix code` with SEARCH/REPLACE edits, review/auto
-  gate, background jobs, hooks.
-- **v0.5.x** — V4 model support, skills, memory, subagents, actionable
-  error messages.
-- **v0.6** —
-  - **Cost control** (flash-first defaults, auto-compaction, `/pro` one-shot,
-    failure-triggered escalation, cost badges).
-  - `deepseek-chat` / `deepseek-reasoner` scheduled for deprecation —
-    all user-facing surfaces updated to `v4-flash` / `v4-pro`.
-  - Shared prompt fragments (`TUI_FORMATTING_RULES`, `NEGATIVE_CLAIM_RULE`).
-  - UI refactor: App.tsx split into 6 hooks/components, slash.ts split
-    into 13 per-topic modules.
-- **v0.31** *(current)* — `branch` + `harvest` features removed entirely
-  (the parallel-sample selector and Pillar 2 plan-state extractor); both
-  rarely paid for themselves and bloated the slash surface.
+- **v0.1.0** — Carbon Code productization of the imported engine: package
+  identity, `carboncode` / `ccode` bins, Carbon config paths, Chinese-first
+  copy, DeepSeek V4 model profiles, attribution files, and tag-driven npm
+  publishing.
+- **Next** — release hardening: npm Trusted Publishing environment, public
+  release notes, final package dry-run, desktop signing decisions, and a
+  documented opt-in path for the optional `carbon` alias.
 
 ## Explicit non-goals
 

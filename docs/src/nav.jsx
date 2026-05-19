@@ -26,7 +26,7 @@ function Nav({ active }) {
         <a className="brand" href="index.html">
           <span className="brand-mark"></span>
           <span className="brand-name">
-            <b>Reasonix</b><span>DS · v{window.REASONIX_VERSION}</span>
+            <b>Carbon Code</b><span>DS · v{window.CARBONCODE_VERSION}</span>
           </span>
         </a>
         <div className="nav-links" role="navigation">
@@ -56,7 +56,7 @@ function Nav({ active }) {
               onClick={() => setLang("zh")}
             >中文</button>
           </div>
-          <a className="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noreferrer">
+          <a className="btn btn-ghost btn-sm" href="https://github.com/Yapie0/carboncode" target="_blank" rel="noreferrer">
             <Ic.Github size={13}/> GitHub
           </a>
           <a className="btn btn-primary btn-sm" href="download.html">

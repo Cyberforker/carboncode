@@ -1,6 +1,6 @@
 // Lang context + t() helper. `t({zh, en})` returns the active-lang string.
 
-window.REASONIX_VERSION = "0.45.1";
+window.CARBONCODE_VERSION = "0.1.0";
 
 const LangCtx = React.createContext({ lang: "zh", setLang: () => {} });
 
@@ -8,7 +8,7 @@ function detectInitialLang() {
   try {
     const url = new URLSearchParams(location.search).get("lang");
     if (url === "en" || url === "zh") return url;
-    const stored = localStorage.getItem("reasonix.lang");
+    const stored = localStorage.getItem("carboncode.lang");
     if (stored === "en" || stored === "zh") return stored;
     const nav = (navigator.language || "").toLowerCase();
     return nav.startsWith("zh") ? "zh" : "en";
@@ -22,7 +22,7 @@ function LangProvider({ children }) {
   const setLang = React.useCallback((v) => {
     setLangState(v);
     try {
-      localStorage.setItem("reasonix.lang", v);
+      localStorage.setItem("carboncode.lang", v);
       const url = new URL(window.location.href);
       url.searchParams.set("lang", v);
       window.history.replaceState({}, "", url.toString());

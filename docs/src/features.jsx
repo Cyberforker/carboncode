@@ -13,8 +13,8 @@ const FEATURES = [
     title: { zh: 'V4 双档位', en: 'V4 two-tier' },
     en: 'Flash by default · /pro on demand',
     desc: {
-      zh: '默认 V4-Flash 跑日常迭代控成本，/pro 单回合切到 V4-Pro，/preset max 整个 session 走 Pro。',
-      en: 'V4-Flash by default for cheap iteration; `/pro` lifts a single turn to V4-Pro; `/preset max` makes the whole session run on Pro.',
+      zh: '默认 DeepSeek V4 Flash 跑日常迭代控成本，/pro 单回合切到 DeepSeek V4 Pro，/preset max 整个 session 走 Pro。',
+      en: 'DeepSeek V4 Flash by default for cheap iteration; `/pro` lifts a single turn to DeepSeek V4 Pro; `/preset max` makes the whole session run on Pro.',
     },
   },
   {
@@ -37,13 +37,13 @@ const FEATURES = [
     title: { zh: 'Skills 可编排', en: 'Composable skills' },
     en: 'Markdown skill scripts',
     desc: {
-      zh: '.reasonix/skills/<name>.md，frontmatter 支持 runAs: subagent + allowed-tools 隔离运行。',
-      en: 'Drop a Markdown file in `.reasonix/skills/<name>.md`; frontmatter supports `runAs: subagent` and `allowed-tools` for isolated execution.',
+      zh: '.carboncode/skills/<name>.md，frontmatter 支持 runAs: subagent + allowed-tools 隔离运行。',
+      en: 'Drop a Markdown file in `.carboncode/skills/<name>.md`; frontmatter supports `runAs: subagent` and `allowed-tools` for isolated execution.',
     },
   },
   {
     title: { zh: 'Replay & Events', en: 'Replay & events' },
-    en: 'reasonix replay / events / stats',
+    en: 'carboncode replay / events / stats',
     desc: {
       zh: '完整事件流落盘，可回放任意一次会话，可统计 token / cache / 成本，便于审计。',
       en: 'Every event hits disk — replay any past session, run stats on token / cache / cost, audit your loop\'s behaviour.',

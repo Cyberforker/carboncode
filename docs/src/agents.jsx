@@ -7,8 +7,8 @@ const PILLARS = [
     cn: { zh: '字节稳定的运行循环', en: 'A byte-stable loop' },
     badge: 'P1',
     summary: {
-      zh: 'DeepSeek 的 prefix-cache 从 prompt 第 0 字节开始指纹化。Reasonix 的循环是 append-only —— 不重排、不基于 marker 做压缩 —— 让缓存前缀在每一次工具调用后都保持稳定。',
-      en: 'DeepSeek\'s prefix cache fingerprints prompts from byte 0. The Reasonix loop is append-only — no reordering, no marker-based compaction — so the cached prefix survives every tool call.',
+      zh: 'DeepSeek 的 prefix-cache 从 prompt 第 0 字节开始指纹化。Carbon Code 的循环是 append-only —— 不重排、不基于 marker 做压缩 —— 让缓存前缀在每一次工具调用后都保持稳定。',
+      en: 'DeepSeek\'s prefix cache fingerprints prompts from byte 0. The Carbon Code loop is append-only — no reordering, no marker-based compaction — so the cached prefix survives every tool call.',
     },
     metric: '94%',
     metricLabel: { zh: 'cache hit · 长会话', en: 'cache hit · long sessions' },
@@ -25,8 +25,8 @@ const PILLARS = [
     cn: { zh: '推理链回收', en: 'Reasoning-chain harvest' },
     badge: 'P2',
     summary: {
-      zh: '当模型在 <think> 块里"想偏了"把工具调用写进了思考内容，Reasonix 会做一次扫掠（scavenge pass）把这些逃逸的 tool call 抓回来执行，不浪费推理 token。',
-      en: 'When the model strays inside a <think> block and writes tool calls into its reasoning, Reasonix runs a scavenge pass to recover those escaped calls and dispatch them — no reasoning tokens go to waste.',
+      zh: '当模型在 <think> 块里"想偏了"把工具调用写进了思考内容，Carbon Code 会做一次扫掠（scavenge pass）把这些逃逸的 tool call 抓回来执行，不浪费推理 token。',
+      en: 'When the model strays inside a <think> block and writes tool calls into its reasoning, Carbon Code runs a scavenge pass to recover those escaped calls and dispatch them — no reasoning tokens go to waste.',
     },
     metric: '+38%',
     metricLabel: { zh: 'tool dispatch 回收', en: 'tool dispatch recovered' },
@@ -43,8 +43,8 @@ const PILLARS = [
     cn: { zh: '工具调用自愈', en: 'Tool-call repair' },
     badge: 'P3',
     summary: {
-      zh: '模型生成的工具参数偶尔会有 JSON 拼写错、引号不闭合、shape 不一致的情况。Reasonix 在送入 dispatch 之前先做一轮 schema-aware 的修复，把畸形参数补好再执行。',
-      en: 'Tool arguments the model produces occasionally have JSON typos, unclosed quotes, or shape mismatches. Reasonix runs a schema-aware repair pass before dispatch so malformed args still execute.',
+      zh: '模型生成的工具参数偶尔会有 JSON 拼写错、引号不闭合、shape 不一致的情况。Carbon Code 在送入 dispatch 之前先做一轮 schema-aware 的修复，把畸形参数补好再执行。',
+      en: 'Tool arguments the model produces occasionally have JSON typos, unclosed quotes, or shape mismatches. Carbon Code runs a schema-aware repair pass before dispatch so malformed args still execute.',
     },
     metric: '< 0.3%',
     metricLabel: { zh: '修复后剩余工具失败率', en: 'tool failures after repair' },
@@ -52,7 +52,7 @@ const PILLARS = [
       { n: '01', label: 'parse',   desc: { zh: 'JSON5 / 容错解析，识别常见畸形写法', en: 'JSON5 / lenient parser catches common malformations' } },
       { n: '02', label: 'reshape', desc: { zh: '按 schema 重排字段名 · 修补默认值', en: 'Reshape against the schema; fill in defaults' } },
       { n: '03', label: 'retry',   desc: { zh: '修复失败时优雅回报 · 让模型自我纠正', en: 'When repair fails, report cleanly so the model self-corrects' } },
-      { n: '04', label: 'log',     desc: { zh: '所有修复动作可在 reasonix replay 中回放', en: 'Every repair action is replayable via reasonix replay' } },
+      { n: '04', label: 'log',     desc: { zh: '所有修复动作可在 carboncode replay 中回放', en: 'Every repair action is replayable via carboncode replay' } },
     ],
   },
 ];
@@ -69,8 +69,8 @@ function Agents() {
         label="Three Pillars"
         title={t({ zh: '为什么是 <em>DeepSeek</em> 原生', en: 'Why <em>DeepSeek</em>-native' }, lang)}
         sub={t({
-          zh: 'Reasonix 只对接 DeepSeek，因为这套循环的不变量是按 DeepSeek 的 cache 机制设计的。同样的模型、同样的 API —— 改变的是循环的工程姿态。',
-          en: 'Reasonix only targets DeepSeek because the loop\'s invariants are designed against DeepSeek\'s cache mechanics. Same model, same API — what changes is the engineering stance of the loop.',
+          zh: 'Carbon Code 只对接 DeepSeek，因为这套循环的不变量是按 DeepSeek 的 cache 机制设计的。同样的模型、同样的 API —— 改变的是循环的工程姿态。',
+          en: 'Carbon Code only targets DeepSeek because the loop\'s invariants are designed against DeepSeek\'s cache mechanics. Same model, same API — what changes is the engineering stance of the loop.',
         }, lang)}
       />
 

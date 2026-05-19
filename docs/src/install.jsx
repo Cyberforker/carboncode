@@ -23,16 +23,16 @@ function CopyCmd({ cmd }) {
 
 const INSTALL_TABS = [
   { id: 'npx',  label: { zh: 'npx (推荐)', en: 'npx (recommended)' },
-    cmd: 'npx reasonix code',
+    cmd: 'npx --package @carboncode/cli carboncode',
     note: { zh: '无需全局安装，进入项目目录即用', en: 'No global install — runs in your project dir' } },
   { id: 'npm',  label: { zh: 'npm', en: 'npm' },
-    cmd: 'npm install -g reasonix && reasonix code',
+    cmd: 'npm install -g @carboncode/cli && carboncode code',
     note: { zh: '需要 Node ≥ 22 (或 ≥ 20.10)', en: 'Requires Node ≥ 22 (or ≥ 20.10)' } },
   { id: 'pnpm', label: { zh: 'pnpm', en: 'pnpm' },
-    cmd: 'pnpm add -g reasonix && reasonix code',
+    cmd: 'pnpm add -g @carboncode/cli && carboncode code',
     note: { zh: '全局安装速度更快', en: 'Faster global install' } },
   { id: 'src',  label: { zh: 'from source', en: 'from source' },
-    cmd: 'git clone https://github.com/esengine/DeepSeek-Reasonix && cd DeepSeek-Reasonix && npm install && npm run dev code',
+    cmd: 'git clone https://github.com/Yapie0/carboncode && cd carboncode && npm install && npm run dev -- code',
     note: { zh: '需要参与开发请走源码', en: 'Go via source if you want to contribute' } },
 ];
 
@@ -100,7 +100,7 @@ function Install() {
             {t({ zh: '启动 TUI 会话', en: 'Launch the TUI' }, lang)}
           </h3>
           <div className="copy-block" style={{fontSize:13, maxWidth:'none'}}>
-            <span className="cmd"><span className="tok-cmt">$ </span>npx reasonix code</span>
+            <span className="cmd"><span className="tok-cmt">$ </span>npx --package @carboncode/cli carboncode</span>
           </div>
           <p style={{color:'var(--cream-mute)', fontSize:11.5, marginTop:14, marginBottom:0, fontFamily:'var(--mono)', letterSpacing:'0.04em'}}>
             {t({ zh: '// 首次启动向导自动注入 Key', en: '// first-launch wizard wires up the key' }, lang)}

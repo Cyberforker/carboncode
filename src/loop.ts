@@ -88,7 +88,7 @@ export interface CacheFirstLoopOptions {
   hookCwd?: string;
   /** PauseGate bridge — defaults to singleton, injectable for tests. */
   confirmationGate?: PauseGate;
-  /** Re-runs the prompt builder (applyMemoryStack / codeSystemPrompt) on /new so REASONIX.md edits take effect without a restart. Accepting a cache miss is the price. */
+  /** Re-runs the prompt builder (applyMemoryStack / codeSystemPrompt) on /new so project-rule edits take effect without a restart. Accepting a cache miss is the price. */
   rebuildSystem?: () => string;
 }
 
@@ -202,8 +202,12 @@ export class CacheFirstLoop {
       allowedToolNames: allowedNames,
       isMutating: (call) => this.isMutating(call),
       isStormExempt,
-      stormThreshold: parsePositiveIntEnv(process.env.REASONIX_STORM_THRESHOLD),
-      stormWindow: parsePositiveIntEnv(process.env.REASONIX_STORM_WINDOW),
+      stormThreshold: parsePositiveIntEnv(
+        process.env.CARBONCODE_STORM_THRESHOLD ?? process.env.REASONIX_STORM_THRESHOLD,
+      ),
+      stormWindow: parsePositiveIntEnv(
+        process.env.CARBONCODE_STORM_WINDOW ?? process.env.REASONIX_STORM_WINDOW,
+      ),
     });
 
     // Heal-on-load: oversized tool results would 400 the next call before the user types.
@@ -294,7 +298,7 @@ export class CacheFirstLoop {
     }
   }
 
-  /** "New chat" — drops in-memory messages, archives the on-disk transcript so it survives in Sessions, keeps sessionName so the prefix cache stays warm. Re-runs the system-prompt builder if one was wired (issue #778: REASONIX.md edits otherwise need a restart). */
+  /** "New chat" — drops in-memory messages, archives the on-disk transcript so it survives in Sessions, keeps sessionName so the prefix cache stays warm. Re-runs the system-prompt builder if one was wired (issue #778: project-rule edits otherwise need a restart). */
   clearLog(): { dropped: number; archived: string | null; systemRebuilt: boolean } {
     const dropped = this.log.length;
     this.log.compactInPlace([]);
@@ -1109,8 +1113,15 @@ export class CacheFirstLoop {
       }
 
       const dispatchSerial =
-        (process.env.REASONIX_TOOL_DISPATCH ?? "auto").toLowerCase() === "serial";
-      const parallelMaxParsed = Number.parseInt(process.env.REASONIX_PARALLEL_MAX ?? "", 10);
+        (
+          process.env.CARBONCODE_TOOL_DISPATCH ??
+          process.env.REASONIX_TOOL_DISPATCH ??
+          "auto"
+        ).toLowerCase() === "serial";
+      const parallelMaxParsed = Number.parseInt(
+        process.env.CARBONCODE_PARALLEL_MAX ?? process.env.REASONIX_PARALLEL_MAX ?? "",
+        10,
+      );
       const parallelMax =
         Number.isFinite(parallelMaxParsed) && parallelMaxParsed >= 1
           ? Math.min(parallelMaxParsed, 16)

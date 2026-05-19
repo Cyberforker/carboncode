@@ -1,10 +1,10 @@
-// Hero — animated terminal showing a real Reasonix coding session
+// Hero — animated terminal showing a real Carbon Code coding session
 
-// Based on the actual reasonix code TUI: cache-first loop, SEARCH/REPLACE edits,
+// Based on the actual carboncode code TUI: cache-first loop, SEARCH/REPLACE edits,
 // tool calls sandboxed to launch dir.
 const TERM_SCRIPT = [
-  { t: 'cmd', text: 'npx reasonix code' },
-  { t: 'out', text: `⏺ reasonix ${window.REASONIX_VERSION} · model: deepseek-v4-flash · workspace: ~/app`, cls: 'term-info', delay: 280 },
+  { t: 'cmd', text: 'npx --package @carboncode/cli carboncode' },
+  { t: 'out', text: `⏺ carboncode ${window.CARBONCODE_VERSION} · model: deepseek-v4-flash · workspace: ~/app`, cls: 'term-info', delay: 280 },
   { t: 'out', text: '⏺ cache: 94.2% hit · session: 18m23s · cost: $0.043', cls: 'term-dim', delay: 220 },
   { t: 'blank' },
   { t: 'cmd', text: 'fix the case-sensitivity bug in findByEmail' },
@@ -81,7 +81,7 @@ function Terminal() {
     <div className="terminal" role="presentation" aria-hidden="true">
       <div className="term-head">
         <div className="term-dots"><i></i><i></i><i></i></div>
-        <span className="term-title">~/app  ·  reasonix code</span>
+        <span className="term-title">~/app  ·  carboncode code</span>
         <div className="term-tabs">
           <span className="term-tab on">session</span>
           <span className="term-tab">events</span>
@@ -124,9 +124,9 @@ function Hero() {
   return (
     <section className="hero" id="top">
       <div className="hero-head">
-        <span>§00 · Reasonix</span>
+        <span>§00 · Carbon Code</span>
         <span className="rule"></span>
-        <span className="v">v{window.REASONIX_VERSION} · open source</span>
+        <span className="v">v{window.CARBONCODE_VERSION} · open source</span>
       </div>
       <div className="hero-grid">
         <div>
@@ -145,8 +145,8 @@ function Hero() {
           )}
           <p className="lede">
             {t({
-              zh: <>Reasonix 直接对接 <b>api.deepseek.com</b>，围绕 DeepSeek 的字节稳定 prefix-cache 设计了 append-only 的运行循环 —— 长会话能把缓存命中保持在 90%+，输入 token 成本降到 1/5。终端优先，留它一直跑着。</>,
-              en: <>Reasonix talks straight to <b>api.deepseek.com</b>. The loop is append-only, engineered around DeepSeek's byte-stable prefix cache — long sessions hold 90%+ cache hit and input-token cost collapses to ~1/5. Terminal-first, leave it running.</>,
+              zh: <>Carbon Code 直接对接 <b>api.deepseek.com</b>，围绕 DeepSeek 的字节稳定 prefix-cache 设计了 append-only 的运行循环 —— 长会话能把缓存命中保持在 90%+，输入 token 成本降到 1/5。终端优先，留它一直跑着。</>,
+              en: <>Carbon Code talks straight to <b>api.deepseek.com</b>. The loop is append-only, engineered around DeepSeek's byte-stable prefix cache — long sessions hold 90%+ cache hit and input-token cost collapses to ~1/5. Terminal-first, leave it running.</>,
             }, lang)}
           </p>
           <div className="hero-actions">

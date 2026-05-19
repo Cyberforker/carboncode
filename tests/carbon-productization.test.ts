@@ -119,6 +119,15 @@ describe("Carbon broad Reasonix import", () => {
     expect(prompt).not.toMatch(/\bReasonix\b|\bREASONIX\b|\breasonix\b/);
   });
 
+  test("loop runtime tuning env vars use Carbon Code prefixes", () => {
+    const loop = readFileSync(resolve("src/loop.ts"), "utf8");
+
+    expect(loop).toContain("process.env.CARBONCODE_TOOL_DISPATCH");
+    expect(loop).toContain("process.env.CARBONCODE_PARALLEL_MAX");
+    expect(loop).toContain("process.env.CARBONCODE_STORM_THRESHOLD");
+    expect(loop).toContain("process.env.CARBONCODE_STORM_WINDOW");
+  });
+
   test("dashboard static shell labels are Carbon-branded", () => {
     const appBundle = readFileSync(resolve("dashboard/app.js"), "utf8");
     const indexHtml = readFileSync(resolve("dashboard/index.html"), "utf8");
@@ -192,5 +201,65 @@ describe("Carbon broad Reasonix import", () => {
       expect(content, file).not.toMatch(/\bReasonix\b/);
       expect(content, file).not.toContain("~/.reasonix");
     }
+  });
+
+  test("published static docs site uses Carbon Code identity", () => {
+    const docs = [
+      "docs/index.html",
+      "docs/download.html",
+      "docs/architecture.html",
+      "docs/ARCHITECTURE.md",
+      "docs/arch-i18n.js",
+      "docs/cli-reference.html",
+      "docs/configuration.html",
+      "docs/i18n.js",
+      "docs/guide-i18n.js",
+      "docs/cli-ref-i18n.js",
+      "docs/logo.svg",
+      "docs/robots.txt",
+      "docs/sitemap.xml",
+      "docs/styles.css",
+      "docs/assets/feature-grid.svg",
+      "docs/assets/feature-grid.zh-CN.svg",
+      "docs/assets/hero-stats.svg",
+      "docs/assets/hero-stats.zh-CN.svg",
+      "docs/assets/hero-terminal.svg",
+      "docs/assets/hero-terminal.zh-CN.svg",
+      "docs/assets/og-card.svg",
+      "docs/assets/pillars.svg",
+      "docs/assets/pillars.zh-CN.svg",
+      "docs/src/agents.jsx",
+      "docs/src/app.jsx",
+      "docs/src/community.jsx",
+      "docs/src/config.jsx",
+      "docs/src/download-page.jsx",
+      "docs/src/faq.jsx",
+      "docs/src/features.jsx",
+      "docs/src/footer.jsx",
+      "docs/src/hero.jsx",
+      "docs/src/i18n.jsx",
+      "docs/src/install.jsx",
+      "docs/src/mirrors.jsx",
+      "docs/src/nav.jsx",
+      "docs/src/roadmap.jsx",
+      "docs/src/styles.css",
+    ];
+
+    let combined = "";
+    for (const file of docs) {
+      const content = readFileSync(resolve(file), "utf8");
+      combined += `\n${content}`;
+      expect(content, file).not.toMatch(/\breasonix\b/i);
+      expect(content, file).not.toContain("~/.reasonix");
+      expect(content, file).not.toContain("DeepSeek-Reasonix");
+    }
+    expect(combined).toContain("Carbon Code");
+    expect(combined).toContain("@carboncode/cli");
+    expect(combined).toContain("github.com/Yapie0/carboncode");
+    expect(combined).toContain("deepseek-v4-flash");
+    expect(combined).toContain("deepseek-v4-pro");
+    expect(combined).not.toContain("deepseek-deepseek");
+    expect(combined).not.toContain("deepseek-chat");
+    expect(combined).not.toContain("deepseek-reasoner");
   });
 });

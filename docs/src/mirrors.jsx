@@ -1,8 +1,8 @@
 // Smart mirror grid — probes R2 / GitHub Releases for fastest TTFB and offers
 // a per-platform installer link from whichever wins.
 
-const VERSION = window.REASONIX_VERSION;
-const GH_REPO = "esengine/DeepSeek-Reasonix";
+const VERSION = window.CARBONCODE_VERSION;
+const GH_REPO = "Yapie0/carboncode";
 const R2_BASE = "https://pub-147fb53b9c1e4bbf891a257968619ea7.r2.dev";
 
 const MIRRORS = [
@@ -28,21 +28,21 @@ const OS_OPTIONS = [
   {
     id: "mac",
     label: "macOS",
-    file: `Reasonix_${VERSION}_universal.dmg`,
+    file: `CarbonCode_${VERSION}_universal.dmg`,
     size: "52 MB",
     note: "Universal — Apple Silicon + Intel",
   },
   {
     id: "win",
     label: "Windows",
-    file: `Reasonix_${VERSION}_x64-setup.exe`,
+    file: `CarbonCode_${VERSION}_x64-setup.exe`,
     size: "30 MB",
     note: "NSIS installer · x64",
   },
   {
     id: "linux",
     label: "Linux",
-    file: `Reasonix_${VERSION}_amd64.AppImage`,
+    file: `CarbonCode_${VERSION}_amd64.AppImage`,
     size: "128 MB",
     note: "AppImage · x86_64",
   },

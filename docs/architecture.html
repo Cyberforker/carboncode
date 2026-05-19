@@ -3,59 +3,59 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Architecture — Reasonix · Cache-First Loop, Tool-Call Repair, Cost Control</title>
+    <title>Architecture — Carbon Code · Cache-First Loop, Tool-Call Repair, Cost Control</title>
     <meta
       name="description"
-      content="Reasonix architecture deep dive — cache-first loop, tool-call repair pipeline, cost control, and module layout."
+      content="Carbon Code architecture deep dive — cache-first loop, tool-call repair pipeline, cost control, and module layout."
     />
     <meta
       name="keywords"
-      content="Reasonix architecture, cache-first loop, tool-call repair, DeepSeek cost control, prefix caching, agent architecture"
+      content="Carbon Code architecture, cache-first loop, tool-call repair, DeepSeek cost control, prefix caching, agent architecture"
     />
-    <meta name="author" content="esengine" />
+    <meta name="author" content="Yapie0" />
     <meta name="theme-color" content="#0b0f17" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
 
     <link
       rel="canonical"
-      href="https://esengine.github.io/DeepSeek-Reasonix/architecture.html"
+      href="https://yapie0.github.io/carboncode/architecture.html"
     />
     <link
       rel="alternate"
       hreflang="en"
-      href="https://esengine.github.io/DeepSeek-Reasonix/architecture.html?lang=en"
+      href="https://yapie0.github.io/carboncode/architecture.html?lang=en"
     />
     <link
       rel="alternate"
       hreflang="zh-CN"
-      href="https://esengine.github.io/DeepSeek-Reasonix/architecture.html?lang=zh"
+      href="https://yapie0.github.io/carboncode/architecture.html?lang=zh"
     />
     <link
       rel="alternate"
       hreflang="x-default"
-      href="https://esengine.github.io/DeepSeek-Reasonix/architecture.html"
+      href="https://yapie0.github.io/carboncode/architecture.html"
     />
 
     <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="Reasonix" />
-    <meta property="og:title" content="Reasonix Architecture" />
+    <meta property="og:site_name" content="Carbon Code" />
+    <meta property="og:title" content="Carbon Code Architecture" />
     <meta
       property="og:description"
       content="Cache-first loop, tool-call repair, cost control, and module layout — the full architecture deep dive."
     />
     <meta
       property="og:url"
-      content="https://esengine.github.io/DeepSeek-Reasonix/architecture.html"
+      content="https://yapie0.github.io/carboncode/architecture.html"
     />
     <meta
       property="og:image"
-      content="https://raw.githubusercontent.com/esengine/reasonix/main/docs/assets/hero-terminal.svg"
+      content="https://raw.githubusercontent.com/Yapie0/carboncode/main/docs/assets/hero-terminal.svg"
     />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="zh_CN" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Reasonix Architecture" />
+    <meta name="twitter:title" content="Carbon Code Architecture" />
     <meta
       name="twitter:description"
       content="Cache-first loop, tool-call repair, cost control, and module layout."
@@ -70,23 +70,23 @@
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Reasonix Architecture",
+        "headline": "Carbon Code Architecture",
         "description": "Cache-first loop, tool-call repair pipeline, cost control, and module layout.",
-        "url": "https://esengine.github.io/DeepSeek-Reasonix/architecture.html",
+        "url": "https://yapie0.github.io/carboncode/architecture.html",
         "inLanguage": ["en", "zh-CN"],
         "author": {
           "@type": "Organization",
-          "name": "esengine",
-          "url": "https://github.com/esengine"
+          "name": "Yapie0",
+          "url": "https://github.com/Yapie0"
         },
         "isPartOf": {
           "@type": "WebSite",
-          "name": "Reasonix",
-          "url": "https://esengine.github.io/DeepSeek-Reasonix/"
+          "name": "Carbon Code",
+          "url": "https://yapie0.github.io/carboncode/"
         },
         "about": {
           "@type": "SoftwareApplication",
-          "name": "Reasonix"
+          "name": "Carbon Code"
         }
       }
     </script>
@@ -98,14 +98,14 @@
           {
             "@type": "ListItem",
             "position": 1,
-            "name": "Reasonix",
-            "item": "https://esengine.github.io/DeepSeek-Reasonix/"
+            "name": "Carbon Code",
+            "item": "https://yapie0.github.io/carboncode/"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Architecture",
-            "item": "https://esengine.github.io/DeepSeek-Reasonix/architecture.html"
+            "item": "https://yapie0.github.io/carboncode/architecture.html"
           }
         ]
       }
@@ -121,7 +121,7 @@
         <a class="brand" href="index.html">
           <span class="brand-mark"></span>
           <span class="brand-name">
-            <b>Reasonix</b><span>DS · v0.45.1</span>
+            <b>Carbon Code</b><span>DS · v0.1.0</span>
           </span>
         </a>
         <div class="nav-links" role="navigation">
@@ -139,7 +139,7 @@
             <button data-lang-btn="en" type="button" aria-pressed="true">EN</button>
             <button data-lang-btn="zh" type="button" aria-pressed="false">中文</button>
           </div>
-          <a class="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn btn-ghost btn-sm" href="https://github.com/Yapie0/carboncode" target="_blank" rel="noopener">GitHub</a>
           <a class="btn btn-primary btn-sm" href="download.html">Download →</a>
         </div>
       </div>
@@ -150,12 +150,12 @@
         <div class="container">
           <div class="badge" data-i18n="arch.badge">Cache · Repair · Cost · Modules</div>
           <h1 class="guide-title">
-            <span class="grad-text" data-i18n="arch.title.line1">Reasonix Architecture</span>
+            <span class="grad-text" data-i18n="arch.title.line1">Carbon Code Architecture</span>
             <br />
             <span data-i18n="arch.title.line2">how it works under the hood</span>
           </h1>
           <p class="guide-sub" data-i18n="arch.sub">
-            Reasonix is <strong>opinionated, not general</strong>. Every abstraction is
+            Carbon Code is <strong>opinionated, not general</strong>. Every abstraction is
             justified by a DeepSeek-specific behavior or economic property. The product
             north star: a coding agent that stays cheap enough to leave on.
           </p>
@@ -180,7 +180,7 @@
           <section id="philosophy">
             <h2 data-i18n="ph.title">Design philosophy</h2>
             <p data-i18n="ph.body1">
-              Reasonix is <strong>opinionated, not general</strong>. Every abstraction is
+              Carbon Code is <strong>opinionated, not general</strong>. Every abstraction is
               justified by a DeepSeek-specific behavior or economic property. If it's
               generic, we don't ship it.
             </p>
@@ -247,12 +247,12 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><code>REASONIX_PARALLEL_MAX</code></td>
+                  <td><code>CARBONCODE_PARALLEL_MAX</code></td>
                   <td><code>3</code> (hard cap <code>16</code>)</td>
                   <td>Max chunk size.</td>
                 </tr>
                 <tr>
-                  <td><code>REASONIX_TOOL_DISPATCH=serial</code></td>
+                  <td><code>CARBONCODE_TOOL_DISPATCH=serial</code></td>
                   <td>unset</td>
                   <td>Forces serial dispatch — escape hatch.</td>
                 </tr>
@@ -308,10 +308,10 @@
           </section>
 
           <section id="pillar3">
-            <h2 data-i18n="p3.title">Pillar 3 — Cost Control (v0.6)</h2>
+            <h2 data-i18n="p3.title">Pillar 3 — Cost Control</h2>
             <p data-i18n="p3.problem">
               <strong>Problem.</strong> Coding agents that default to the frontier model
-              (v4-pro, ~12× flash cost) and accumulate full tool results in context are
+              (deepseek-v4-pro, ~12× flash cost) and accumulate full tool results in context are
               $150–$250/month for active users. Most turns don't need frontier reasoning;
               most sessions re-pay for tool results that were only useful once.
             </p>
@@ -337,19 +337,19 @@
               <tbody>
                 <tr>
                   <td><code>flash</code></td>
-                  <td><code>v4-flash</code></td>
+                  <td><code>deepseek-v4-flash</code></td>
                   <td><code>max</code></td>
                   <td>1×</td>
                 </tr>
                 <tr>
                   <td><code>auto</code> (default)</td>
-                  <td><code>v4-flash</code> → <code>v4-pro</code> on hard turns</td>
+                  <td><code>deepseek-v4-flash</code> → <code>deepseek-v4-pro</code> on hard turns</td>
                   <td><code>max</code></td>
                   <td>1–3×</td>
                 </tr>
                 <tr>
                   <td><code>pro</code></td>
-                  <td><code>v4-pro</code></td>
+                  <td><code>deepseek-v4-pro</code></td>
                   <td><code>max</code></td>
                   <td>~12×</td>
                 </tr>
@@ -357,7 +357,7 @@
             </table>
             <p data-i18n="p3.tiers.aux">
               All auxiliary calls — <code>forceSummaryAfterIterLimit</code>, subagent
-              spawns, truncation repair retries — hard-code <code>v4-flash +
+              spawns, truncation repair retries — hard-code <code>deepseek-v4-flash +
               effort=high</code> regardless of the user's preset. There's no reason to pay
               pro rates for paraphrasing tool results or for an <code>explore</code>
               subagent's grep chain.
@@ -380,7 +380,7 @@
             <h3 data-i18n="p3.h.pro">4.3 /pro single-turn arming</h3>
             <p data-i18n="p3.pro.body">
               Users who predict a hard task type <code>/pro</code>; the <strong>next</strong>
-              turn runs on <code>v4-pro</code>, then auto-disarms. No preset churn, no
+              turn runs on <code>deepseek-v4-pro</code>, then auto-disarms. No preset churn, no
               forgotten revert. Armed state is visible as a yellow <code>⇧ pro armed</code>
               pill in the header.
             </p>
@@ -395,7 +395,7 @@
             </ul>
             <p data-i18n="p3.esc.threshold">
               Once the count hits <code>FAILURE_ESCALATION_THRESHOLD</code> (3), the
-              <strong>remainder of the current turn</strong> runs on <code>v4-pro</code>.
+              <strong>remainder of the current turn</strong> runs on <code>deepseek-v4-pro</code>.
               Announced via a yellow warning row — no silent cost surprises. Counter +
               escalation flag reset at every turn start.
             </p>
@@ -425,7 +425,7 @@
 │   ├── truncation.ts
 │   └── storm.ts
 ├── prompt-fragments.ts     <span class="hash"># TUI_FORMATTING_RULES, NEGATIVE_CLAIM_RULE</span>
-├── code/prompt.ts          <span class="hash"># reasonix code main system prompt</span>
+├── code/prompt.ts          <span class="hash"># carboncode code main system prompt</span>
 ├── tools/                  <span class="hash"># Tool implementations</span>
 │   ├── filesystem.ts       <span class="hash"># read / list / search / edit / write</span>
 │   ├── shell.ts            <span class="hash"># run_command + run_background (JobRegistry)</span>
@@ -437,13 +437,13 @@
 │   └── web.ts              <span class="hash"># web_search, web_fetch (multi-engine: Mojeek, SearXNG or Metaso)</span>
 ├── mcp/                    <span class="hash"># MCP client + bridge (stdio + SSE)</span>
 ├── memory.ts               <span class="hash"># ImmutablePrefix / AppendOnlyLog / VolatileScratch</span>
-├── project-memory.ts       <span class="hash"># REASONIX.md loader</span>
-├── user-memory.ts          <span class="hash"># ~/.reasonix/memory/ store (project + global)</span>
+├── project-memory.ts       <span class="hash"># CARBON.md loader</span>
+├── user-memory.ts          <span class="hash"># ~/.carboncode/memory/ store (project + global)</span>
 ├── skills.ts               <span class="hash"># built-in explore + research skills</span>
 ├── session.ts              <span class="hash"># JSONL session persistence</span>
 ├── telemetry.ts            <span class="hash"># cost + cache-hit accounting + SessionSummary</span>
 ├── tokenizer.ts            <span class="hash"># DeepSeek V3 tokenizer (ported)</span>
-├── usage.ts                <span class="hash"># ~/.reasonix/usage.jsonl roll-up</span>
+├── usage.ts                <span class="hash"># ~/.carboncode/usage.jsonl roll-up</span>
 ├── types.ts                <span class="hash"># ChatMessage, ToolCall, ToolSpec</span>
 ├── index.ts                <span class="hash"># library barrel</span>
 └── cli/
@@ -482,21 +482,8 @@
           <section id="evolution">
             <h2 data-i18n="evo.title">Design evolution</h2>
             <ul>
-              <li><strong>v0.0.x</strong> — Pillar 1 end-to-end, repair pipeline complete, Ink TUI scaffold.</li>
-              <li><strong>v0.1</strong> — τ-bench numbers published, streaming polish, transcript replay.</li>
-              <li><strong>v0.3</strong> — MCP client (stdio + SSE), session persistence.</li>
-              <li><strong>v0.4.x</strong> — <code>reasonix code</code> with SEARCH/REPLACE edits, review/auto gate, background jobs, hooks.</li>
-              <li><strong>v0.5.x</strong> — V4 model support, skills, memory, subagents, actionable error messages.</li>
-              <li>
-                <strong>v0.6</strong> —
-                <ul>
-                  <li><strong>Cost control</strong> (flash-first defaults, auto-compaction, <code>/pro</code> one-shot, failure-triggered escalation, cost badges).</li>
-                  <li><code>deepseek-chat</code> / <code>deepseek-reasoner</code> scheduled for deprecation — all user-facing surfaces updated to <code>v4-flash</code> / <code>v4-pro</code>.</li>
-                  <li>Shared prompt fragments (<code>TUI_FORMATTING_RULES</code>, <code>NEGATIVE_CLAIM_RULE</code>).</li>
-                  <li>UI refactor: App.tsx split into 6 hooks/components, slash.ts split into 13 per-topic modules.</li>
-                </ul>
-              </li>
-              <li><strong>v0.31</strong> <em>(current)</em> — <code>branch</code> + <code>harvest</code> features removed entirely (the parallel-sample selector and Pillar 2 plan-state extractor); both rarely paid for themselves and bloated the slash surface.</li>
+              <li><strong>v0.1.0</strong> — Carbon Code productization of the imported engine: package identity, <code>carboncode</code> / <code>ccode</code> bins, Carbon config paths, Chinese-first copy, DeepSeek V4 model profiles, attribution files, and tag-driven npm publishing.</li>
+              <li><strong>Next</strong> — release hardening: npm Trusted Publishing environment, public release notes, final package dry-run, desktop signing decisions, and a documented opt-in path for the optional <code>carbon</code> alias.</li>
             </ul>
           </section>
 
@@ -519,14 +506,14 @@
         <div>
           <a class="brand" href="index.html" style="text-decoration:none; color:inherit">
             <span class="brand-mark"></span>
-            <span class="brand-name"><b>DeepSeek-Reasonix</b></span>
+            <span class="brand-name"><b>Carbon Code</b></span>
           </a>
           <p style="color:var(--cream-mute); font-size:13px; margin-top:14px; line-height:1.65; max-width:340px">
             DeepSeek-native AI coding agent for your terminal. Engineered around prefix-cache stability — leave it running.
           </p>
           <div style="display:flex; gap:10px; margin-top:18px">
-            <a class="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
-            <a class="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix/discussions" target="_blank" rel="noopener">Discussions</a>
+            <a class="btn btn-ghost btn-sm" href="https://github.com/Yapie0/carboncode" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
+            <a class="btn btn-ghost btn-sm" href="https://github.com/Yapie0/carboncode/discussions" target="_blank" rel="noopener">Discussions</a>
           </div>
         </div>
         <div>
@@ -541,27 +528,27 @@
         <div>
           <h5>Community</h5>
           <ul>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noopener">GitHub</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/discussions" target="_blank" rel="noopener">Discussions</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/issues" target="_blank" rel="noopener">Issues</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode/discussions" target="_blank" rel="noopener">Discussions</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode/issues" target="_blank" rel="noopener">Issues</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
           </ul>
         </div>
         <div>
           <h5>Resources</h5>
           <ul>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix#readme" target="_blank" rel="noopener">README</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode#readme" target="_blank" rel="noopener">README</a></li>
             <li><a href="index.html#roadmap">Roadmap</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
+            <li><a href="https://github.com/Yapie0/carboncode/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
             <li><a href="https://platform.deepseek.com" target="_blank" rel="noopener">DeepSeek Platform</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 esengine · MIT License</span>
+        <span>© 2026 Carbon Code · MIT License</span>
         <span class="spacer"></span>
         <span>Independent open-source project · not affiliated with DeepSeek</span>
-        <span style="margin-left:18px">v0.45.1 · stable</span>
+        <span style="margin-left:18px">v0.1.0 · stable</span>
       </div>
     </footer>
 
