@@ -5,7 +5,7 @@ import { zhCN } from "./zh-CN";
 export type Lang = "en" | "zh-CN";
 
 const SUPPORTED: ReadonlySet<Lang> = new Set<Lang>(["en", "zh-CN"]);
-const STORAGE_KEY = "reasonix.lang";
+const STORAGE_KEY = "carboncode.lang";
 
 type Listener = () => void;
 const listeners: Listener[] = [];

@@ -89,7 +89,7 @@ export interface SubagentToolOptions {
 }
 
 /** Memory-stable prefix — shared across spawns, cached. The model-dependent escalation contract is appended per spawn so a pro spawn doesn't get told it's running on flash (#582). */
-const SUBAGENT_BASE_SYSTEM = `You are a Reasonix subagent. The parent agent spawned you to handle one focused subtask, then return.
+const SUBAGENT_BASE_SYSTEM = `You are a Carbon Code subagent. The parent agent spawned you to handle one focused subtask, then return.
 
 Rules:
 - Stay on the task you were given. Do not expand scope.
@@ -406,7 +406,7 @@ export function registerSubagentTool(
 ): ToolRegistry {
   const baseSystem = opts.defaultSystem ?? SUBAGENT_BASE_SYSTEM;
   // Bake project memory into the default once — re-reading on every
-  // spawn would (a) make the child prefix unstable when REASONIX.md
+  // spawn would (a) make the child prefix unstable when project rules
   // changes mid-session, defeating cache reuse across multiple
   // subagent calls, and (b) cost a stat() per call. The parent itself
   // also reads memory once at startup; matching that semantics keeps

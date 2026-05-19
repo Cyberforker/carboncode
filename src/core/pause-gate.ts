@@ -103,7 +103,7 @@ export class PauseGate {
     const { kind, payload } = opts;
     if (this._listeners.size === 0) {
       throw new Error(
-        `${kind}: no confirmation listener registered — cannot prompt the user. This tool can only be used inside an interactive Reasonix session.`,
+        `${kind}: no confirmation listener registered — cannot prompt the user. This tool can only be used inside an interactive Carbon Code session.`,
       );
     }
     return new Promise((resolve) => {

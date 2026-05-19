@@ -1,7 +1,7 @@
 # MCP client (v0.3 foundation)
 
 Minimal [Model Context Protocol](https://spec.modelcontextprotocol.io/)
-client, hand-rolled in TypeScript. Lets Reasonix consume tools from any
+client, hand-rolled in TypeScript. Lets Carbon Code consume tools from any
 MCP server (filesystem, github, slack, puppeteer, …) while applying the
 Cache-First Loop and tool-call repair to the whole thing automatically.
 
@@ -9,9 +9,9 @@ Cache-First Loop and tool-call repair to the whole thing automatically.
 
 Same reasoning that drove `client.ts` (DeepSeek) rather than `openai`:
 
-- **Zero runtime deps** for this module. Consistent with Reasonix's
+- **Zero runtime deps** for this module. Consistent with Carbon Code's
   policy of owning the wire format where it matters.
-- **Surface tuning**: we only implement what Reasonix actually uses —
+- **Surface tuning**: we only implement what Carbon Code actually uses —
   initialize + tools/list + tools/call. Resources, prompts, sampling,
   and progress notifications are deferred.
 - **Insulation** from SDK breaking changes. The spec is more stable
@@ -45,13 +45,13 @@ tests/mcp-sse.test.ts — in-process http.Server fake for SSE
 | CLI wiring (`carboncode chat --mcp <cmd>`) | ✅ shipped | see Usage below |
 | Bundled demo server | ✅ shipped | `examples/mcp-server-demo.ts`, exposes echo/add/get_time |
 | Real-subprocess integration test | ✅ shipped | `tests/mcp-integration.test.ts` |
-| Resources / `resources/list` / `resources/read` | deferred | Reasonix doesn't surface resources today |
+| Resources / `resources/list` / `resources/read` | deferred | Carbon Code doesn't surface resources today |
 | Prompts / `prompts/list` | deferred | ditto |
 | Progress notifications | deferred | long-running tool support comes with the CLI work |
 | Streaming results | deferred | current shape returns one CallToolResult per call |
 | SSE transport | ✅ shipped | `src/mcp/sse.ts` — pass `http(s)://…` to `--mcp` |
 | Streamable HTTP (2025-03-26 spec) | deferred | waiting for a real server to validate against |
-| MCP server that Reasonix exposes | never | out of scope — Reasonix is a client |
+| MCP server that Carbon Code exposes | never | out of scope — Carbon Code is a client |
 
 ## Usage (CLI)
 
@@ -84,7 +84,7 @@ carboncode run "list files in /tmp/safe-dir" \
 Each spec is shell-split (spaces separate args; use quotes for paths with
 spaces). Windows-friendly: backslashes pass through literally outside
 quotes, so `C:\path\to\dir` works. Tools get folded into the
-`ImmutablePrefix` for the model, and every call goes through Reasonix's
+`ImmutablePrefix` for the model, and every call goes through Carbon Code's
 Cache-First loop + tool-call repair (scavenge / flatten / storm)
 automatically.
 
@@ -98,7 +98,7 @@ import {
   CacheFirstLoop,
   DeepSeekClient,
   ImmutablePrefix,
-} from "reasonix";
+} from "@carboncode/cli";
 
 // 1. Spawn + connect to an MCP server
 const transport = new StdioTransport({
@@ -108,7 +108,7 @@ const transport = new StdioTransport({
 const mcp = new McpClient({ transport });
 await mcp.initialize();
 
-// 2. Bridge its tools into a Reasonix ToolRegistry
+// 2. Bridge its tools into a Carbon Code ToolRegistry
 const { registry } = await bridgeMcpTools(mcp, { namePrefix: "fs_" });
 
 // 3. Use them with the Cache-First Loop — same as any native tool
@@ -130,7 +130,7 @@ for await (const ev of loop.step("List the files in /tmp/safe-dir.")) {
 await mcp.close();
 ```
 
-The payoff: the filesystem server's tools now inherit Reasonix's
+The payoff: the filesystem server's tools now inherit Carbon Code's
 cache-first prefix stability + repair (schema flatten, tool-call
 scavenge, call-storm break) without the MCP server knowing anything
 about it.

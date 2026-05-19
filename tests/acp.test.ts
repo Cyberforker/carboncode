@@ -531,7 +531,7 @@ describe("ACP initialize handshake (end-to-end via the server)", () => {
         promptCapabilities: { image: false, audio: false, embeddedContext: true },
         mcpCapabilities: { http: false, sse: false },
       },
-      agentInfo: { name: "reasonix", title: "Reasonix", version: "0.0.0-test" },
+      agentInfo: { name: "carboncode", title: "Carbon Code", version: "0.0.0-test" },
       authMethods: [],
     }));
     send({
@@ -544,7 +544,8 @@ describe("ACP initialize handshake (end-to-end via the server)", () => {
     const reply = JSON.parse(reads()[0] ?? "{}");
     expect(reply.id).toBe(0);
     expect(reply.result.protocolVersion).toBe(1);
-    expect(reply.result.agentInfo.name).toBe("reasonix");
+    expect(reply.result.agentInfo.name).toBe("carboncode");
+    expect(reply.result.agentInfo.title).toBe("Carbon Code");
     expect(reply.result.authMethods).toEqual([]);
     server.close();
   });

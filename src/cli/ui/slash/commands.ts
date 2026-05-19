@@ -349,7 +349,7 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     group: "advanced",
     argsHint: "[list|add <prefix>|remove <prefix|N>|clear confirm]",
     summary:
-      "show / edit shell allowlist (builtin read-only · per-project: ~/.reasonix/config.json)",
+      "show / edit shell allowlist (builtin read-only · per-project: ~/.carboncode/config.json)",
     argCompleter: ["list", "add", "remove", "clear"],
   },
   {

@@ -24,7 +24,7 @@ export const en = {
     pickWorkspaceHint: "Pick another working directory",
     settings: "Settings",
     settingsHint: "Model, budget, theme…",
-    about: "About Reasonix",
+    about: "About Carbon Code",
     groupNav: "Navigate",
     groupAction: "Action",
     groupWorkspace: "Workspace",
@@ -64,10 +64,10 @@ export const en = {
     copiedMd: "Conversation copied as Markdown",
     newSession: "Started a new session",
     cleared: "UI cleared",
-    aboutLine: "Reasonix v{version} · cache-first DeepSeek agent",
+    aboutLine: "Carbon Code v{version} · cache-first DeepSeek agent",
   },
   composer: {
-    busy: "reasonix is thinking…",
+    busy: "carboncode is thinking…",
     idle: "Ask something",
     send: "send",
     newline: "newline",
@@ -156,7 +156,7 @@ export const en = {
     editorPlaceholder: 'e.g. "code", "subl", or full path to executable',
     editorDefault: "(default)",
     apiKey: "API key",
-    apiKeyHint: "DeepSeek key — saved to ~/.reasonix/config.json (0600).",
+    apiKeyHint: "DeepSeek key — saved to ~/.carboncode/config.json (0600).",
     apiKeyNotSet: "(not set)",
     apiKeyCancel: "Cancel",
     apiKeySave: "Save",
@@ -201,7 +201,7 @@ export const en = {
     mcpConfigured: "Configured · {count}",
     mcpBridged: "· Bridged",
     mcpNotBridged:
-      "· Current desktop session not bridged — restart reasonix code (TUI) to take effect",
+      "· Current desktop session not bridged — restart carboncode code (TUI) to take effect",
     mcpEmpty: "No MCP servers configured yet. Enter a spec below to add one.",
     mcpRemove: "Remove",
     parseError: "Parse failed: {error}",
@@ -212,7 +212,7 @@ export const en = {
     // Skills
     skillsLoaded: "Loaded · {count} · invoke via / commands",
     skillsEmpty:
-      "No skills available. Create SKILL.md under ~/.reasonix/skills/ or .reasonix/skills/ in your project root.",
+      "No skills available. Create SKILL.md under ~/.carboncode/skills/ or .carboncode/skills/ in your project root.",
     // Memory
     memorySection: "Long-term memory",
     memoryDesc:
@@ -340,7 +340,7 @@ export const en = {
     errorLabel: "Error",
     jumpToBottom: "Jump to bottom",
     splashSubtitle: "DeepSeek Agents",
-    connecting: "Connecting to reasonix core…",
+    connecting: "Connecting to Carbon Code core…",
     langZH: "Chinese",
     langEN: "English",
     titlebar: {
@@ -371,7 +371,7 @@ export const en = {
       abort: "Stop",
     },
     empty: {
-      welcome: "Welcome to Reasonix",
+      welcome: "Welcome to Carbon Code",
       currentWorkspace: "Current workspace: ",
       selectWorkspace: "Select a workspace from the top bar first",
       suggestion0: "Review my latest commit changes",
@@ -380,7 +380,7 @@ export const en = {
       suggestion3: "Generate a CHANGELOG for this repo",
     },
     setup: {
-      welcome: "Welcome to Reasonix",
+      welcome: "Welcome to Carbon Code",
       description:
         "First-time setup requires a DeepSeek API Key and workspace directory. The key is stored locally only.",
       workspace: "Workspace",

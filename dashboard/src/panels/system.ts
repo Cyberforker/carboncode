@@ -12,7 +12,8 @@ interface HealthData {
   semantic: { exists: boolean; fileCount?: number; totalBytes?: number; path: string };
   usageLog: { bytes: number; path: string };
   jobs: number | null;
-  reasonixHome: string;
+  carboncodeHome: string;
+  reasonixHome?: string;
 }
 
 export function SystemPanel() {
@@ -80,7 +81,7 @@ export function SystemPanel() {
         <div class="health-item">
           <div class="lbl">${t("system.usageLog")} <span class="pill ok">${t("system.ok")}</span></div>
           <div class="v">${fmtBytes(h.usageLog.bytes)}</div>
-          <div class="meta">~/.reasonix/usage.jsonl</div>
+          <div class="meta">~/.carboncode/usage.jsonl</div>
         </div>
 
         <div class="health-item">
@@ -103,7 +104,7 @@ export function SystemPanel() {
         </div>
         <table class="tbl">
           <tbody style="font-size:11.5px">
-            <tr><td class="dim" style="padding:5px 14px">${t("system.home")}</td><td class="path">${h.reasonixHome}</td></tr>
+            <tr><td class="dim" style="padding:5px 14px">${t("system.home")}</td><td class="path">${h.carboncodeHome ?? h.reasonixHome}</td></tr>
             <tr><td class="dim" style="padding:5px 14px">${t("system.sessionsPath")}</td><td class="path">${h.sessions.path}</td></tr>
             <tr><td class="dim" style="padding:5px 14px">${t("system.memoryPath")}</td><td class="path">${h.memory.path}</td></tr>
             <tr><td class="dim" style="padding:5px 14px">${t("system.semanticPath")}</td><td class="path">${h.semantic.path}</td></tr>

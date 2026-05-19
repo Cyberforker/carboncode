@@ -182,6 +182,9 @@ describe("McpClient: initialize handshake", () => {
     // Client should have sent two messages: initialize + notifications/initialized
     expect(received).toHaveLength(2);
     expect(received[0]!.method).toBe("initialize");
+    expect((received[0]!.params as { clientInfo?: { name?: string } }).clientInfo?.name).toBe(
+      "carboncode",
+    );
     expect(received[1]!.method).toBe("notifications/initialized");
 
     await client.close();

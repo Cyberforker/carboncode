@@ -1,7 +1,7 @@
 import { LogicalPosition, LogicalSize, getCurrentWindow } from "@tauri-apps/api/window";
 import { useEffect } from "react";
 
-const STORAGE_KEY = "reasonix.windowBounds";
+const STORAGE_KEY = "carboncode.windowBounds";
 const MIN_WIDTH = 400;
 const MIN_HEIGHT = 300;
 const SAVE_DEBOUNCE_MS = 300;

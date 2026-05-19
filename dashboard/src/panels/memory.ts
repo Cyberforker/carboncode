@@ -117,7 +117,7 @@ export function MemoryPanel() {
                   onClick=${() => openFile("project")}
                 >
                   <span class="name">
-                    REASONIX.md
+                    CARBON.md
                     ${
                       tree.project.exists
                         ? html`<span class="pill ok">${t("memory.exists")}</span>`

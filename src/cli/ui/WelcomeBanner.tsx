@@ -1,4 +1,4 @@
-/** Empty-session welcome card — REASONIX × 🐋 DeepSeek brand row + tagline + starter slash commands. */
+/** Empty-session welcome card — Carbon Code × DeepSeek brand row + tagline + starter slash commands. */
 
 import { Box, Text } from "ink";
 // biome-ignore lint/style/useImportType: tsconfig jsx=react needs React in value scope for JSX compilation
@@ -40,7 +40,7 @@ export function WelcomeBanner({
       >
         <Box flexDirection="row" gap={2}>
           <Text color={TONE.brand} bold>
-            {"REASONIX"}
+            {"Carbon Code"}
           </Text>
           <Text color={FG.faint}>{"×"}</Text>
           <Box flexDirection="row" gap={1}>

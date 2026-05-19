@@ -3,7 +3,7 @@
  *
  * Walks a new user through: language → theme → API key → preset pick → MCP
  * server pick → per-server args → save. Saved output lives in
- * `~/.reasonix/config.json` so the next `carboncode chat` starts with
+ * `~/.carboncode/config.json` so the next `carboncode chat` starts with
  * everything already wired.
  */
 
@@ -727,7 +727,7 @@ function mcpItems(): SelectItem<string>[] {
 }
 
 function placeholderFor(entry: CatalogEntry): string {
-  if (entry.name === "filesystem") return "e.g. /tmp/reasonix-sandbox";
+  if (entry.name === "filesystem") return "e.g. /tmp/carboncode-sandbox";
   if (entry.name === "sqlite") return "e.g. ./notes.sqlite";
   return entry.userArgs ?? "";
 }

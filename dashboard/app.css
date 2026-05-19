@@ -1,11 +1,11 @@
-/* Reasonix dashboard styles — anchored to docs/design/agent-dashboard.html.
+/* Carbon Code dashboard styles — anchored to docs/design/agent-dashboard.html.
  * Re-import: extract the <style> block from the design mockup verbatim.
  * Doc-chrome selectors (.page / .toc / .section / .subsec / .mock) are
  * unused in the live dashboard but kept so the CSS stays in lockstep
  * with the mockup; they cost nothing at runtime.
  */
 /* ============================================================================
-   Reasonix Dashboard — design anchor for the web companion to the TUI.
+   Carbon Code Dashboard — design anchor for the web companion to the TUI.
 
    Positioning: NOT a TUI mirror. Does what the TUI cannot:
      - long-form session reading
@@ -3230,5 +3230,4 @@ input:focus, textarea:focus, select:focus { border-color: var(--c-brand); }
 [data-theme="light"] *::-webkit-scrollbar-thumb:hover {
   background: var(--fg-4);
 }
-
 

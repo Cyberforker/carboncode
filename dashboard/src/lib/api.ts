@@ -1,8 +1,11 @@
 export const TOKEN: string =
-  document.querySelector('meta[name="reasonix-token"]')?.getAttribute("content") ?? "";
+  document.querySelector('meta[name="carboncode-token"]')?.getAttribute("content") ??
+  document.querySelector('meta[name="reasonix-token"]')?.getAttribute("content") ??
+  "";
 
 export const MODE: "standalone" | "attached" =
-  (document.querySelector('meta[name="reasonix-mode"]')?.getAttribute("content") as
+  ((document.querySelector('meta[name="carboncode-mode"]')?.getAttribute("content") ??
+    document.querySelector('meta[name="reasonix-mode"]')?.getAttribute("content")) as
     | "standalone"
     | "attached"
     | null) ?? "standalone";
@@ -22,7 +25,7 @@ export async function api<T = unknown>(path: string, opts: ApiOptions = {}): Pro
   const method = opts.method ?? "GET";
   const url = `/api${path}${path.includes("?") ? "&" : "?"}token=${TOKEN}`;
   const headers: Record<string, string> = { ...(opts.headers ?? {}) };
-  headers["X-Reasonix-Token"] = TOKEN;
+  headers["X-Carboncode-Token"] = TOKEN;
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   const res = await fetch(url, {
     method,

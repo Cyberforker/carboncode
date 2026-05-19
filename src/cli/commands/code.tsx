@@ -68,7 +68,7 @@ export interface CodeOptions {
 export async function codeCommand(opts: CodeOptions = {}): Promise<void> {
   markPhase("code_command_enter");
   const resolvedModel = opts.model ?? resolvePreset(loadPreset()).model;
-  // Bridge .env + ~/.reasonix/config.json into process.env so buildCodeToolset's
+  // Bridge .env + ~/.carboncode/config.json into process.env so buildCodeToolset's
   // eager DeepSeekClient constructions (subagent client; semantic embedder) can
   // pick up a key the user already configured via `carboncode setup`. chatCommand
   // does the same dance — code.tsx wraps chatCommand but must also seed env
@@ -138,7 +138,7 @@ export async function codeCommand(opts: CodeOptions = {}): Promise<void> {
 
   // The rebuilder is re-invoked on `/new` and `/cwd`. `currentRoot` is the live
   // pointer; `/cwd` updates it via `onRootChange` so the rebuild picks up the
-  // new workspace's REASONIX.md / memory without restarting the loop.
+  // new workspace's project rules / memory without restarting the loop.
   let currentRoot = rootDir;
   let semanticEnabled = semantic.enabled;
   const codeRebuildSystem = () =>

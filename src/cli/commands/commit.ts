@@ -175,7 +175,7 @@ function editInExternal(initial: string): string | null {
     );
     return null;
   }
-  const dir = mkdtempSync(join(tmpdir(), "reasonix-commit-"));
+  const dir = mkdtempSync(join(tmpdir(), "carboncode-commit-"));
   const path = join(dir, "COMMIT_EDITMSG");
   writeFileSync(path, initial, "utf8");
   // spawnSync with shell:true is required so $EDITOR strings like

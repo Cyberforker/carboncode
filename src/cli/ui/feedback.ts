@@ -27,7 +27,7 @@ export interface FeedbackDiagnosticInput {
   sessionId?: string;
 }
 
-const FEEDBACK_ISSUE_BASE = "https://github.com/esengine/DeepSeek-Reasonix/issues/new";
+const FEEDBACK_ISSUE_BASE = "https://github.com/Yapie0/carboncode/issues/new";
 
 /** Bare URL used as a fallback when query-pre-fill isn't possible (only really if the body somehow blew past URL limits). */
 export const FEEDBACK_ISSUE_URL = FEEDBACK_ISSUE_BASE;
@@ -45,7 +45,7 @@ export function buildFeedbackIssueUrl(diagnostic: string): string {
 
 export function buildFeedbackDiagnostic(input: FeedbackDiagnosticInput): string {
   const lines: string[] = [];
-  lines.push(`**Reasonix**: ${formatVersion(input.version, input.latestVersion)}`);
+  lines.push(`**Carbon Code**: ${formatVersion(input.version, input.latestVersion)}`);
   lines.push(`**Platform**: ${input.platform} (${input.osRelease})`);
   lines.push(`**Terminal**: ${formatTerminal(input)}`);
   if (typeof input.cols === "number" && typeof input.rows === "number") {

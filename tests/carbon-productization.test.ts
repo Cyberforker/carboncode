@@ -59,11 +59,77 @@ describe("Carbon broad Reasonix import", () => {
     expect(t("mcpLifecycle.failedSetupHint")).toContain("`carboncode setup`");
   });
 
+  test("protocol-facing runtime identities are Carbon-branded", () => {
+    const acp = readFileSync(resolve("src/cli/commands/acp.ts"), "utf8");
+    const mcpClient = readFileSync(resolve("src/mcp/client.ts"), "utf8");
+    const dashboardErrorBoundary = readFileSync(
+      resolve("dashboard/src/lib/error-boundary.ts"),
+      "utf8",
+    );
+    const slashCommands = readFileSync(resolve("src/cli/ui/slash/commands.ts"), "utf8");
+    const mcpCatalog = readFileSync(resolve("src/mcp/catalog.ts"), "utf8");
+
+    expect(acp).toContain('source: "carboncode acp"');
+    expect(acp).toContain('agentInfo: { name: "carboncode", title: "Carbon Code"');
+    expect(mcpClient).toContain('clientInfo = opts.clientInfo ?? { name: "carboncode"');
+    expect(dashboardErrorBoundary).toContain("https://github.com/Yapie0/carboncode");
+    expect(slashCommands).toContain("~/.carboncode/config.json");
+    expect(mcpCatalog).toContain("debugging your Carbon Code setup");
+  });
+
+  test("desktop visible surfaces are Carbon-branded", () => {
+    const tauri = readFileSync(resolve("desktop/src-tauri/tauri.conf.json"), "utf8");
+    const desktopEn = readFileSync(resolve("desktop/src/i18n/en.ts"), "utf8");
+    const desktopZh = readFileSync(resolve("desktop/src/i18n/zh-CN.ts"), "utf8");
+    const about = readFileSync(resolve("desktop/src/ui/about.tsx"), "utf8");
+    const indexHtml = readFileSync(resolve("desktop/index.html"), "utf8");
+
+    expect(tauri).toContain('"productName": "Carbon Code"');
+    expect(tauri).toContain('"title": "Carbon Code"');
+    expect(tauri).toContain("github.com/Yapie0/carboncode");
+    expect(desktopEn).toContain("About Carbon Code");
+    expect(desktopEn).toContain("Carbon Code v{version}");
+    expect(desktopZh).toContain("关于 Carbon Code");
+    expect(desktopZh).toContain("Carbon Code v{version}");
+    expect(about).toContain('<div className="about-name">Carbon Code</div>');
+    expect(about).toContain("Yapie0/carboncode");
+    expect(indexHtml).toContain("<title>Carbon Code</title>");
+  });
+
+  test("CLI startup and empty-session branding uses Carbon Code", () => {
+    const bootSplash = readFileSync(resolve("src/cli/ui/BootSplash.tsx"), "utf8");
+    const welcomeBanner = readFileSync(resolve("src/cli/ui/WelcomeBanner.tsx"), "utf8");
+    const externalEditor = readFileSync(resolve("src/cli/edit/external-editor.ts"), "utf8");
+    const commitCommand = readFileSync(resolve("src/cli/commands/commit.ts"), "utf8");
+
+    expect(bootSplash).toContain("CARBON CODE");
+    expect(bootSplash).not.toContain("REASONIX");
+    expect(welcomeBanner).toContain('{"Carbon Code"}');
+    expect(welcomeBanner).not.toContain("REASONIX");
+    expect(externalEditor).toContain("CARBON_INPUT.md");
+    expect(externalEditor).not.toContain("REASONIX_INPUT.md");
+    expect(externalEditor).toContain("carboncode-compose-");
+    expect(commitCommand).toContain("carboncode-commit-");
+  });
+
   test("code-mode system identity is Carbon Code", () => {
     const prompt = codeSystemBase("deepseek-v4-flash");
 
     expect(prompt).toContain("You are Carbon Code");
-    expect(prompt).not.toContain("You are Reasonix Code");
+    expect(prompt).not.toMatch(/\bReasonix\b|\bREASONIX\b|\breasonix\b/);
+  });
+
+  test("dashboard static shell labels are Carbon-branded", () => {
+    const appBundle = readFileSync(resolve("dashboard/app.js"), "utf8");
+    const indexHtml = readFileSync(resolve("dashboard/index.html"), "utf8");
+    const memoryPanel = readFileSync(resolve("dashboard/src/panels/memory.ts"), "utf8");
+
+    expect(appBundle).toContain("CARBON CODE");
+    expect(appBundle).not.toContain("REASONIX");
+    expect(indexHtml).toContain("carboncode-token");
+    expect(indexHtml).not.toContain("reasonix-token");
+    expect(memoryPanel).toContain("CARBON.md");
+    expect(memoryPanel).not.toContain("REASONIX.md");
   });
 
   test("new-user model defaults expose official DeepSeek V4 API model IDs", () => {
@@ -108,6 +174,23 @@ describe("Carbon broad Reasonix import", () => {
       expect(content, file).not.toMatch(
         /\breasonix (setup|code|chat|mcp|run|stats|commit|dashboard|index|diff|replay)\b/,
       );
+    }
+  });
+
+  test("published Markdown docs use Carbon command names", () => {
+    const docs = [
+      "docs/CLI-REFERENCE.md",
+      "docs/qq-connect.md",
+      "docs/qq-connect.zh-CN.md",
+      "desktop/SIGNING.md",
+    ];
+
+    for (const file of docs) {
+      const content = readFileSync(resolve(file), "utf8");
+      expect(content, file).toContain("Carbon");
+      expect(content, file).not.toMatch(/\breasonix\b/);
+      expect(content, file).not.toMatch(/\bReasonix\b/);
+      expect(content, file).not.toContain("~/.reasonix");
     }
   });
 });

@@ -207,7 +207,7 @@ export function processMultilineKey(
   // for the same purpose — some Windows terminals (cmd.exe, certain
   // winpty configs) report plain Backspace without setting
   // `key.backspace`, which used to leave the user typing into a prompt
-  // where the Backspace key did nothing. Reasonix doesn't offer a
+  // where the Backspace key did nothing. Carbon Code doesn't offer a
   // separate forward-delete operation, so collapsing them is safe.
   if (key.backspace || key.delete || key.input === "\x7f" || key.input === "\b") {
     if (cursor === 0) return NOOP;

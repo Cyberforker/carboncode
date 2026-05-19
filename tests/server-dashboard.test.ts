@@ -31,7 +31,7 @@ async function call(
   }
   const headers: Record<string, string> = {};
   if (opts.token && opts.tokenInHeader) {
-    headers["X-Reasonix-Token"] = opts.token;
+    headers["X-Carboncode-Token"] = opts.token;
   }
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   const res = await fetch(u.toString(), {
@@ -786,6 +786,11 @@ describe("dashboard server: v0.13 panels", () => {
     expect(r.body.memory).toBeDefined();
     expect(r.body.semantic).toBeDefined();
     expect(r.body.usageLog).toBeDefined();
+    expect(r.body.carboncodeHome).toMatch(/[/\\]\.carboncode$/);
+    expect(r.body.reasonixHome).toBeUndefined();
+    expect(r.body.sessions.path).toMatch(/[/\\]\.carboncode[/\\]sessions$/);
+    expect(r.body.memory.path).toMatch(/[/\\]\.carboncode[/\\]memory$/);
+    expect(r.body.semantic.path).toMatch(/[/\\]\.carboncode[/\\]semantic$/);
   });
 
   it("GET /api/sessions returns an empty list when nothing's stored", async () => {

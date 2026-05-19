@@ -60,7 +60,7 @@ export class McpClient {
 
   constructor(opts: McpClientOptions) {
     this.transport = opts.transport;
-    this.clientInfo = opts.clientInfo ?? { name: "reasonix", version: VERSION };
+    this.clientInfo = opts.clientInfo ?? { name: "carboncode", version: VERSION };
     this.requestTimeoutMs = opts.requestTimeoutMs ?? 60_000;
   }
 

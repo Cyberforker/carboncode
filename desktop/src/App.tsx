@@ -327,7 +327,7 @@ function reduce(state: State, action: Action): State {
         queuedSends: [],
         messages: [
           ...state.messages,
-          { kind: "error", message: `reasonix exited (code ${action.code ?? "?"})` },
+          { kind: "error", message: `carboncode exited (code ${action.code ?? "?"})` },
         ],
       };
     case "incoming":
@@ -758,7 +758,7 @@ function applyIncoming(state: State, ev: IncomingEvent): State {
             kind: "error",
             message:
               `Session "${ev.name}" loaded with no messages (${sizeNote}). ` +
-              `The file ~/.reasonix/sessions/${ev.name}.jsonl exists but couldn't be parsed — ` +
+              `The file ~/.carboncode/sessions/${ev.name}.jsonl exists but couldn't be parsed — ` +
               `start a new chat or restore from .jsonl.bak if you have one.`,
           },
         ],
@@ -1319,7 +1319,7 @@ function TabRuntime({
               })
               .filter(Boolean)
               .join("\n\n");
-            return `### Reasonix\n\n${body}`;
+            return `### Carbon Code\n\n${body}`;
           }
           if (m.kind === "error") return `### Error\n\n${m.message}`;
           return "";
@@ -1407,7 +1407,7 @@ function TabRuntime({
   const elapsed = useElapsed(state.busy);
   const workspaceLabel = state.settings?.workspaceDir
     ? state.settings.workspaceDir.split(/[\\/]/).pop() || "workspace"
-    : "Reasonix";
+    : "Carbon Code";
   const session = (() => {
     const firstUser = state.messages.find((m) => m.kind === "user");
     if (firstUser && firstUser.kind === "user") {
@@ -1451,7 +1451,7 @@ function TabRuntime({
             })
             .filter(Boolean)
             .join("\n\n");
-          return `### Reasonix\n\n${body}`;
+          return `### Carbon Code\n\n${body}`;
         }
         if (m.kind === "error") return `### Error\n\n${m.message}`;
         return "";
@@ -1988,7 +1988,7 @@ function TitleBar({
         <div className="tb-meta" data-tauri-drag-region>
           <div className="brand" data-tauri-drag-region>
             <span className="mark" />
-            <span className="brand-name">Reasonix</span>
+            <span className="brand-name">Carbon Code</span>
           </div>
           {session && (
             <div className="crumbs" data-tauri-drag-region>
@@ -2440,19 +2440,19 @@ export function App() {
   const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
   const [updateStatus, setUpdateStatus] = useState<"idle" | "installing" | "error">("idle");
   const [currency, setCurrency] = useState<"CNY" | "USD">(() => {
-    const v = localStorage.getItem("reasonix.currency");
+    const v = localStorage.getItem("carboncode.currency");
     return v === "USD" ? "USD" : "CNY";
   });
   const [theme, setTheme] = useState<Theme>(() => {
-    const v = localStorage.getItem("reasonix.theme");
+    const v = localStorage.getItem("carboncode.theme");
     return v === THEME.LIGHT ? THEME.LIGHT : THEME.DARK;
   });
   const [fontScale, setFontScale] = useState<FontScale>(() => {
-    const v = localStorage.getItem("reasonix.fontScale");
+    const v = localStorage.getItem("carboncode.fontScale");
     return isFontScale(v) ? v : FONT_SCALE.MEDIUM;
   });
   const [fontFamily, setFontFamily] = useState<FontFamily>(() => {
-    const v = localStorage.getItem("reasonix.fontFamily");
+    const v = localStorage.getItem("carboncode.fontFamily");
     return isFontFamily(v) ? v : FONT_FAMILY.SANS;
   });
   const [sideCollapsed, setSideCollapsed] = useState(false);
@@ -2460,19 +2460,19 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("reasonix.theme", theme);
+    localStorage.setItem("carboncode.theme", theme);
   }, [theme]);
 
   useEffect(() => {
     // Chromium webview supports `zoom`; scales every px-based size without touching CSS rules.
     document.documentElement.style.setProperty("zoom", String(FONT_SCALE_ZOOM[fontScale]));
-    localStorage.setItem("reasonix.fontScale", fontScale);
+    localStorage.setItem("carboncode.fontScale", fontScale);
   }, [fontScale]);
 
   useEffect(() => {
     // CSS rules use var(--font-sans); changing it here re-styles every sans surface in one shot. Mono stays put because code/transcripts hardcode "Geist Mono".
     document.documentElement.style.setProperty("--font-sans", FONT_FAMILY_STACK[fontFamily]);
-    localStorage.setItem("reasonix.fontFamily", fontFamily);
+    localStorage.setItem("carboncode.fontFamily", fontFamily);
   }, [fontFamily]);
 
   useEffect(() => {
@@ -2480,8 +2480,8 @@ export function App() {
       const detail = (e as CustomEvent).detail;
       if (detail === "CNY" || detail === "USD") setCurrency(detail);
     };
-    window.addEventListener("reasonix:currency", onCur);
-    return () => window.removeEventListener("reasonix:currency", onCur);
+    window.addEventListener("carboncode:currency", onCur);
+    return () => window.removeEventListener("carboncode:currency", onCur);
   }, []);
 
   useWindowBounds();
@@ -2643,7 +2643,7 @@ export function App() {
           }
         }),
         listen<{ data: string }>("rpc:stderr", (e) => {
-          console.warn("[reasonix stderr]", e.payload.data);
+          console.warn("[carboncode stderr]", e.payload.data);
         }),
         listen<{ code: number | null }>("rpc:exit", (e) => {
           for (const tabId of dispatchersRef.current.keys()) flushTabDeltas(tabId);
@@ -2725,8 +2725,8 @@ export function App() {
   const onToggleCurrency = useCallback(() => {
     setCurrency((c) => {
       const next = c === "CNY" ? "USD" : "CNY";
-      localStorage.setItem("reasonix.currency", next);
-      window.dispatchEvent(new CustomEvent("reasonix:currency", { detail: next }));
+      localStorage.setItem("carboncode.currency", next);
+      window.dispatchEvent(new CustomEvent("carboncode:currency", { detail: next }));
       return next;
     });
   }, []);

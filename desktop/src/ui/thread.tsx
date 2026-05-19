@@ -104,7 +104,7 @@ export const AssistantMsg = memo(function AssistantMsg({
       <div className="avatar">DS</div>
       <div className="body">
         <div className="who">
-          <span className="name">Reasonix</span>
+          <span className="name">Carbon Code</span>
           {model ? <span className="model">{model}</span> : null}
           {time ? <span className="time">{time}</span> : null}
         </div>

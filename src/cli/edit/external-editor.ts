@@ -34,8 +34,8 @@ export async function openInExternalEditor(initial: string): Promise<OpenEditorR
       detail: t("composer.editorMissing"),
     };
   }
-  const dir = mkdtempSync(join(tmpdir(), "reasonix-compose-"));
-  const path = join(dir, "REASONIX_INPUT.md");
+  const dir = mkdtempSync(join(tmpdir(), "carboncode-compose-"));
+  const path = join(dir, "CARBON_INPUT.md");
   try {
     writeFileSync(path, initial, "utf8");
     await spawnEditor(editor, path);

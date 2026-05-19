@@ -1,6 +1,6 @@
 # QQ 连接指南
 
-Reasonix 可以把 QQ 挂到现有的 `chat` 和 `code` 会话上，作为远程通信通道使用。QQ 不是一个独立的新运行模式。
+Carbon Code 可以把 QQ 挂到现有的 `chat` 和 `code` 会话上，作为远程通信通道使用。QQ 不是一个独立的新运行模式。
 
 连接成功后，QQ 消息可以进入当前会话；需要继续确认、选择或补充输入时，也可以直接在 QQ 里完成，不需要回到终端。
 
@@ -18,7 +18,7 @@ QQ 通道可以用于：
 
 ## 命令
 
-在 Reasonix 会话内可用的 QQ 命令：
+在 Carbon Code 会话内可用的 QQ 命令：
 
 - `/qq connect`
 - `/qq status`
@@ -29,9 +29,9 @@ QQ 通道可以用于：
 先启动一个会话：
 
 ~~~bash
-reasonix code
+carboncode code
 # 或
-reasonix chat
+carboncode chat
 ~~~
 
 然后在会话里连接 QQ：
@@ -40,7 +40,7 @@ reasonix chat
 /qq connect
 ~~~
 
-如果本地已经保存了凭据，Reasonix 会直接复用；如果没有，则会提示输入 QQ 开放平台的 `App ID` 和 `App Secret`。
+如果本地已经保存了凭据，Carbon Code 会直接复用；如果没有，则会提示输入 QQ 开放平台的 `App ID` 和 `App Secret`。
 
 也可以直接内联传入：
 
@@ -54,8 +54,8 @@ reasonix chat
 
 QQ 只是挂接到现有会话上的通道：
 
-- `reasonix code` 仍然负责文件、Shell 和编辑流程
-- `reasonix chat` 仍然保持纯聊天
+- `carboncode code` 仍然负责文件、Shell 和编辑流程
+- `carboncode chat` 仍然保持纯聊天
 - QQ 只是在其上增加一个远程通信入口
 
 这样可以保持现有交互模型的一致性，而不是引入第三种模式。
@@ -70,7 +70,7 @@ QQ 只是挂接到现有会话上的通道：
 2. 创建机器人应用。
 3. 打开该机器人的开发设置。
 4. 复制 `App ID` 和 `App Secret`。
-5. 在 Reasonix 里用 `/qq connect` 录入这些凭据。
+5. 在 Carbon Code 里用 `/qq connect` 录入这些凭据。
 
 根据机器人当前环境，你可能还需要选择 `sandbox` 或 `prod`。
 
@@ -85,7 +85,7 @@ QQ 开放平台界面可能会调整，但通常流程是：
 3. 按要求填写注册信息。
 4. 为该应用启用机器人能力。
 5. 在开发设置里复制 `App ID` 和 `App Secret`。
-6. 回到 Reasonix 完成连接。
+6. 回到 Carbon Code 完成连接。
 
 例如：
 
@@ -97,7 +97,7 @@ QQ 开放平台界面可能会调整，但通常流程是：
 
 ## 典型使用方式
 
-1. 启动 `reasonix code`
+1. 启动 `carboncode code`
 2. 运行 `/qq connect`
 3. 从 QQ 发起一个任务
 4. 让会话在终端继续执行

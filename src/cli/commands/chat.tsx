@@ -42,7 +42,7 @@ export type { McpLifecycleNotice, McpLifecycleSink, McpRuntime, ProgressInfo };
 export interface ChatOptions {
   model: string;
   system: string;
-  /** Re-runs the prompt builder on /new so REASONIX.md edits don't need a restart. Should produce the same string `system` was built from. */
+  /** Re-runs the prompt builder on /new so project-rule edits don't need a restart. Should produce the same string `system` was built from. */
   rebuildSystem?: () => string;
   transcript?: string;
   /**

@@ -126,7 +126,7 @@ program
   .version(VERSION)
   .option("-c, --continue", t("cli.continue"));
 
-// `reasonix` with no subcommand → setup wizard on first run, otherwise `code`
+// `carboncode` with no subcommand → setup wizard on first run, otherwise `code`
 // in the current directory. Filesystem-less chat stays reachable via
 // `carboncode chat`.
 program.action(async (opts: { continue?: boolean }) => {

@@ -3,8 +3,8 @@ import { useCallback, useState } from "react";
 import { t } from "../i18n";
 import { I } from "../icons";
 
-const REPO_URL = "https://github.com/esengine/DeepSeek-Reasonix";
-const RELEASES_API = "https://api.github.com/repos/esengine/DeepSeek-Reasonix/releases";
+const REPO_URL = "https://github.com/Yapie0/carboncode";
+const RELEASES_API = "https://api.github.com/repos/Yapie0/carboncode/releases";
 const RELEASES_PAGE = `${REPO_URL}/releases`;
 
 type CheckState =
@@ -77,7 +77,7 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
           <I.x size={14} />
         </button>
         <div className="about-brand">
-          <div className="about-name">Reasonix</div>
+          <div className="about-name">Carbon Code</div>
           <div className="about-tagline">{t("about.tagline")}</div>
         </div>
         <div className="about-meta">
@@ -89,7 +89,7 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
             <span className="about-label">{t("about.repo")}</span>
             <button type="button" className="about-link" onClick={openGitHub}>
               <I.link size={12} />
-              <span>esengine/DeepSeek-Reasonix</span>
+              <span>Yapie0/carboncode</span>
             </button>
           </div>
         </div>

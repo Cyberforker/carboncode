@@ -14,7 +14,7 @@ import { App } from "./App";
 import { applyProductionLockdown } from "./prod-guard";
 import { isTheme } from "./theme";
 
-const stored = localStorage.getItem("reasonix.theme");
+const stored = localStorage.getItem("carboncode.theme");
 if (isTheme(stored)) {
   document.documentElement.dataset.theme = stored;
 }

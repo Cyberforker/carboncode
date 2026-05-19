@@ -89,7 +89,7 @@ fn resolve_cli(app: &AppHandle) -> Result<(String, Vec<String>)> {
         .ok_or_else(|| anyhow!("dist/cli/index.js not found — run `npm run build` at repo root"))?;
 
     let node_path = find_real_node().context("node not found")?;
-    eprintln!("[reasonix] resolved node: {}", node_path.display());
+    eprintln!("[carboncode] resolved node: {}", node_path.display());
 
     Ok((
         node_path.to_string_lossy().into_owned(),
@@ -128,7 +128,7 @@ fn find_real_node() -> Result<PathBuf> {
         }
     }
     Err(anyhow!(
-        "node not found in PATH or only stub binaries present.{}\nInstall Node 22 from nodejs.org and reopen Reasonix.",
+        "node not found in PATH or only stub binaries present.{}\nInstall Node 22 from nodejs.org and reopen Carbon Code.",
         if tried.is_empty() {
             String::new()
         } else {

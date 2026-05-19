@@ -69,7 +69,7 @@ export interface InitializeResult {
 }
 
 export interface McpToolSchema {
-  /** JSON Schema — compatible with Reasonix's tools.ts JSONSchema shape. */
+  /** JSON Schema — compatible with Carbon Code's tools.ts JSONSchema shape. */
   type?: string;
   properties?: Record<string, unknown>;
   required?: string[];
@@ -79,7 +79,7 @@ export interface McpToolSchema {
 export interface McpTool {
   name: string;
   description?: string;
-  /** MCP calls this `inputSchema`. Reasonix's `parameters` field is the same concept. */
+  /** MCP calls this `inputSchema`. Carbon Code's `parameters` field is the same concept. */
   inputSchema: McpToolSchema;
 }
 
@@ -121,7 +121,7 @@ export interface McpContentBlockImage {
   mimeType: string;
 }
 
-/** MCP result content is an array of typed blocks. Reasonix consumes only text for now — image blocks get stringified with a placeholder. */
+/** MCP result content is an array of typed blocks. Carbon Code consumes only text for now — image blocks get stringified with a placeholder. */
 export type McpContentBlock = McpContentBlockText | McpContentBlockImage;
 
 export interface CallToolResult {
@@ -212,7 +212,7 @@ export interface GetPromptResult {
   messages: McpPromptMessage[];
 }
 
-/** Current MCP protocol version Reasonix is coded against. */
+/** Current MCP protocol version Carbon Code is coded against. */
 export const MCP_PROTOCOL_VERSION = "2024-11-05";
 
 /** Type guard — success vs error response. */

@@ -23,7 +23,7 @@ async function call(
   const method = opts.method ?? "GET";
   const headers: Record<string, string> = {};
   // POST / DELETE require the token in the header (CSRF defence — query alone rejected).
-  if (method !== "GET") headers["X-Reasonix-Token"] = TOKEN;
+  if (method !== "GET") headers["X-Carboncode-Token"] = TOKEN;
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   const res = await fetch(u.toString(), {
     method,

@@ -7,7 +7,7 @@ import { type ErrorReport, appBus, reportAppError } from "./bus.js";
 
 const html = htm.bind(h);
 
-const REPO_URL = "https://github.com/esengine/reasonix";
+const REPO_URL = "https://github.com/Yapie0/carboncode";
 
 function buildIssueBody({ error, source, info }: ErrorReport): string {
   const ua = typeof navigator === "object" ? navigator.userAgent : "(unknown)";

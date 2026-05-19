@@ -25,11 +25,11 @@ function projectHash(rootDir: string): string {
 }
 
 function globalMemoryDir(): string {
-  return join(homedir(), ".reasonix", "memory", "global");
+  return join(homedir(), ".carboncode", "memory", "global");
 }
 
 function projectMemoryDir(rootDir: string): string {
-  return join(homedir(), ".reasonix", "memory", projectHash(rootDir));
+  return join(homedir(), ".carboncode", "memory", projectHash(rootDir));
 }
 
 interface WriteBody {

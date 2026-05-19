@@ -35,7 +35,7 @@ function parseTranscript(path: string, maxBytes = 4 * 1024 * 1024): SessionMessa
       if (typeof rec.toolName === "string") msg.toolName = rec.toolName;
       out.push(msg);
     } catch {
-      /* skip malformed line — same rule as the rest of Reasonix's JSONL readers */
+      /* skip malformed line — same rule as the rest of Carbon Code's JSONL readers */
     }
   }
   return out;

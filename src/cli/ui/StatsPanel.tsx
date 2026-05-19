@@ -114,7 +114,7 @@ function ChromeRow({
   const GAP = 2;
 
   const fixedLeft =
-    stringWidth("◈ reasonix") + (projectName ? SEP_DOT + stringWidth(projectName) : 0);
+    stringWidth("◈ carboncode") + (projectName ? SEP_DOT + stringWidth(projectName) : 0);
   const modeW = modePill ? GAP + stringWidth(`[${modePill.label}]`) : 0;
   const proW = proPill ? GAP + stringWidth(`[${proPill.label}]`) : 0;
   const fixedRight = modeW + proW + stringWidth(costLabel);
@@ -140,7 +140,7 @@ function ChromeRow({
         {"◈ "}
       </Text>
       <Text color={COLOR.brand} bold>
-        reasonix
+        carboncode
       </Text>
       {projectName ? (
         <>

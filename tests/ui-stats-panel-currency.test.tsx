@@ -30,6 +30,8 @@ function renderPanel(balance: { currency: string; total: number } | null): strin
 describe("StatsPanel — top-bar cost + balance follow wallet currency", () => {
   it("USD wallet: cost shows $0.0308 and balance shows $0.91", () => {
     const text = renderPanel({ currency: "USD", total: 0.91 });
+    expect(text).toContain("carboncode");
+    expect(text).not.toContain("reasonix");
     expect(text).toContain("[$0.0308]");
     expect(text).toContain("[w $0.91]");
     expect(text).not.toContain("¥");

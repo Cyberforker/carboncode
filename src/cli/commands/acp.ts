@@ -206,7 +206,7 @@ export async function acpCommand(opts: AcpOptions): Promise<void> {
     const defaultModel = opts.model || resolvePreset(canonicalPresetName(loadPreset())).model;
     transcriptStream = openTranscriptFile(opts.transcript, {
       version: 1,
-      source: "reasonix acp",
+      source: "carboncode acp",
       model: defaultModel,
       startedAt: new Date().toISOString(),
     });
@@ -241,7 +241,7 @@ export async function acpCommand(opts: AcpOptions): Promise<void> {
         promptCapabilities: { image: false, audio: false, embeddedContext: true },
         mcpCapabilities: { http: false, sse: false },
       },
-      agentInfo: { name: "reasonix", title: "Reasonix", version: VERSION },
+      agentInfo: { name: "carboncode", title: "Carbon Code", version: VERSION },
       authMethods: [],
     };
   });

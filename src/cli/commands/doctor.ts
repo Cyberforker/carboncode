@@ -284,7 +284,7 @@ async function checkSessions(): Promise<Check> {
         id: "sessions",
         label: "sessions     ",
         level: "warn",
-        detail: `${detail} · ${stale} idle ≥90d (run \`reasonix prune-sessions\`)`,
+        detail: `${detail} · ${stale} idle ≥90d (run \`carboncode prune-sessions\`)`,
       };
     }
     return { id: "sessions", label: "sessions     ", level: "ok", detail };
@@ -416,10 +416,18 @@ function readSemanticMeta(
 }
 
 async function checkProject(projectRoot: string): Promise<Check> {
-  // Heuristic: a "real" project has either .git, REASONIX.md, or
+  // Heuristic: a "real" project has either .git, AGENTS.md/CARBON.md, or
   // package.json. Lacking all three, `carboncode code` still works but
   // @-mentions and the project-memory pin won't surface much.
-  const markers = [".git", "REASONIX.md", "package.json", "pyproject.toml", "Cargo.toml", "go.mod"];
+  const markers = [
+    ".git",
+    "AGENTS.md",
+    "CARBON.md",
+    "package.json",
+    "pyproject.toml",
+    "Cargo.toml",
+    "go.mod",
+  ];
   const found = markers.filter((m) => existsSync(join(projectRoot, m)));
   if (found.length === 0) {
     return {
@@ -455,7 +463,7 @@ export async function doctorCommand(opts: DoctorOptions = {}): Promise<void> {
   const json = !!opts.json;
 
   if (!json) {
-    console.log(`${color(`reasonix ${VERSION}  ·  doctor`, "1")}  (cwd: ${projectRoot})`);
+    console.log(`${color(`carboncode ${VERSION}  ·  doctor`, "1")}  (cwd: ${projectRoot})`);
     console.log(`  home: ${homedir()}`);
     console.log("");
   }

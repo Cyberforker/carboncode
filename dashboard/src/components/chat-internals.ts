@@ -177,11 +177,11 @@ export function ToolCard({ msg }: ToolCardProps) {
   useLang();
   const args = parseToolArgs(msg.toolArgs);
   const name = msg.toolName ?? "tool";
-  // Reasonix's filesystem tools emit the path in args.path; MCP-bridged
+  // Carbon Code's filesystem tools emit the path in args.path; MCP-bridged
   // ones may differ but most expose a `path` field too. Normalize.
   const path = (args?.path ?? args?.file_path ?? args?.filename) as string | undefined;
 
-  // edit_file (Reasonix) — search/replace pair → diff view.
+  // edit_file (Carbon Code) — search/replace pair → diff view.
   if (
     (name === "edit_file" || name.endsWith("_edit_file")) &&
     args &&

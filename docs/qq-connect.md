@@ -1,6 +1,6 @@
 # QQ channel setup
 
-Reasonix can attach QQ as a remote communication channel for existing `chat` and `code` sessions. QQ is not a separate runtime mode.
+Carbon Code can attach QQ as a remote communication channel for existing `chat` and `code` sessions. QQ is not a separate runtime mode.
 
 Once connected, QQ messages can be routed into the active session, and interactive prompts can continue remotely without terminal-side input.
 
@@ -18,7 +18,7 @@ QQ acts as a remote surface for the same running `chat` or `code` session.
 
 ## Commands
 
-Available commands inside a Reasonix session:
+Available commands inside a Carbon Code session:
 
 - `/qq connect`
 - `/qq status`
@@ -29,9 +29,9 @@ Available commands inside a Reasonix session:
 Start a session first:
 
 ~~~bash
-reasonix code
+carboncode code
 # or
-reasonix chat
+carboncode chat
 ~~~
 
 Then connect QQ from inside the session:
@@ -40,7 +40,7 @@ Then connect QQ from inside the session:
 /qq connect
 ~~~
 
-If credentials are already configured, Reasonix reuses them directly. If not, it prompts for the QQ Open Platform `App ID` and `App Secret`.
+If credentials are already configured, Carbon Code reuses them directly. If not, it prompts for the QQ Open Platform `App ID` and `App Secret`.
 
 You can also provide credentials inline:
 
@@ -54,11 +54,11 @@ After a successful connection, later `chat` and `code` sessions auto-start the Q
 
 QQ is attached to the existing session runtime:
 
-- `reasonix code` keeps filesystem, shell, and edit workflows
-- `reasonix chat` stays chat-only
+- `carboncode code` keeps filesystem, shell, and edit workflows
+- `carboncode chat` stays chat-only
 - QQ only adds a remote communication channel on top
 
-This keeps the interaction model aligned with the rest of Reasonix instead of introducing a third mode.
+This keeps the interaction model aligned with the rest of Carbon Code instead of introducing a third mode.
 
 ## QQ Open Platform setup
 
@@ -85,7 +85,7 @@ The QQ Open Platform UI may change over time, but the usual process is:
 3. Complete the required registration fields.
 4. Enable the bot capability for the application.
 5. Copy the generated `App ID` and `App Secret`.
-6. Use those credentials in Reasonix.
+6. Use those credentials in Carbon Code.
 
 Example:
 
@@ -97,7 +97,7 @@ Or run `/qq connect` and enter the values interactively when prompted.
 
 ## Typical workflow
 
-1. Start `reasonix code`.
+1. Start `carboncode code`.
 2. Run `/qq connect`.
 3. Send a task from QQ.
 4. Let the session continue in the terminal.

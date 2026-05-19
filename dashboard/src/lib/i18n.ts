@@ -71,7 +71,7 @@ export function setLang(lang: DashboardLang): void {
   // keepalive ensures the request completes even during page unload (refresh).
   fetch(`/api/settings?token=${TOKEN}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Reasonix-Token": TOKEN },
+    headers: { "Content-Type": "application/json", "X-Carboncode-Token": TOKEN },
     body: JSON.stringify({ lang: toBackendLang(lang) }),
     keepalive: true,
   }).catch((err) => console.error("[carboncode dashboard] lang persist:", err));

@@ -79,13 +79,13 @@ function loadCss(): string {
 export function renderIndexHtml(token: string, mode: "standalone" | "attached"): string {
   const tpl = loadIndexTemplate();
   const safeToken = token.replace(/[^a-zA-Z0-9]/g, "");
-  // String.replace(string, replacement) only swaps the FIRST match. The
-  // template has __REASONIX_TOKEN__ in three places (meta + css href +
-  // script src) — without `replaceAll` only the meta tag gets the real
-  // token, the asset URLs keep the placeholder and the browser hits a
-  // 401 on every asset fetch. Same trap for __REASONIX_MODE__ if it
-  // ever appears more than once.
-  return tpl.replaceAll("__REASONIX_TOKEN__", safeToken).replaceAll("__REASONIX_MODE__", mode);
+  // String.replace(string, replacement) only swaps the FIRST match. The template
+  // repeats token/mode placeholders across meta, CSS, and script URLs.
+  return tpl
+    .replaceAll("__CARBONCODE_TOKEN__", safeToken)
+    .replaceAll("__CARBONCODE_MODE__", mode)
+    .replaceAll("__REASONIX_TOKEN__", safeToken)
+    .replaceAll("__REASONIX_MODE__", mode);
 }
 
 /** Vendor CSS the bundle pulls from npm and the build script copies into `dashboard/dist/`. */
