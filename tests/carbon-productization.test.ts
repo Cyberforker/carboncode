@@ -153,6 +153,16 @@ describe("Carbon broad Reasonix import", () => {
     expect(qq).not.toContain('"deepseek-reasoner"');
   });
 
+  test("CLI command descriptions use official DeepSeek V4 API model IDs", () => {
+    const en = readFileSync(resolve("src/i18n/EN.ts"), "utf8");
+    const zh = readFileSync(resolve("src/i18n/zh-CN.ts"), "utf8");
+
+    expect(en).toContain("coding system prompt, deepseek-v4-flash baseline.");
+    expect(en).not.toContain("coding system prompt, v4-flash baseline.");
+    expect(zh).toContain("编码系统提示词，deepseek-v4-flash 基线。");
+    expect(zh).not.toContain("编码系统提示词，v4-flash 基线。");
+  });
+
   test("high-visibility source guidance does not point users at reasonix commands", () => {
     const files = [
       "src/cli/commands/commit.ts",

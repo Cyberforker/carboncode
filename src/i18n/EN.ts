@@ -18,7 +18,7 @@ export const EN: TranslationSchema = {
     description: "Carbon Code — Chinese-first DeepSeek coding agent for terminal workflows.",
     continue: "Resume the most recently used chat session without showing the picker.",
     setup: "Interactive wizard — API key, preset, MCP servers. Re-run any time to reconfigure.",
-    code: "Code-editing chat — filesystem tools rooted at <dir> (default: cwd), coding system prompt, v4-flash baseline.",
+    code: "Code-editing chat — filesystem tools rooted at <dir> (default: cwd), coding system prompt, deepseek-v4-flash baseline.",
     chat: "Interactive Ink TUI with live cache/cost panel.",
     run: "Run a single task non-interactively, streaming output.",
     stats: "Show usage dashboard.",
