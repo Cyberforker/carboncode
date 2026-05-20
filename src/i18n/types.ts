@@ -417,6 +417,9 @@ export interface TranslationSchema {
     editsQueued: string;
     shiftTabFlip: string;
     queuedDots: string;
+    undoApplied: string;
+    undoHint: string;
+    undoPausedHint: string;
   };
   composer: {
     placeholder: string;

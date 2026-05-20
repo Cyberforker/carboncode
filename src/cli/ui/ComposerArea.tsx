@@ -31,7 +31,6 @@ export interface ComposerAreaProps {
   pendingCount: number;
   modeFlash: boolean;
   planMode: boolean;
-  undoArmed: boolean;
   jobs?: JobRegistry;
   activeLoop?: Parameters<typeof LoopStatusRow>[0]["loop"] | null;
   statusBar: StatusBarConfig;
@@ -87,7 +86,6 @@ export const ComposerArea: React.FC<ComposerAreaProps> = React.memo(
     pendingCount,
     modeFlash,
     planMode,
-    undoArmed,
     jobs,
     activeLoop,
     statusBar,
@@ -151,7 +149,6 @@ export const ComposerArea: React.FC<ComposerAreaProps> = React.memo(
             pendingCount={pendingCount}
             flash={modeFlash}
             planMode={planMode}
-            undoArmed={undoArmed}
             jobs={jobs}
           />
         ) : null}

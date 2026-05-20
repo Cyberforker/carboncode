@@ -5,7 +5,6 @@ import type { ApplyResult } from "../../../code/edit-blocks.js";
 import type { EditMode } from "../../../config.js";
 import { t } from "../../../i18n/index.js";
 import type { JobRegistry } from "../../../tools/jobs.js";
-import { CharBar } from "../char-bar.js";
 import { Card } from "../primitives/Card.js";
 import { CardHeader } from "../primitives/CardHeader.js";
 import { PILL_MODEL, PILL_SECTION, Pill, modelBadgeFor } from "../primitives/Pill.js";
@@ -38,14 +37,12 @@ export function ModeStatusBar({
   pendingCount,
   flash,
   planMode,
-  undoArmed,
   jobs,
 }: {
   editMode: EditMode;
   pendingCount: number;
   flash: boolean;
   planMode: boolean;
-  undoArmed: boolean;
   jobs?: JobRegistry;
 }) {
   useSlowTick();
@@ -78,7 +75,7 @@ export function ModeStatusBar({
         : pendingCount > 0
           ? t("editMode.queuedApplyDiscard", { count: pendingCount })
           : t("editMode.editsQueued");
-  if (pendingCount === 0 && running === 0 && !undoArmed) return null;
+  if (pendingCount === 0 && running === 0) return null;
   return (
     <ModeBarFrame>
       <ModePill label={label} color={pillColor} flash={flash} />
@@ -115,7 +112,6 @@ export function UndoBanner({
   banner: { results: ApplyResult[]; expiresAt: number; pausedRemainingMs: number | null };
 }) {
   useTick();
-  const totalMs = 5000;
   const paused = banner.pausedRemainingMs !== null;
   const remainingMs = paused
     ? (banner.pausedRemainingMs ?? 0)
@@ -124,24 +120,16 @@ export function UndoBanner({
   const ok = banner.results.filter((r) => r.status === "applied" || r.status === "created").length;
   const total = banner.results.length;
   const urgent = !paused && remainingSec <= 1;
-  const pct = (remainingMs / totalMs) * 100;
   const tone = paused ? TONE.warn : urgent ? TONE.err : TONE.accent;
   return (
-    <Box marginY={1} paddingX={1}>
-      <Text backgroundColor={TONE.accent} color="black" bold>
-        {` ✓ AUTO-APPLIED ${ok}/${total} `}
+    <Box paddingX={1}>
+      <Text color={TONE.accent} bold>
+        {`✓ ${t("editMode.undoApplied", { ok, total })}`}
       </Text>
-      <Text color={FG.faint}>{"   press "}</Text>
-      <Text backgroundColor={TONE.brand} color="black" bold>
-        {" u "}
+      <Text color={FG.faint}>
+        {` · ${t(paused ? "editMode.undoPausedHint" : "editMode.undoHint")}`}
       </Text>
-      <Text color={FG.faint}>{paused ? " to undo · " : " to undo · "}</Text>
-      <Text backgroundColor={paused ? TONE.warn : FG.faint} color="black" bold>
-        {" space "}
-      </Text>
-      <Text color={FG.faint}>{paused ? " to resume  " : " to pause  "}</Text>
-      <CharBar pct={pct} width={20} color={tone} showLabel={false} />
-      <Text color={FG.faint}>{"  "}</Text>
+      <Text color={FG.faint}>{" · "}</Text>
       <Text color={tone} bold={urgent || paused}>
         {paused ? `${remainingSec}s · paused` : `${remainingSec}s`}
       </Text>

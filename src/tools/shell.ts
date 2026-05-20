@@ -44,6 +44,8 @@ export interface ShellToolsOptions {
   extraAllowed?: readonly string[] | (() => readonly string[]);
   /** Getter form lets `editMode === "yolo"` flip mid-session without re-registering tools. */
   allowAll?: boolean | (() => boolean);
+  /** When true, built-in read/test/lint commands still go through the approval gate. Project allowlist entries still bypass it. */
+  requireApprovalForBuiltin?: boolean;
   jobs?: JobRegistry;
   /** Fired after `run_background` / `stop_job` mutate the registry — used by the desktop popover for near-real-time updates without polling. */
   onJobsChanged?: () => void;
@@ -83,11 +85,17 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
   // are wrapped into a thunk for uniformity.
   const isAllowAll: () => boolean =
     typeof opts.allowAll === "function" ? opts.allowAll : () => opts.allowAll === true;
+  const isAutoAllowed = (cmd: string): boolean =>
+    isCommandAllowed(cmd, getExtraAllowed(), rootDir, opts.sensitivePaths, {
+      includeBuiltin: opts.requireApprovalForBuiltin !== true,
+    });
+  const approvalPolicy = opts.requireApprovalForBuiltin
+    ? "Model-requested shell commands ask the user before they run unless the user has explicitly always-allowed a project prefix or yolo mode is active. Prefer this over asking the user to run a command manually — after edits, run the project's tests to verify."
+    : "Allowlisted read-only / test / lint / typecheck commands run immediately; anything that could mutate state, install deps, or touch the network is gated by user confirmation. Prefer this over asking the user to run a command manually — after edits, run the project's tests to verify.";
 
   registry.register({
     name: "run_command",
-    description:
-      "Run a shell command in the project root; returns combined stdout+stderr. Allowlisted read-only / test / lint / typecheck commands run immediately; anything that could mutate state, install deps, or touch the network is gated by user confirmation. Prefer this over asking the user to run a command manually — after edits, run the project's tests to verify.\n\nConstraints (no real shell — argv is parsed natively for cross-platform parity):\n• Supported: chain ops `|` / `||` / `&&` / `;` (each segment allowlist-checked individually), file redirects `>` / `>>` / `<` / `2>` / `2>>` / `2>&1` / `&>` (target paths resolve relative to project root, max one redirect per fd per segment).\n• NOT supported: background `&`, heredoc `<<`, command substitution `$(…)`, subshells `(…)`, process substitution `<(…)`, `$VAR` env expansion, glob expansion. To pass an operator char as literal arg, quote it (`grep \"a|b\" file`).\n• `cd` does NOT persist — between calls OR within a chain like `cd dir && cmd`. Use the binary's own cwd flag: `npm --prefix <dir>`, `git -C <dir>`, `cargo -C <dir>`, `pytest <dir>/tests`.\n• Filter at source — unbounded output (`netstat -ano`, `find /`) wastes tokens. Use `grep -c`, `wc -l`, narrower paths, etc.",
+    description: `Run a shell command in the project root; returns combined stdout+stderr. ${approvalPolicy}\n\nConstraints (no real shell — argv is parsed natively for cross-platform parity):\n• Supported: chain ops \`|\` / \`||\` / \`&&\` / \`;\` (each segment allowlist-checked individually), file redirects \`>\` / \`>>\` / \`<\` / \`2>\` / \`2>>\` / \`2>&1\` / \`&>\` (target paths resolve relative to project root, max one redirect per fd per segment).\n• NOT supported: background \`&\`, heredoc \`<<\`, command substitution \`$(…)\`, subshells \`(…)\`, process substitution \`<(…)\`, \`$VAR\` env expansion, glob expansion. To pass an operator char as literal arg, quote it (\`grep "a|b" file\`).\n• \`cd\` does NOT persist — between calls OR within a chain like \`cd dir && cmd\`. Use the binary's own cwd flag: \`npm --prefix <dir>\`, \`git -C <dir>\`, \`cargo -C <dir>\`, \`pytest <dir>/tests\`.\n• Filter at source — unbounded output (\`netstat -ano\`, \`find /\`) wastes tokens. Use \`grep -c\`, \`wc -l\`, narrower paths, etc.`,
     // Plan-mode gate: allow allowlisted commands through (git status,
     // cargo check, ls, grep …) so the model can actually investigate
     // during planning. Anything that would otherwise trigger a
@@ -117,10 +125,7 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
       const cmd = args.command.trim();
       if (!cmd) throw new Error("run_command: empty command");
       const effectiveTimeout = Math.max(1, Math.min(600, args.timeoutSec ?? timeoutSec));
-      if (
-        !isAllowAll() &&
-        !isCommandAllowed(cmd, getExtraAllowed(), rootDir, opts.sensitivePaths)
-      ) {
+      if (!isAllowAll() && !isAutoAllowed(cmd)) {
         const gate = ctx?.confirmationGate ?? pauseGate;
         const choice = await gate.ask({
           kind: "run_command",
@@ -175,10 +180,7 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
       const cmd = args.command.trim();
       if (!cmd) throw new Error("run_background: empty command");
       const cwd = resolveCwdInsideRoot(rootDir, args.cwd);
-      if (
-        !isAllowAll() &&
-        !isCommandAllowed(cmd, getExtraAllowed(), rootDir, opts.sensitivePaths)
-      ) {
+      if (!isAllowAll() && !isAutoAllowed(cmd)) {
         const gate = ctx?.confirmationGate ?? pauseGate;
         const choice = await gate.ask({
           kind: "run_background",

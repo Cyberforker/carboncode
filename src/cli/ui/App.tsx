@@ -1914,13 +1914,13 @@ function AppInner({
       // becomes the tool result AND the loop yields a `tool` event right
       // after —ToolCard renders that with the same text. Pushing here
       // would produce "result shown twice".
-      const applyNow = (): string => {
+      const applyNow = (opts: { source?: string; showUndoBanner?: boolean } = {}): string => {
         const snaps = snapshotBeforeEdits([block], rootForEdit);
         const results = applyEditBlocks([block], rootForEdit);
         const good = results.some((r) => r.status === "applied" || r.status === "created");
         if (good) {
-          recordEdit("auto", [block], results, snaps);
-          armUndoBanner(results);
+          recordEdit(opts.source ?? "auto", [block], results, snaps);
+          if (opts.showUndoBanner ?? true) armUndoBanner(results);
         }
         return formatEditResults(results);
       };
@@ -1954,7 +1954,7 @@ function AppInner({
       if (choice === "apply-rest-of-turn") {
         turnEditPolicyRef.current = "apply-all";
         log.pushInfo(t("app.autoApprovingRest"));
-        return applyNow();
+        return applyNow({ source: "review-apply", showUndoBanner: false });
       }
       if (choice === "flip-to-auto") {
         setEditMode("auto");
@@ -1962,7 +1962,7 @@ function AppInner({
         return applyNow();
       }
       // "apply"
-      return applyNow();
+      return applyNow({ source: "review-apply", showUndoBanner: false });
     });
     return () => {
       tools.setToolInterceptor(null);
@@ -4415,7 +4415,6 @@ function AppInner({
                     pendingCount={pendingCount}
                     modeFlash={modeFlash}
                     planMode={planMode}
-                    undoArmed={!!undoBanner || hasUndoable()}
                     jobs={codeMode ? codeMode.jobs : undefined}
                     activeLoop={activeLoop}
                     statusBar={statusBar}

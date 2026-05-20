@@ -1173,6 +1173,9 @@ export const EN: TranslationSchema = {
     editsQueued: "edits queued \u00b7 y apply \u00b7 n discard",
     shiftTabFlip: "   {mid} \u00b7 Shift+Tab to flip",
     queuedDots: "queued\u2026",
+    undoApplied: "applied {ok}/{total}",
+    undoHint: "u undo \u00b7 Space pause",
+    undoPausedHint: "u undo \u00b7 Space resume",
   },
   composer: {
     placeholder: "Ask for a code change",
@@ -1240,8 +1243,7 @@ export const EN: TranslationSchema = {
     previewMorePlural: "… {n} more lines hidden — press esc, ask the model to split it",
   },
   editConfirm: {
-    footer:
-      "[y/Enter] apply  \u00b7  [n] reject with reason  \u00b7  [a] apply rest  \u00b7  [A] flip AUTO  \u00b7  [\u2191\u2193/Space] scroll  \u00b7  [Esc] abort",
+    footer: "Enter apply  \u00b7  n reject  \u00b7  \u2191\u2193 scroll  \u00b7  Esc cancel",
     newTag: "NEW",
     editTag: "EDIT",
     linesCount: "-{removed} +{added} lines",

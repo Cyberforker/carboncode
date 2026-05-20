@@ -52,6 +52,11 @@ describe("codeSystemPrompt", () => {
     expect(CODE_SYSTEM_PROMPT).toMatch(/dependency.*build.*VCS|skip/i);
   });
 
+  it("honors explicit command ordering such as running tests before edits", () => {
+    expect(CODE_SYSTEM_PROMPT).toMatch(/explicitly asks you to run a command first/i);
+    expect(CODE_SYSTEM_PROMPT).toMatch(/do not substitute file reading/i);
+  });
+
   it("locks identity to this prompt — workspace files don't redefine the assistant", () => {
     // Issue #550: a Hermes / persona-platform data dir at the workspace
     // root used to make the model claim it was a sub-profile of that

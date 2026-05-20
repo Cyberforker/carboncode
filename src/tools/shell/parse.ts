@@ -277,6 +277,7 @@ export function isAllowed(
   extra: readonly string[] = [],
   projectRoot?: string,
   sensitivePathConfig?: { prefixes?: readonly string[]; patterns?: readonly string[] },
+  opts: { includeBuiltin?: boolean } = {},
 ): boolean {
   let argv: string[];
   try {
@@ -286,7 +287,7 @@ export function isAllowed(
   }
   if (argv.length === 0) return false;
 
-  const allowlist = [...BUILTIN_ALLOWLIST, ...extra];
+  const allowlist = [...(opts.includeBuiltin === false ? [] : BUILTIN_ALLOWLIST), ...extra];
   for (const prefix of allowlist) {
     const prefixTokens = prefix.split(" ");
     if (argv.length < prefixTokens.length) continue;
@@ -322,6 +323,7 @@ export function isCommandAllowed(
   extra: readonly string[] = [],
   projectRoot?: string,
   sensitivePathConfig?: { prefixes?: readonly string[]; patterns?: readonly string[] },
+  opts: { includeBuiltin?: boolean } = {},
 ): boolean {
   let chain: CommandChain | null;
   try {
@@ -329,6 +331,8 @@ export function isCommandAllowed(
   } catch {
     return false;
   }
-  if (chain === null) return isAllowed(cmd, extra, projectRoot, sensitivePathConfig);
-  return chainAllowed(chain, (seg) => isAllowed(seg, extra, projectRoot, sensitivePathConfig));
+  if (chain === null) return isAllowed(cmd, extra, projectRoot, sensitivePathConfig, opts);
+  return chainAllowed(chain, (seg) =>
+    isAllowed(seg, extra, projectRoot, sensitivePathConfig, opts),
+  );
 }

@@ -30,4 +30,28 @@ describe("buildCodeToolset", () => {
     expect(toolset.tools.size).toBeGreaterThan(0);
     await toolset.jobs.shutdown();
   });
+
+  it("asks before running builtin shell commands in code sessions", async () => {
+    const toolset = await buildCodeToolset({ rootDir: tmpRoot });
+    try {
+      const calls: unknown[] = [];
+      const out = await toolset.tools.dispatch(
+        "run_command",
+        JSON.stringify({ command: "node --version" }),
+        {
+          confirmationGate: {
+            ask: async (req: unknown) => {
+              calls.push(req);
+              return { type: "deny" };
+            },
+          },
+        },
+      );
+
+      expect(calls).toHaveLength(1);
+      expect(out).toContain("user denied: node --version");
+    } finally {
+      await toolset.jobs.shutdown();
+    }
+  });
 });

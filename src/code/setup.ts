@@ -50,6 +50,7 @@ export async function buildCodeToolset(opts: CodeToolsetOpts): Promise<CodeTools
       rootDir: root,
       extraAllowed: () => loadProjectShellAllowed(root),
       allowAll: () => loadEditMode() === "yolo",
+      requireApprovalForBuiltin: true,
       jobs,
       onJobsChanged: opts.onJobsChanged,
       sensitivePaths: cfg.sensitivePaths,

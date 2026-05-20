@@ -2,6 +2,7 @@ import { render } from "ink-testing-library";
 import React from "react";
 import { describe, expect, it } from "vitest";
 import { BootSplash } from "../src/cli/ui/BootSplash.js";
+import { EditConfirm } from "../src/cli/ui/EditConfirm.js";
 import { PromptInput } from "../src/cli/ui/PromptInput.js";
 import { WelcomeBanner } from "../src/cli/ui/WelcomeBanner.js";
 import { CardRenderer } from "../src/cli/ui/cards/CardRenderer.js";
@@ -9,6 +10,7 @@ import { ReasoningCard } from "../src/cli/ui/cards/ReasoningCard.js";
 import { StreamingCard } from "../src/cli/ui/cards/StreamingCard.js";
 import { ToolCard } from "../src/cli/ui/cards/ToolCard.js";
 import { UserCard } from "../src/cli/ui/cards/UserCard.js";
+import { ModeStatusBar, UndoBanner } from "../src/cli/ui/layout/LiveRows.js";
 import { StatusRow } from "../src/cli/ui/layout/StatusRow.js";
 import type { ReasoningCard as ReasoningCardData } from "../src/cli/ui/state/cards.js";
 import { AgentStoreProvider, useAgentStore } from "../src/cli/ui/state/provider.js";
@@ -227,5 +229,55 @@ describe("Codex-style terminal surface", () => {
     expect(out).toContain("package.json");
     expect(out).not.toContain("@carboncode/cli");
     expect(out).not.toContain('"version"');
+  });
+
+  it("keeps edit review hints compact instead of exposing every mode shortcut", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <EditConfirm
+        block={{
+          path: "src/cart.js",
+          search: "return item.price;",
+          replace: "return item.price * item.quantity;",
+          offset: 0,
+        }}
+        onChoose={() => {}}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("Enter");
+    expect(out).not.toContain("应用剩余");
+    expect(out).not.toContain("切换 AUTO");
+  });
+
+  it("does not show a stale review bar when no edits are pending", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <ModeStatusBar editMode="review" pendingCount={0} flash={false} planMode={false} />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out.trim()).toBe("");
+  });
+
+  it("uses a quiet undo banner label instead of AUTO-APPLIED chrome", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <UndoBanner
+        banner={{
+          results: [{ path: "src/cart.js", status: "applied" }],
+          expiresAt: Date.now() + 5000,
+          pausedRemainingMs: null,
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).not.toContain("AUTO-APPLIED");
+    expect(out).toContain("已应用");
   });
 });

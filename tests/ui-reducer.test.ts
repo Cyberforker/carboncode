@@ -10,7 +10,13 @@ import type { AgentEvent } from "../src/cli/ui/state/events.js";
 import { parseEvent } from "../src/cli/ui/state/events.js";
 import { reduce } from "../src/cli/ui/state/reducer.js";
 import { type AgentState, type SessionInfo, initialState } from "../src/cli/ui/state/state.js";
-import { USD_TO_CNY, balanceColor, formatBalance, formatCost } from "../src/cli/ui/theme/tokens.js";
+import {
+  TONE,
+  USD_TO_CNY,
+  balanceColor,
+  formatBalance,
+  formatCost,
+} from "../src/cli/ui/theme/tokens.js";
 
 const session: SessionInfo = {
   id: "test-session",
@@ -402,19 +408,19 @@ describe("balanceColor", () => {
   // USD balances are multiplied by USD_TO_CNY before the threshold check.
 
   it("CNY → threshold checked directly", () => {
-    expect(balanceColor(3, "CNY")).toBe("#ff8b81"); // err
-    expect(balanceColor(8, "CNY")).toBe("#f0b07d"); // warn
-    expect(balanceColor(25, "CNY")).toBe("#79c0ff"); // brand
+    expect(balanceColor(3, "CNY")).toBe(TONE.err);
+    expect(balanceColor(8, "CNY")).toBe(TONE.warn);
+    expect(balanceColor(25, "CNY")).toBe(TONE.brand);
   });
 
   it("USD → converted to CNY before threshold check ($0.91 ≈ ¥6.55 → warn)", () => {
-    expect(balanceColor(0.5, "USD")).toBe("#ff8b81"); // ≈ ¥3.60 → err
-    expect(balanceColor(0.91, "USD")).toBe("#f0b07d"); // ≈ ¥6.55 → warn
-    expect(balanceColor(3.0, "USD")).toBe("#79c0ff"); // ≈ ¥21.60 → brand
+    expect(balanceColor(0.5, "USD")).toBe(TONE.err); // ≈ ¥3.60
+    expect(balanceColor(0.91, "USD")).toBe(TONE.warn); // ≈ ¥6.55
+    expect(balanceColor(3.0, "USD")).toBe(TONE.brand); // ≈ ¥21.60
   });
 
   it("undefined currency defaults to CNY (matches pre-fix behavior)", () => {
-    expect(balanceColor(8)).toBe("#f0b07d");
+    expect(balanceColor(8)).toBe(TONE.warn);
   });
 });
 

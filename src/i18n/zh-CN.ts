@@ -1110,6 +1110,9 @@ export const zhCN: TranslationSchema = {
     editsQueued: "编辑已排队 · y 应用 · n 丢弃",
     shiftTabFlip: "   {mid} · Shift+Tab 切换",
     queuedDots: "排队中…",
+    undoApplied: "已应用 {ok}/{total}",
+    undoHint: "u 撤消 · Space 暂停",
+    undoPausedHint: "u 撤消 · Space 继续",
   },
   composer: {
     placeholder: "输入任务",
@@ -1171,8 +1174,7 @@ export const zhCN: TranslationSchema = {
     previewMorePlural: "… 还有 {n} 行未显示 — 按 esc 取消，让模型拆分后再试",
   },
   editConfirm: {
-    footer:
-      "[y/Enter] 应用 · [n] 拒绝并说明 · [a] 应用剩余 · [A] 切换 AUTO · [↑↓/Space] 滚动 · [Esc] 中止",
+    footer: "Enter 应用 · n 拒绝 · ↑↓ 滚动 · Esc 取消",
     newTag: "新增",
     editTag: "编辑",
     linesCount: "-{removed} +{added} 行",

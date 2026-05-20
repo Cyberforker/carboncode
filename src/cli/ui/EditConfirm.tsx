@@ -60,6 +60,10 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
       onChoose("flip-to-auto");
       return;
     }
+    if (key.escape) {
+      onChoose("reject");
+      return;
+    }
     if (key.downArrow || input === "j") {
       setScroll((s) => Math.min(maxScroll, s + 1));
       return;
