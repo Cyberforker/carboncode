@@ -155,6 +155,9 @@ export interface ReasonixConfig {
   };
   /** Per-field visibility toggles for the bottom status row. Codex-style defaults keep only turn cost and context visible. */
   statusBar?: {
+    showMode?: boolean;
+    showPreset?: boolean;
+    showSessionInfo?: boolean;
     showBalance?: boolean;
     showSessionCost?: boolean;
     showTurnCost?: boolean;

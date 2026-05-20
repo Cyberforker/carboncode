@@ -53,6 +53,9 @@ export interface TranslationSchema {
     inputPlaceholder: string;
     busy: string;
     thinking: string;
+    activityWaitingForModel: string;
+    activityThinking: string;
+    activityProcessing: string;
     undo: string;
     undoHint: string;
     applied: string;

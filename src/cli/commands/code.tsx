@@ -93,15 +93,6 @@ export async function codeCommand(opts: CodeOptions = {}): Promise<void> {
     semantic.enabled ? "semantic_bootstrap_done_enabled" : "semantic_bootstrap_done_skipped",
   );
 
-  process.stderr.write(
-    `${t("startup.codeRooted", {
-      rootDir,
-      session: session ?? t("startup.ephemeral"),
-      tools: tools.size,
-      semantic: semantic.enabled ? t("startup.semanticOn") : "",
-    })}\n`,
-  );
-
   const foreign = detectForeignAgentPlatform(rootDir);
   if (foreign) {
     process.stderr.write(t("code.workspaceConflict", { platforms: foreign.join(", ") }));

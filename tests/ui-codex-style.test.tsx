@@ -6,7 +6,13 @@ import { PromptInput } from "../src/cli/ui/PromptInput.js";
 import { WelcomeBanner } from "../src/cli/ui/WelcomeBanner.js";
 import { CardRenderer } from "../src/cli/ui/cards/CardRenderer.js";
 import { ReasoningCard } from "../src/cli/ui/cards/ReasoningCard.js";
+import { StreamingCard } from "../src/cli/ui/cards/StreamingCard.js";
+import { ToolCard } from "../src/cli/ui/cards/ToolCard.js";
+import { UserCard } from "../src/cli/ui/cards/UserCard.js";
+import { StatusRow } from "../src/cli/ui/layout/StatusRow.js";
 import type { ReasoningCard as ReasoningCardData } from "../src/cli/ui/state/cards.js";
+import { AgentStoreProvider, useAgentStore } from "../src/cli/ui/state/provider.js";
+import type { AgentState, SessionInfo } from "../src/cli/ui/state/state.js";
 import { setLanguageRuntime } from "../src/i18n/index.js";
 
 function settledReasoning(text: string): ReasoningCardData {
@@ -21,6 +27,27 @@ function settledReasoning(text: string): ReasoningCardData {
     streaming: false,
     model: "deepseek-v4-pro",
   };
+}
+
+const SESSION: SessionInfo = {
+  id: "default",
+  branch: "main",
+  workspace: "/repo",
+  model: "deepseek-v4-pro",
+};
+
+function StateInjector({
+  overrides,
+  children,
+}: {
+  overrides: Partial<AgentState["status"]>;
+  children: React.ReactNode;
+}): React.ReactElement {
+  const store = useAgentStore();
+  React.useEffect(() => {
+    store.dispatch({ type: "session.update", patch: overrides } as never);
+  }, [store, overrides]);
+  return <>{children}</>;
 }
 
 describe("Codex-style terminal surface", () => {
@@ -67,6 +94,26 @@ describe("Codex-style terminal surface", () => {
     expect(out).not.toContain("^C");
   });
 
+  it("renders user turns without timestamp chrome", () => {
+    const { lastFrame, unmount } = render(
+      <UserCard
+        card={{
+          kind: "user",
+          id: "u1",
+          ts: Date.now(),
+          text: "帮我修改这个函数",
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("帮我修改这个函数");
+    expect(out).not.toContain("just now");
+    expect(out).not.toContain("◇");
+    expect(out).not.toContain("↳");
+  });
+
   it("does not show reasoning body by default", () => {
     setLanguageRuntime("zh-CN");
     const { lastFrame, unmount } = render(
@@ -80,6 +127,8 @@ describe("Codex-style terminal surface", () => {
 
     expect(out).toContain("推理");
     expect(out).not.toContain("Let me read");
+    expect(out).not.toContain("v4-pro");
+    expect(out).not.toContain("tok");
   });
 
   it("keeps normal timeline rendering from expanding reasoning text", () => {
@@ -94,5 +143,89 @@ describe("Codex-style terminal surface", () => {
 
     expect(out).toContain("推理");
     expect(out).not.toContain("Let me read");
+  });
+
+  it("can render a fully quiet bottom status row", async () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <AgentStoreProvider session={SESSION}>
+        <StateInjector overrides={{ cost: 0.01, promptTokens: 2000, preset: "pro" }}>
+          <StatusRow
+            statusBar={
+              {
+                showMode: false,
+                showPreset: false,
+                showSessionInfo: false,
+                showBalance: false,
+                showSessionCost: false,
+                showTurnCost: false,
+                showCacheHit: false,
+                showCtxUsage: false,
+                showVersion: false,
+                showFeedbackHint: false,
+              } as never
+            }
+          />
+        </StateInjector>
+      </AgentStoreProvider>,
+    );
+    await new Promise((r) => setTimeout(r, 250));
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).not.toContain("编辑");
+    expect(out).not.toContain("default · main");
+    expect(out).not.toContain("pro");
+    expect(out).not.toContain("上下文");
+  });
+
+  it("keeps streaming output headers free of model and preview chips", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <StreamingCard
+        card={{
+          kind: "streaming",
+          id: "s1",
+          ts: Date.now() - 1000,
+          text: "@carboncode/cli",
+          done: false,
+          model: "deepseek-v4-pro",
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("输出");
+    expect(out).not.toContain("preview");
+    expect(out).not.toContain("expanded");
+    expect(out).not.toContain("v4-pro");
+    expect(out).not.toContain("t/s");
+  });
+
+  it("shows successful read tools as a compact action, not a file preview dump", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <ToolCard
+        card={{
+          kind: "tool",
+          id: "tool1",
+          ts: 1,
+          name: "read_file",
+          args: { path: "package.json" },
+          output: ["{", '  "name": "@carboncode/cli",', '  "version": "0.1.0",', "}"].join("\n"),
+          done: true,
+          exitCode: 0,
+          elapsedMs: 20,
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("read_file");
+    expect(out).toContain("package.json");
+    expect(out).not.toContain("@carboncode/cli");
+    expect(out).not.toContain('"version"');
   });
 });

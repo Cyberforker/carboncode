@@ -1,5 +1,4 @@
 import { Box, Text, useStdout } from "ink";
-// biome-ignore lint/style/useImportType: tsconfig jsx=react needs React in value scope for JSX compilation
 import React from "react";
 import { t } from "../../../i18n/index.js";
 import { DEEPSEEK_CONTEXT_TOKENS, DEFAULT_CONTEXT_TOKENS } from "../../../telemetry/stats.js";
@@ -12,6 +11,9 @@ import { GLYPH } from "../theme.js";
 import { FG, TONE, balanceColor, formatBalance, formatCost } from "../theme/tokens.js";
 
 export interface StatusBarConfig {
+  showMode: boolean;
+  showPreset: boolean;
+  showSessionInfo: boolean;
   showBalance: boolean;
   showSessionCost: boolean;
   showTurnCost: boolean;
@@ -30,6 +32,9 @@ const CTX_BAR_MIN_COLS = 110;
 const CTX_BAR_CELLS = 8;
 
 const DEFAULT_STATUS_BAR_CONFIG: StatusBarConfig = {
+  showMode: true,
+  showPreset: true,
+  showSessionInfo: true,
   showBalance: true,
   showSessionCost: true,
   showTurnCost: true,
@@ -52,76 +57,116 @@ export function StatusRow({
   const showWallet =
     cols >= WALLET_MIN_COLS &&
     ((hasSession && statusBar.showSessionCost) || (hasBalance && statusBar.showBalance));
+  const segments: Array<{ key: string; node: React.ReactNode }> = [];
+
+  if (statusBar.showMode) {
+    segments.push({
+      key: "mode",
+      node: status.recording ? (
+        <RecordingPill rec={status.recording} />
+      ) : status.countdownSeconds !== undefined ? (
+        <CountdownRow mode={status.mode} secondsLeft={status.countdownSeconds} />
+      ) : (
+        <ModePill mode={status.mode} network={status.network} detail={status.networkDetail} />
+      ),
+    });
+  }
+  if (statusBar.showPreset && cols >= PRESET_MIN_COLS && status.preset !== undefined) {
+    segments.push({
+      key: "preset",
+      node: <PresetPill preset={status.preset} model={session.model} />,
+    });
+  }
+  if (statusBar.showSessionInfo) {
+    segments.push({
+      key: "session",
+      node: <Text color={FG.sub}>{`${session.id} · ${session.branch}`}</Text>,
+    });
+  }
+  if (hasTurn && statusBar.showTurnCost) {
+    segments.push({
+      key: "turn",
+      node: (
+        <>
+          <Text bold color={TONE.brand}>
+            {"▸ "}
+          </Text>
+          <Text bold color={FG.body}>
+            {`${formatCost(status.cost, status.balanceCurrency)} ${t("statusBar.turn")}`}
+          </Text>
+        </>
+      ),
+    });
+  }
+  if (statusBar.showCacheHit) {
+    segments.push({
+      key: "cache",
+      node: (
+        <Text color={TONE.accent}>
+          {`${t("statusBar.cache")} ${Math.round(status.cacheHit * 100)}%`}
+        </Text>
+      ),
+    });
+  }
+  if (statusBar.showCtxUsage && status.promptTokens !== undefined && status.promptTokens > 0) {
+    segments.push({
+      key: "ctx",
+      node: (
+        <CtxUsagePill
+          tokens={status.promptTokens}
+          cap={status.promptCap ?? DEEPSEEK_CONTEXT_TOKENS[session.model] ?? DEFAULT_CONTEXT_TOKENS}
+          cols={cols}
+        />
+      ),
+    });
+  }
+  if (status.mcpLoading && status.mcpLoading.ready < status.mcpLoading.total) {
+    segments.push({
+      key: "mcp",
+      node: <McpLoadingPill ready={status.mcpLoading.ready} total={status.mcpLoading.total} />,
+    });
+  }
+  if (showWallet) {
+    segments.push({
+      key: "wallet",
+      node: (
+        <WalletPill
+          sessionCostUsd={status.sessionCost}
+          balance={status.balance}
+          currency={status.balanceCurrency}
+          showSessionCost={statusBar.showSessionCost}
+          showBalance={statusBar.showBalance}
+        />
+      ),
+    });
+  }
+  if (statusBar.showVersion && cols >= VERSION_MIN_COLS) {
+    segments.push({ key: "version", node: <Text color={FG.faint}>{`v${VERSION}`}</Text> });
+  }
+  if (statusBar.showFeedbackHint && cols >= FEEDBACK_HINT_MIN_COLS) {
+    segments.push({
+      key: "feedback",
+      node: (
+        <>
+          <Text color={FG.meta}>{"⚑ "}</Text>
+          <Text color={FG.sub}>{"/feedback"}</Text>
+        </>
+      ),
+    });
+  }
+
+  if (segments.length === 0) return <Box flexDirection="column" flexShrink={0} />;
 
   return (
     <Box flexDirection="column" flexShrink={0}>
       <Box flexDirection="row" flexWrap="wrap" flexShrink={0}>
         <Text>{"  "}</Text>
-        {status.recording ? (
-          <RecordingPill rec={status.recording} />
-        ) : status.countdownSeconds !== undefined ? (
-          <CountdownRow mode={status.mode} secondsLeft={status.countdownSeconds} />
-        ) : (
-          <ModePill mode={status.mode} network={status.network} detail={status.networkDetail} />
-        )}
-        {cols >= PRESET_MIN_COLS && status.preset !== undefined && (
-          <PresetPill preset={status.preset} model={session.model} />
-        )}
-        <Sep />
-        <Text color={FG.sub}>{`${session.id} · ${session.branch}`}</Text>
-        {hasTurn && statusBar.showTurnCost && (
-          <>
-            <Sep />
-            <Text bold color={TONE.brand}>
-              {"▸ "}
-            </Text>
-            <Text bold color={FG.body}>
-              {`${formatCost(status.cost, status.balanceCurrency)} ${t("statusBar.turn")}`}
-            </Text>
-          </>
-        )}
-        {statusBar.showCacheHit && (
-          <>
-            <Sep />
-            <Text
-              color={TONE.accent}
-            >{`${t("statusBar.cache")} ${Math.round(status.cacheHit * 100)}%`}</Text>
-          </>
-        )}
-        {statusBar.showCtxUsage && status.promptTokens !== undefined && status.promptTokens > 0 && (
-          <CtxUsagePill
-            tokens={status.promptTokens}
-            cap={
-              status.promptCap ?? DEEPSEEK_CONTEXT_TOKENS[session.model] ?? DEFAULT_CONTEXT_TOKENS
-            }
-            cols={cols}
-          />
-        )}
-        {status.mcpLoading && status.mcpLoading.ready < status.mcpLoading.total && (
-          <McpLoadingPill ready={status.mcpLoading.ready} total={status.mcpLoading.total} />
-        )}
-        {showWallet && (
-          <WalletPill
-            sessionCostUsd={status.sessionCost}
-            balance={status.balance}
-            currency={status.balanceCurrency}
-            showSessionCost={statusBar.showSessionCost}
-            showBalance={statusBar.showBalance}
-          />
-        )}
-        {statusBar.showVersion && cols >= VERSION_MIN_COLS && (
-          <>
-            <Sep />
-            <Text color={FG.faint}>{`v${VERSION}`}</Text>
-          </>
-        )}
-        {statusBar.showFeedbackHint && cols >= FEEDBACK_HINT_MIN_COLS && (
-          <>
-            <Sep />
-            <Text color={FG.meta}>{"⚑ "}</Text>
-            <Text color={FG.sub}>{"/feedback"}</Text>
-          </>
-        )}
+        {segments.map((segment, index) => (
+          <React.Fragment key={segment.key}>
+            {index > 0 ? <Sep /> : null}
+            {segment.node}
+          </React.Fragment>
+        ))}
       </Box>
     </Box>
   );
@@ -138,7 +183,6 @@ function PresetPill({
   const color = preset === "pro" ? TONE.accent : preset === "flash" ? TONE.brand : FG.sub;
   return (
     <>
-      <Sep />
       <Text color={FG.meta} wrap="truncate">
         {"▴ "}
       </Text>
@@ -172,7 +216,6 @@ function CtxUsagePill({
   const filled = Math.round(CTX_BAR_CELLS * ratio);
   return (
     <>
-      <Sep />
       <Text color={FG.meta} wrap="truncate">{`${t("statusBar.ctx")} `}</Text>
       {showBar && (
         <>
@@ -202,7 +245,6 @@ function McpLoadingPill({
 }): React.ReactElement {
   return (
     <>
-      <Sep />
       <Text color={TONE.brand} wrap="truncate">
         {"⌁ "}
       </Text>
@@ -228,7 +270,6 @@ function WalletPill({
   const showBalanceLine = showBalanceCfg && typeof balance === "number";
   return (
     <>
-      <Sep />
       <Text color={FG.meta} wrap="truncate">
         {"⛁ "}
       </Text>

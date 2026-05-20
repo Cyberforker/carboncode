@@ -14,12 +14,16 @@ const READ_TAIL = 2;
 const OTHER_TAIL = 5;
 
 /** Read-style tools dump file/list bodies — short tail is enough; the model already has the full text in context. */
-function tailLinesFor(name: string): number {
+function isReadStyleTool(name: string): boolean {
   const lower = name.toLowerCase();
-  return /(?:^|_)(read|search|list|tree|get|status|diff|fetch|grep)(_|$)/.test(lower) ||
+  return (
+    /(?:^|_)(read|search|list|tree|get|status|diff|fetch|grep)(_|$)/.test(lower) ||
     lower === "job_output"
-    ? READ_TAIL
-    : OTHER_TAIL;
+  );
+}
+
+function tailLinesFor(name: string): number {
+  return isReadStyleTool(name) ? READ_TAIL : OTHER_TAIL;
 }
 
 export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
@@ -44,7 +48,9 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
   const errColor = card.exitCode && card.exitCode !== 0 ? TONE.err : FG.sub;
   // Rejected calls show a single trailing badge — the verbose JSON error body
   // is already conveyed by the badge, so dropping the body keeps the card tight.
-  const showBody = !card.rejected && (subagentMarkdown !== null || visible.length > 0);
+  const readStyleSuccess = isReadStyleTool(card.name) && status === "ok";
+  const showBody =
+    !card.rejected && !readStyleSuccess && (subagentMarkdown !== null || visible.length > 0);
 
   const meta: MetaItem[] = [];
   if (card.retry) {

@@ -4,9 +4,8 @@ import React from "react";
 import { clipToCells } from "../../../frame/width.js";
 import { t } from "../../../i18n/index.js";
 import { Card } from "../primitives/Card.js";
-import { CardHeader, type MetaItem } from "../primitives/CardHeader.js";
+import { CardHeader } from "../primitives/CardHeader.js";
 import { CursorBlock } from "../primitives/CursorBlock.js";
-import { PILL_MODEL, PILL_SECTION, Pill, modelBadgeFor } from "../primitives/Pill.js";
 import { Spinner } from "../primitives/Spinner.js";
 import type { ReasoningCard as ReasoningCardData } from "../state/cards.js";
 import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
@@ -71,45 +70,14 @@ function ReasoningHeader({
     : card.aborted
       ? t("cardTitles.reasoningAborted")
       : t("cardTitles.reasoning");
-  const pill = isEmpty ? PILL_SECTION.empty : PILL_SECTION.reason;
-  const meta: MetaItem[] = [];
-  const m = headerMeta(card);
-  if (m) meta.push(m);
-  const duration = headerDuration(card);
-  if (duration) meta.push(duration);
-  const modelBadge = card.model ? modelBadgeFor(card.model) : null;
   return (
     <CardHeader
       glyph={glyph}
       tone={headColor}
       title={title}
-      meta={meta.length > 0 ? meta : undefined}
-      right={
-        <>
-          {streamingActive ? <Spinner kind="braille" color={TONE_ACTIVE.accent} /> : null}
-          {modelBadge ? (
-            <Pill label={modelBadge.label} {...PILL_MODEL[modelBadge.kind]} bold={false} />
-          ) : null}
-        </>
-      }
+      right={streamingActive ? <Spinner kind="braille" color={TONE_ACTIVE.accent} /> : null}
     />
   );
-}
-
-function headerMeta(card: ReasoningCardData): string {
-  if (card.streaming) {
-    return card.tokens > 0 ? `${card.tokens.toLocaleString()} ${t("cardLabels.tok")}` : "";
-  }
-  const parts: string[] = [];
-  if (card.tokens > 0) parts.push(`${card.tokens.toLocaleString()} ${t("cardLabels.tok")}`);
-  if (card.paragraphs > 0) parts.push(`${card.paragraphs} ${t("cardLabels.pilcrow")}`);
-  return parts.join(" \u00b7 ");
-}
-
-function headerDuration(card: ReasoningCardData): string {
-  if (card.streaming || !card.endedAt) return "";
-  const seconds = Math.max(0, (card.endedAt - card.ts) / 1000);
-  return `${seconds.toFixed(1)}s`;
 }
 
 interface BodyProps {

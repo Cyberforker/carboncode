@@ -394,6 +394,9 @@ export function App(props: AppProps): React.ReactElement {
   const statusBar = React.useMemo((): StatusBarConfig => {
     const cfg = readConfig().statusBar ?? {};
     return {
+      showMode: cfg.showMode === true,
+      showPreset: cfg.showPreset === true,
+      showSessionInfo: cfg.showSessionInfo === true,
       showBalance: cfg.showBalance === true,
       showSessionCost: cfg.showSessionCost === true,
       showTurnCost: cfg.showTurnCost !== false,
@@ -1489,12 +1492,8 @@ function AppInner({
   useEffect(() => {
     if (sessionBannerShown.current) return;
     sessionBannerShown.current = true;
-    if (!session) {
-      log.pushInfo(t("ui.ephemeralSession"));
-    } else if (loop.resumedMessageCount > 0) {
+    if (session && loop.resumedMessageCount > 0) {
       log.pushInfo(t("ui.resumedSession", { name: session, count: loop.resumedMessageCount }));
-    } else {
-      log.pushInfo(t("ui.newSession", { name: session }));
     }
     for (const hint of startupInfoHints ?? []) log.pushInfo(hint);
     // Restore any pending edit queue from a prior run that was

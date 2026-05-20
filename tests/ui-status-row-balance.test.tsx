@@ -113,6 +113,9 @@ describe("StatusRow — statusBar config toggles", () => {
     config: Partial<import("../src/cli/ui/layout/StatusRow.js").StatusBarConfig>,
   ): Promise<string> {
     const cfg = {
+      showMode: true,
+      showPreset: true,
+      showSessionInfo: true,
       showBalance: true,
       showSessionCost: true,
       showTurnCost: true,
