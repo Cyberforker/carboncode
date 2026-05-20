@@ -9,8 +9,8 @@ import { ApprovalCard } from "./cards/ApprovalCard.js";
 import { useReserveRows, useTotalRows } from "./layout/viewport-budget.js";
 import { FG, TONE } from "./theme/tokens.js";
 
-/** Header + subtitle + info rows + 3-option select + separator + footer — empirically 18 rows. */
-const CHROME_ROWS = 18;
+/** Header + command + info rows + 3-option select + separator + footer. */
+const CHROME_ROWS = 14;
 /** Floor so the user can always see *something* of the command on tiny terminals. */
 const MIN_COMMAND_LINES = 3;
 
@@ -64,7 +64,6 @@ export function ShellConfirm({
   const { preview, hidden } = clampCommand(command, maxCommandLines);
 
   const isBackground = kind === "run_background";
-  const subtitle = isBackground ? t("shellConfirm.bgSubtitle") : t("shellConfirm.subtitle");
 
   const [phase, setPhase] = useState<"pick" | "deny">("pick");
 
@@ -93,9 +92,6 @@ export function ShellConfirm({
       metaRight={t("shellConfirm.awaiting")}
       footerHint={t("shellConfirm.pickFooter")}
     >
-      <Box marginBottom={1}>
-        <Text color={FG.faint}>{subtitle}</Text>
-      </Box>
       <Box marginBottom={1} flexDirection="column">
         <Box>
           <Text bold color={TONE.err}>
@@ -120,17 +116,14 @@ export function ShellConfirm({
           {
             value: "run_once",
             label: t("shellConfirm.allowOnce"),
-            hint: t("shellConfirm.allowOnceDesc"),
           },
           {
             value: "always_allow",
             label: t("shellConfirm.allowAlways"),
-            hint: t("shellConfirm.allowAlwaysDesc", { prefix: allowPrefix }),
           },
           {
             value: "deny",
             label: t("shellConfirm.deny"),
-            hint: t("shellConfirm.denyDesc"),
           },
         ]}
         onSubmit={(v) => {

@@ -176,6 +176,16 @@ describe("TurnTranslator", () => {
     expect(methods).toContain("abortTurn");
   });
 
+  it("uses loop-provided tool elapsed time when available", () => {
+    const { log, calls } = makeMockLog();
+    const t = new TurnTranslator(log);
+    t.toolStart("run_command", { cmd: "npm test" });
+    t.toolEnd("ok", 123);
+
+    const endCall = calls.find((c) => c.method === "endTool");
+    expect(endCall?.args[1]).toMatchObject({ output: "ok", elapsedMs: 123 });
+  });
+
   it("retryTool annotates an open tool card", () => {
     const { log, calls } = makeMockLog();
     const t = new TurnTranslator(log);

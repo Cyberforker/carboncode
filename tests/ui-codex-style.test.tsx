@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { BootSplash } from "../src/cli/ui/BootSplash.js";
 import { EditConfirm } from "../src/cli/ui/EditConfirm.js";
 import { PromptInput } from "../src/cli/ui/PromptInput.js";
+import { ShellConfirm } from "../src/cli/ui/ShellConfirm.js";
 import { WelcomeBanner } from "../src/cli/ui/WelcomeBanner.js";
 import { CardRenderer } from "../src/cli/ui/cards/CardRenderer.js";
 import { ReasoningCard } from "../src/cli/ui/cards/ReasoningCard.js";
@@ -15,7 +16,7 @@ import { StatusRow } from "../src/cli/ui/layout/StatusRow.js";
 import type { ReasoningCard as ReasoningCardData } from "../src/cli/ui/state/cards.js";
 import { AgentStoreProvider, useAgentStore } from "../src/cli/ui/state/provider.js";
 import type { AgentState, SessionInfo } from "../src/cli/ui/state/state.js";
-import { setLanguageRuntime } from "../src/i18n/index.js";
+import { setLanguageRuntime, t } from "../src/i18n/index.js";
 
 function settledReasoning(text: string): ReasoningCardData {
   return {
@@ -78,6 +79,24 @@ describe("Codex-style terminal surface", () => {
     expect(out).not.toContain("🐋");
     expect(out).not.toContain("/help");
     expect(out).not.toContain("╭");
+  });
+
+  it("keeps dashboard URLs out of the default welcome timeline", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <WelcomeBanner
+        inCodeMode
+        workspaceRoot="/repo"
+        dashboardUrl="http://127.0.0.1:3000/?token=secret"
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("/repo");
+    expect(out).not.toContain("127.0.0.1");
+    expect(out).not.toContain("token=");
+    expect(out).not.toContain("网页");
   });
 
   it("renders the composer as a quiet prompt without a persistent shortcut button row", () => {
@@ -250,6 +269,60 @@ describe("Codex-style terminal surface", () => {
     expect(out).toContain("Enter");
     expect(out).not.toContain("应用剩余");
     expect(out).not.toContain("切换 AUTO");
+  });
+
+  it("renders multi-file edit review as one batch", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <EditConfirm
+        blocks={[
+          {
+            path: "src/cart.js",
+            search: "return 1;\n",
+            replace: "return 2;\n",
+            offset: 0,
+          },
+          {
+            path: "test/cart.test.js",
+            search: "assert.equal(total(), 1);\n",
+            replace: "assert.equal(total(), 2);\n",
+            offset: 0,
+          },
+        ]}
+        onChoose={() => {}}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("2 files");
+    expect(out).toContain("src/cart.js");
+    expect(out).toContain("test/cart.test.js");
+  });
+
+  it("keeps shell confirmation compact", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <ShellConfirm
+        command="npm test"
+        allowPrefix="npm test"
+        cwd="/repo"
+        timeoutSec={120}
+        onChoose={() => {}}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("$ npm test");
+    expect(out).toContain("允许一次");
+    expect(out).not.toContain("模型请求执行 Shell 命令");
+    expect(out).not.toContain("执行此命令，下次再问");
+    expect(out).not.toContain("按 Tab 添加说明");
+    expect(t("shellConfirm.pickFooter")).not.toContain("Tab");
+    expect(t("shellConfirm.pickFooter")).not.toContain("说明");
+    setLanguageRuntime("en");
+    expect(t("shellConfirm.pickFooter")).not.toContain("Tab");
   });
 
   it("does not show a stale review bar when no edits are pending", () => {

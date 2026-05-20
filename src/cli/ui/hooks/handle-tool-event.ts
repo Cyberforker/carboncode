@@ -39,7 +39,7 @@ export function handleToolEvent(ev: LoopEvent, ctx: ToolEventContext): void {
   ctx.flush();
   ctx.setOngoingTool(null);
   ctx.setToolProgress(null);
-  ctx.translator.toolEnd(ev.content);
+  ctx.translator.toolEnd(ev.content, ev.elapsedMs);
 
   ctx.toolStartedAtRef.current = null;
 

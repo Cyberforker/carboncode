@@ -10,6 +10,13 @@ export interface ToolSummary {
   isError: boolean;
 }
 
+export interface CommandOutputSummary {
+  status: "passed" | "failed" | "unknown";
+  headline: string;
+  failures: string[];
+  tail: string[];
+}
+
 function clip(s: string, max: number): string {
   if (s.length <= max) return s;
   return s.slice(0, Math.max(1, max - TRAILING_ELLIPSIS.length)) + TRAILING_ELLIPSIS;
@@ -21,6 +28,70 @@ function firstNonEmptyLine(text: string): string {
     if (trimmed) return trimmed;
   }
   return "";
+}
+
+export function summarizeCommandOutput(content: string): CommandOutputSummary {
+  const lines = content.split(/\r?\n/);
+  const nonEmpty = lines.map((line) => line.trim()).filter(Boolean);
+  const failures: string[] = [];
+  const seen = new Set<string>();
+  let headline = "";
+
+  const addFailure = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    failures.push(trimmed);
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const vitestFail = line.match(/^FAIL\s+(.+)/);
+    if (vitestFail?.[1]) addFailure(vitestFail[1]);
+
+    const stackLine = line.match(/^[❯>]\s+(.+\.(?:[cm]?[jt]sx?|tsx?):\d+:\d+)$/);
+    if (stackLine?.[1]) addFailure(stackLine[1]);
+
+    const tapFail = line.match(/^not ok\s+\d+\s+-\s+(.+)/);
+    if (tapFail?.[1]) addFailure(tapFail[1]);
+
+    const testsLine = line.match(/^Tests?\s+(.+)/);
+    if (testsLine?.[1] && /\bfailed\b/i.test(testsLine[1])) headline = testsLine[1];
+
+    const tapSummary = line.match(/^#\s*fail\s+(\d+)/i);
+    if (tapSummary?.[1]) headline = `${tapSummary[1]} failed`;
+  }
+
+  if (!headline) {
+    const testFilesLine = nonEmpty.find(
+      (line) => /^Test Files\s+/.test(line) && /\bfailed\b/i.test(line),
+    );
+    if (testFilesLine) headline = testFilesLine.replace(/^Test Files\s+/, "");
+  }
+
+  const exitMatch = content.match(/(?:^|\n)\s*(?:\[?exit(?: code)?\s+(-?\d+)\]?)/i);
+  const exitCode = exitMatch?.[1] ? Number(exitMatch[1]) : null;
+  const failed =
+    failures.length > 0 ||
+    /\b\d+\s+failed\b/i.test(headline) ||
+    (exitCode !== null && exitCode !== 0);
+  const passed = !failed && (exitCode === 0 || /\bpassed\b/i.test(content));
+
+  if (!headline) {
+    if (exitCode !== null) headline = `exit ${exitCode}`;
+    else if (failed) headline = "failed";
+    else if (passed) headline = "passed";
+    else headline = firstNonEmptyLine(content) || "(no output)";
+  }
+
+  return {
+    status: failed ? "failed" : passed ? "passed" : "unknown",
+    headline: clip(headline, MAX_SUMMARY_CHARS),
+    failures: failures.slice(0, 6),
+    tail: nonEmpty.slice(-5),
+  };
 }
 
 export function formatDuration(ms: number): string {
@@ -124,10 +195,13 @@ function summarizeKnownTool(toolName: string, content: string): ToolSummary | nu
     const bytes = formatBytes(content.length);
     return { summary: `wrote ${lines} · ${bytes}`, isError: false };
   }
-  if (hasSuffix("multi_edit")) {
-    const m = content.match(/applied (\d+) edits? to (\S+)/);
+  if (hasSuffix("multi_edit") || hasSuffix("apply_patch")) {
+    const m = content.match(/applied (\d+) edits? across (\d+) files?/);
     if (m) {
-      return { summary: `${m[1]} edit${m[1] === "1" ? "" : "s"} · ${m[2]}`, isError: false };
+      return {
+        summary: `${m[1]} edit${m[1] === "1" ? "" : "s"} · ${m[2]} file${m[2] === "1" ? "" : "s"}`,
+        isError: false,
+      };
     }
     return { summary: clip(firstNonEmptyLine(content), MAX_SUMMARY_CHARS), isError: false };
   }
@@ -140,6 +214,17 @@ function summarizeKnownTool(toolName: string, content: string): ToolSummary | nu
     return { summary: clip(firstNonEmptyLine(content), MAX_SUMMARY_CHARS), isError: false };
   }
   if (hasSuffix("run_command") || hasSuffix("run_background")) {
+    const commandSummary = summarizeCommandOutput(content);
+    if (commandSummary.status === "failed") {
+      const firstFailure = commandSummary.failures[0];
+      return {
+        summary: clip(
+          firstFailure ? `${commandSummary.headline} · ${firstFailure}` : commandSummary.headline,
+          MAX_SUMMARY_CHARS,
+        ),
+        isError: true,
+      };
+    }
     // Native shell tools prepend "exit 0:" / "exit N:" or the result
     // already mentions exit code. Try to surface it.
     const exitMatch = content.match(/exit (?:code )?(-?\d+)/i);

@@ -423,10 +423,17 @@ export class CacheFirstLoop {
   private async runOneToolCall(
     call: ToolCall,
     signal: AbortSignal,
-  ): Promise<{ preWarnings: LoopEvent[]; postWarnings: LoopEvent[]; result: string }> {
+  ): Promise<{
+    preWarnings: LoopEvent[];
+    postWarnings: LoopEvent[];
+    result: string;
+    elapsedMs: number;
+  }> {
     const name = call.function?.name ?? "";
     const args = call.function?.arguments ?? "{}";
     const parsedArgs = safeParseToolArgs(args);
+    const startedAt = Date.now();
+    let interactiveWaitMs = 0;
     this._inflight.add(this.inflightIdFor(call));
     try {
       const preReport = await runHooks({
@@ -451,6 +458,7 @@ export class CacheFirstLoop {
           preWarnings,
           postWarnings: [],
           result: `[hook block] ${blocking?.hook.command ?? "<unknown>"}\n${reason}`,
+          elapsedMs: Date.now() - startedAt,
         };
       }
 
@@ -458,6 +466,9 @@ export class CacheFirstLoop {
         signal,
         maxResultTokens: DEFAULT_MAX_RESULT_TOKENS,
         confirmationGate: this.confirmationGate,
+        onInteractiveWait: (elapsedMs) => {
+          interactiveWaitMs += Math.max(0, elapsedMs);
+        },
       });
 
       const postReport = await runHooks({
@@ -472,7 +483,12 @@ export class CacheFirstLoop {
       });
       const postWarnings = [...hookWarnings(postReport.outcomes, this._turn)];
 
-      return { preWarnings, postWarnings, result };
+      return {
+        preWarnings,
+        postWarnings,
+        result,
+        elapsedMs: Math.max(0, Date.now() - startedAt - interactiveWaitMs),
+      };
     } finally {
       this._inflight.delete(this.inflightIdFor(call));
     }
@@ -1176,12 +1192,14 @@ export class CacheFirstLoop {
           const s = settled[k]!;
 
           let result: string;
+          let elapsedMs = 0;
           let preWarnings: LoopEvent[] = [];
           let postWarnings: LoopEvent[] = [];
           if (s.status === "fulfilled") {
             preWarnings = s.value.preWarnings;
             postWarnings = s.value.postWarnings;
             result = s.value.result;
+            elapsedMs = s.value.elapsedMs;
           } else {
             const err = s.reason instanceof Error ? s.reason : new Error(String(s.reason));
             result = JSON.stringify({ error: `${err.name}: ${err.message}` });
@@ -1204,6 +1222,7 @@ export class CacheFirstLoop {
             toolName: name,
             toolArgs: args,
             callId: this.inflightIdFor(call),
+            elapsedMs,
           };
         }
       }

@@ -127,10 +127,12 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
       const effectiveTimeout = Math.max(1, Math.min(600, args.timeoutSec ?? timeoutSec));
       if (!isAllowAll() && !isAutoAllowed(cmd)) {
         const gate = ctx?.confirmationGate ?? pauseGate;
+        const waitStartedAt = Date.now();
         const choice = await gate.ask({
           kind: "run_command",
           payload: { command: cmd, cwd: rootDir, timeoutSec: effectiveTimeout },
         });
+        ctx?.onInteractiveWait?.(Date.now() - waitStartedAt);
         if (choice.type === "deny") {
           throw new Error(
             `user denied: ${cmd}${choice.denyContext ? ` — ${choice.denyContext}` : ""}`,
@@ -182,10 +184,12 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
       const cwd = resolveCwdInsideRoot(rootDir, args.cwd);
       if (!isAllowAll() && !isAutoAllowed(cmd)) {
         const gate = ctx?.confirmationGate ?? pauseGate;
+        const waitStartedAt = Date.now();
         const choice = await gate.ask({
           kind: "run_background",
           payload: { command: cmd, cwd, waitSec: args.waitSec },
         });
+        ctx?.onInteractiveWait?.(Date.now() - waitStartedAt);
         if (choice.type === "deny") {
           throw new Error(
             `user denied: ${cmd}${choice.denyContext ? ` — ${choice.denyContext}` : ""}`,

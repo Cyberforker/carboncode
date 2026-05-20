@@ -20,7 +20,6 @@ export interface WelcomeBannerProps {
 export function WelcomeBanner({
   inCodeMode,
   workspaceRoot,
-  dashboardUrl,
 }: WelcomeBannerProps): React.ReactElement {
   const tagline = inCodeMode ? t("ui.taglineCode") : t("ui.taglineChat");
 
@@ -37,14 +36,6 @@ export function WelcomeBanner({
           <Text color={FG.meta}>{t("welcomeBanner.workspace")}</Text>
           <Text color={FG.faint}>{"·"}</Text>
           <Text color={FG.body}>{workspaceRoot}</Text>
-        </Box>
-      ) : null}
-
-      {dashboardUrl ? (
-        <Box flexDirection="row" gap={1}>
-          <Text color={FG.meta}>{t("welcomeBanner.dashboard")}</Text>
-          <Text color={FG.faint}>{"·"}</Text>
-          <Text color={FG.body}>{dashboardUrl}</Text>
         </Box>
       ) : null}
     </Box>

@@ -3,7 +3,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { DeepSeekClient, Usage } from "../src/client.js";
 import { type ConfirmationChoice, PauseGate } from "../src/core/pause-gate.js";
-import { CacheFirstLoop } from "../src/loop.js";
+import { CacheFirstLoop, type LoopEvent } from "../src/loop.js";
 import { ImmutablePrefix } from "../src/memory/runtime.js";
 import { ToolRegistry } from "../src/tools.js";
 import type { ChatMessage } from "../src/types.js";
@@ -1612,6 +1612,49 @@ describe("CacheFirstLoop (streaming) — tool_call_delta emission", () => {
 
     // Turn ends cleanly
     expect(events[events.length - 1]?.role).toBe("done");
+  });
+
+  it("reports tool elapsed time without interactive approval wait", async () => {
+    const reg = new ToolRegistry();
+    reg.register({
+      name: "needs_review",
+      parameters: { type: "object", properties: {} },
+      fn: async (_args, ctx) => {
+        const waitStartedAt = Date.now();
+        await new Promise((resolve) => setTimeout(resolve, 90));
+        ctx?.onInteractiveWait?.(Date.now() - waitStartedAt);
+        return "reviewed";
+      },
+    });
+
+    const client = makeClient([
+      {
+        content: "",
+        tool_calls: [
+          {
+            id: "call_review",
+            type: "function",
+            function: { name: "needs_review", arguments: "{}" },
+          },
+        ],
+      },
+      { content: "done" },
+    ]);
+    const loop = new CacheFirstLoop({
+      client,
+      prefix: new ImmutablePrefix({ system: "s", toolSpecs: reg.specs() }),
+      tools: reg,
+      stream: false,
+    });
+
+    const toolEvents: LoopEvent[] = [];
+    for await (const ev of loop.step("review")) {
+      if (ev.role === "tool") toolEvents.push(ev);
+    }
+
+    expect(toolEvents).toHaveLength(1);
+    expect(toolEvents[0]?.elapsedMs).toBeTypeOf("number");
+    expect(toolEvents[0]?.elapsedMs ?? Number.POSITIVE_INFINITY).toBeLessThan(70);
   });
 
   describe("session USD budget", () => {

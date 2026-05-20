@@ -57,6 +57,17 @@ describe("codeSystemPrompt", () => {
     expect(CODE_SYSTEM_PROMPT).toMatch(/do not substitute file reading/i);
   });
 
+  it("prefers apply_patch for non-trivial edits and keeps the Codex-style loop short", () => {
+    expect(CODE_SYSTEM_PROMPT).toMatch(/apply_patch/);
+    expect(CODE_SYSTEM_PROMPT).toMatch(/inspect.*patch.*verify.*summarize/i);
+    expect(CODE_SYSTEM_PROMPT).toMatch(/After tests pass, summarize briefly/i);
+  });
+
+  it("tells the model when to use glob instead of search_files", () => {
+    expect(CODE_SYSTEM_PROMPT).toMatch(/Use `glob` for wildcard file patterns/i);
+    expect(CODE_SYSTEM_PROMPT).toMatch(/Use `search_files` for a filename query/i);
+  });
+
   it("locks identity to this prompt — workspace files don't redefine the assistant", () => {
     // Issue #550: a Hermes / persona-platform data dir at the workspace
     // root used to make the model claim it was a sub-profile of that

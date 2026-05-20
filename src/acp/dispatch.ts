@@ -15,6 +15,7 @@ const EDIT_TOOLS = new Set([
   "write_file",
   "edit_file",
   "multi_edit",
+  "apply_patch",
   "create_directory",
   "delete_file",
   "delete_directory",

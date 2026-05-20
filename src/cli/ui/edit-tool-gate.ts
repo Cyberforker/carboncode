@@ -1,8 +1,9 @@
 import { relative, resolve } from "node:path";
 import { type EditBlock, toWholeFileEditBlock } from "../../code/edit-blocks.js";
 import { looksLikeAbsoluteSystemPath, pathIsUnder } from "../../tools/filesystem.js";
+import { parseUnifiedPatch } from "../../tools/fs/patch.js";
 
-const EDIT_TOOL_NAMES = new Set(["edit_file", "write_file", "multi_edit"]);
+const EDIT_TOOL_NAMES = new Set(["edit_file", "write_file", "multi_edit", "apply_patch"]);
 
 export function buildEditToolBlocks(
   name: string,
@@ -10,6 +11,20 @@ export function buildEditToolBlocks(
   rootDir: string,
 ): EditBlock[] | null {
   if (!EDIT_TOOL_NAMES.has(name)) return null;
+
+  if (name === "apply_patch") {
+    const patch = typeof args.patch === "string" ? args.patch : "";
+    if (!patch) return null;
+    try {
+      return parseUnifiedPatch(patch).map((block) => {
+        const relPath = normalizeToolPath(block.path, rootDir);
+        if (!relPath) throw new Error("path escapes root");
+        return { ...block, path: relPath };
+      });
+    } catch {
+      return null;
+    }
+  }
 
   if (name === "multi_edit") {
     const edits = Array.isArray(args.edits) ? args.edits : null;

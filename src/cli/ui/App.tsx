@@ -586,7 +586,7 @@ function AppInner({
   // `editReviewResolveRef.current`, other live rows hide. User picks a
   // choice —handleEditReviewChoose resolves the promise, interceptor
   // resumes and returns the tool result the model will see.
-  const [pendingEditReview, setPendingEditReview] = useState<EditBlock | null>(null);
+  const [pendingEditReview, setPendingEditReview] = useState<EditBlock[] | null>(null);
   // /walk active flag —when true the App walks pendingEdits one block
   // at a time through EditConfirm. Distinct from `pendingEditReview`,
   // which is the AUTO-mode tool-call interceptor. Walkthrough is
@@ -1337,29 +1337,30 @@ function AppInner({
 
   useEffect(() => {
     if (!pendingEditReview) return;
+    const firstBlock = pendingEditReview[0];
+    if (!firstBlock) return;
     // Trim the preview —older clients only render this string; newer
     // clients use `search`/`replace` directly to render a side-by-side
     // diff with syntax highlighting (full content, no line cap).
-    const previewLines = (pendingEditReview.search || pendingEditReview.replace || "")
-      .split("\n")
-      .slice(0, 12);
+    const previewLines = (firstBlock.search || firstBlock.replace || "").split("\n").slice(0, 12);
     const preview = previewLines.join("\n");
+    const fileCount = new Set(pendingEditReview.map((block) => block.path)).size;
     broadcastDashboardEvent({
       kind: "modal-up",
       modal: {
         kind: "edit-review",
-        path: pendingEditReview.path,
-        search: pendingEditReview.search ?? "",
-        replace: pendingEditReview.replace ?? "",
+        path: fileCount === 1 ? firstBlock.path : `${fileCount} files`,
+        search: firstBlock.search ?? "",
+        replace: firstBlock.replace ?? "",
         preview,
-        total: pendingEdits.current.length,
-        remaining: pendingEdits.current.length,
+        total: pendingEditReview.length,
+        remaining: pendingEditReview.length,
       },
     });
     return () => {
       broadcastDashboardEvent({ kind: "modal-down", modalKind: "edit-review" });
     };
-  }, [pendingEditReview, broadcastDashboardEvent, pendingEdits]);
+  }, [pendingEditReview, broadcastDashboardEvent]);
 
   useEffect(() => {
     if (!pendingRevision) return;
@@ -1850,7 +1851,7 @@ function AppInner({
     // have to keep xterm mouse tracking on to grab the wheel.
   });
 
-  // Edit-gate interceptor. Reroutes `edit_file` / `write_file` / `multi_edit` tool
+  // Edit-gate interceptor. Reroutes `edit_file` / `write_file` / `multi_edit` / `apply_patch` tool
   // calls through the review queue (in `review` mode) or the auto-apply
   // snapshot/banner path (in `auto` mode) so the model's tool usage
   // respects the same gate as its text-form SEARCH/REPLACE output.
@@ -1864,7 +1865,7 @@ function AppInner({
   // biome-ignore lint/correctness/useExhaustiveDependencies: session / setEditMode / syncPendingCount are intentional closure captures —their updaters are stable and we don't want to tear down and rebuild the interceptor on unrelated state churn
   useEffect(() => {
     if (!tools || !codeMode) return;
-    tools.setToolInterceptor(async (name, args) => {
+    tools.setToolInterceptor(async (name, args, ctx) => {
       // Read root via ref so a workspace swap (which runs reregisterTools
       // for read_file/run_command) is also visible to this interceptor
       // otherwise edit_file writes to the OLD root while read_file looks in
@@ -1886,22 +1887,36 @@ function AppInner({
         opts: { source?: string; showUndoBanner?: boolean } = {},
       ): Promise<string> => {
         const snaps = snapshotBeforeEdits(blocks, rootForEdit);
-        if (name === "multi_edit") {
-          const output = await applyMultiEdit(
-            rootForEdit,
-            blocks.map((block) => ({
-              abs: resolve(rootForEdit, block.path),
-              search: block.search,
-              replace: block.replace,
-            })),
-          );
+        if (name === "multi_edit" || name === "apply_patch") {
+          let output: string;
+          try {
+            output = await applyMultiEdit(
+              rootForEdit,
+              blocks.map((block) => ({
+                abs: resolve(rootForEdit, block.path),
+                search: block.search,
+                replace: block.replace,
+              })),
+            );
+          } catch (err) {
+            if (name === "apply_patch") {
+              return `apply_patch: no files written — ${(err as Error).message}`;
+            }
+            throw err;
+          }
           const results: ApplyResult[] = blocks.map((block) => ({
             path: block.path,
             status: block.search.length === 0 ? "created" : "applied",
           }));
           recordEdit(opts.source ?? "auto", blocks, results, snaps);
           if (opts.showUndoBanner ?? true) armUndoBanner(results);
-          return output;
+          if (name !== "apply_patch") return output;
+          const fileCount = new Set(blocks.map((block) => block.path)).size;
+          const fileNoun = fileCount === 1 ? "file" : "files";
+          const created = blocks
+            .filter((block) => block.search.length === 0)
+            .map((block) => `created ${block.path}`);
+          return [`apply_patch: applied ${fileCount} ${fileNoun}`, ...created, output].join("\n");
         }
         const results = applyEditBlocks(blocks, rootForEdit);
         const good = results.some((r) => r.status === "applied" || r.status === "created");
@@ -1918,38 +1933,32 @@ function AppInner({
       if (editModeRef.current === "auto" || editModeRef.current === "yolo") return applyNow();
 
       // review mode, tool-call path: suspend the interceptor on the
-      // per-edit modal unless the user has already hit "apply-rest-of-
+      // batch edit modal unless the user has already hit "apply-rest-of-
       // turn" earlier in the same turn. Text-form SEARCH/REPLACE blocks
       // in assistant_final still queue for end-of-turn preview —they
       // land all at once with no mid-stream opportunity to prompt.
       if (turnEditPolicyRef.current === "apply-all") return applyNow();
 
-      let choice: EditReviewChoice = "apply";
-      let denyContext: string | undefined;
-      let rejectedBlock: EditBlock | null = null;
-      for (const block of blocks) {
-        const result = await new Promise<EditReviewResult>((resolveChoice) => {
-          editReviewResolveRef.current = resolveChoice;
-          setPendingEditReview(block);
-        });
-        // Clear the pending-review slot synchronously so a rapid-fire next
-        // tool call doesn't race the React state settling.
-        editReviewResolveRef.current = null;
-        setPendingEditReview(null);
-        choice = result.choice;
-        denyContext = result.denyContext;
-        if (choice === "reject" || choice === "apply-rest-of-turn" || choice === "flip-to-auto") {
-          rejectedBlock = choice === "reject" ? block : null;
-          break;
-        }
-      }
+      const waitStartedAt = Date.now();
+      const result = await new Promise<EditReviewResult>((resolveChoice) => {
+        editReviewResolveRef.current = resolveChoice;
+        setPendingEditReview(blocks);
+      });
+      ctx?.onInteractiveWait?.(Date.now() - waitStartedAt);
+      // Clear the pending-review slot synchronously so a rapid-fire next
+      // tool call doesn't race the React state settling.
+      editReviewResolveRef.current = null;
+      setPendingEditReview(null);
+      const choice = result.choice;
+      const denyContext = result.denyContext;
 
       if (choice === "reject") {
         const context = denyContext ? ` because: ${denyContext}` : "";
-        const path = rejectedBlock?.path ?? blocks[0]?.path ?? "(unknown)";
+        const path =
+          blocks.length === 1 ? (blocks[0]?.path ?? "(unknown)") : `${blocks.length} files`;
         log.pushInfo(t("app.rejectedEdit", { path, context }));
         if (blocks.length > 1) {
-          return `User rejected this multi_edit before any edits were applied${context}. Don't retry the same SEARCH/REPLACE batch; either try a different approach or ask the user what they want instead.`;
+          return `User rejected this ${name} before any edits were applied${context}. Don't retry the same patch or SEARCH/REPLACE batch; either try a different approach or ask the user what they want instead.`;
         }
         return `User rejected this edit to ${path}${context}. Don't retry the same SEARCH/REPLACE; either try a different approach or ask the user what they want instead.`;
       }
@@ -2179,15 +2188,20 @@ function AppInner({
               return { kind: "plan", body: pendingPlanRef.current };
             }
             const er = pendingEditReview;
-            if (er) {
+            if (er?.[0]) {
+              const firstBlock = er[0];
+              const fileCount = new Set(er.map((block) => block.path)).size;
               return {
                 kind: "edit-review",
-                path: er.path,
-                search: er.search ?? "",
-                replace: er.replace ?? "",
-                preview: (er.search || er.replace || "").split("\n").slice(0, 12).join("\n"),
-                total: pendingEdits.current.length,
-                remaining: pendingEdits.current.length,
+                path: fileCount === 1 ? firstBlock.path : `${fileCount} files`,
+                search: firstBlock.search ?? "",
+                replace: firstBlock.replace ?? "",
+                preview: (firstBlock.search || firstBlock.replace || "")
+                  .split("\n")
+                  .slice(0, 12)
+                  .join("\n"),
+                total: er.length,
+                remaining: er.length,
               };
             }
             if (pendingRevision) {
@@ -4387,7 +4401,7 @@ function AppInner({
                   />
                 ) : pendingEditReview ? (
                   <EditConfirm
-                    block={pendingEditReview}
+                    blocks={pendingEditReview}
                     onChoose={(choice, denyContext) => {
                       const resolve = editReviewResolveRef.current;
                       if (resolve) {

@@ -17,6 +17,7 @@ import type { ToolCallContext, ToolRegistry } from "../tools.js";
 import { applyEdit, applyMultiEdit } from "./fs/edit.js";
 import { globFiles } from "./fs/glob.js";
 import { extractOutline, formatOutline } from "./fs/outline.js";
+import { parseUnifiedPatch } from "./fs/patch.js";
 import { searchContent, searchFiles } from "./fs/search.js";
 
 export { lineDiff } from "./fs/edit.js";
@@ -158,9 +159,13 @@ export function registerFilesystemTools(
     let pending = inflightGate.get(allowPrefix);
     if (!pending) {
       const gate = ctx?.confirmationGate ?? defaultPauseGate;
+      const waitStartedAt = Date.now();
       pending = gate.ask({
         kind: "path_access",
         payload: { path: abs, intent, toolName, sandboxRoot: normRoot, allowPrefix },
+      });
+      pending = pending.finally(() => {
+        ctx?.onInteractiveWait?.(Date.now() - waitStartedAt);
       });
       inflightGate.set(allowPrefix, pending);
       void pending.finally(() => inflightGate.delete(allowPrefix));
@@ -719,6 +724,46 @@ Prefer \`list_directory\` for a single-level view, \`search_files\` to find spec
         })),
       );
       return applyMultiEdit(rootDir, resolved);
+    },
+  });
+
+  registry.register({
+    name: "apply_patch",
+    description:
+      "Apply a unified git-style patch atomically under the sandbox root. Use this for non-trivial code edits because it lets the UI review the whole patch as one batch. If any hunk fails, no files are written.",
+    parameters: {
+      type: "object",
+      properties: {
+        patch: {
+          type: "string",
+          description:
+            "Unified diff text with diff --git / --- / +++ headers and @@ hunks. Paths should be project-relative or a/ b/-prefixed.",
+        },
+      },
+      required: ["patch"],
+    },
+    fn: async (args: { patch: string }, ctx?: ToolCallContext) => {
+      try {
+        const blocks = parseUnifiedPatch(args.patch);
+        const resolved = await Promise.all(
+          blocks.map(async (block) => ({
+            abs: await safePath(block.path, "apply_patch", ctx, "write"),
+            search: block.search,
+            replace: block.replace,
+            rel: block.path,
+            created: block.search.length === 0,
+          })),
+        );
+        const output = await applyMultiEdit(rootDir, resolved);
+        const fileCount = new Set(resolved.map((edit) => edit.rel)).size;
+        const fileNoun = fileCount === 1 ? "file" : "files";
+        const created = resolved
+          .filter((edit) => edit.created)
+          .map((edit) => `created ${edit.rel}`);
+        return [`apply_patch: applied ${fileCount} ${fileNoun}`, ...created, output].join("\n");
+      } catch (err) {
+        return `apply_patch: no files written — ${(err as Error).message}`;
+      }
     },
   });
 

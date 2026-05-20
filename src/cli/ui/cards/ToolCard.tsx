@@ -9,7 +9,7 @@ import { Spinner } from "../primitives/Spinner.js";
 import type { ToolCard as ToolCardData } from "../state/cards.js";
 import { useIsInflight } from "../state/inflight-context.js";
 import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
-import { formatStructuredErrorOutput } from "../tool-summary.js";
+import { formatStructuredErrorOutput, summarizeCommandOutput } from "../tool-summary.js";
 
 const READ_TAIL = 2;
 const OTHER_TAIL = 5;
@@ -27,6 +27,14 @@ function tailLinesFor(name: string): number {
   return isReadStyleTool(name) ? READ_TAIL : OTHER_TAIL;
 }
 
+function isShellTool(name: string): boolean {
+  return (
+    name === "run_command" ||
+    name === "run_background" ||
+    /(?:^|_)(run_command|run_background)$/.test(name)
+  );
+}
+
 export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
   const { stdout } = useStdout();
   const cols = stdout?.columns ?? 80;
@@ -38,7 +46,13 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
     [card.name, card.output],
   );
 
-  const displayOutput = formatStructuredErrorOutput(card.output);
+  const displayOutput = React.useMemo(() => {
+    const formatted = formatStructuredErrorOutput(card.output);
+    if (!isShellTool(card.name)) return formatted;
+    const summary = summarizeCommandOutput(formatted);
+    if (summary.status !== "failed" || summary.failures.length === 0) return formatted;
+    return [summary.headline, ...summary.failures].join("\n");
+  }, [card.name, card.output]);
   const allLines = displayOutput.length > 0 ? displayOutput.split("\n") : [];
   const tail = tailLinesFor(card.name);
   const truncated = allLines.length > tail;

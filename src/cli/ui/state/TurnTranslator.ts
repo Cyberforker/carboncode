@@ -27,11 +27,11 @@ export class TurnTranslator {
     this.toolCardId = this.log.startTool(name, args, callId);
   }
 
-  toolEnd(output: string): void {
+  toolEnd(output: string, elapsedMs?: number): void {
     if (this.toolCardId) {
       this.log.endTool(this.toolCardId, {
         output,
-        elapsedMs: Date.now() - this.toolStartedAt,
+        elapsedMs: elapsedMs ?? Date.now() - this.toolStartedAt,
       });
       this.toolCardId = null;
     }

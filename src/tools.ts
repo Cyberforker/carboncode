@@ -7,6 +7,8 @@ export interface ToolCallContext {
   signal?: AbortSignal;
   /** Inject a mock PauseGate for tests. When absent, tools use the singleton. */
   confirmationGate?: PauseGate;
+  /** Time spent waiting for interactive approval; UIs subtract this from tool runtime. */
+  onInteractiveWait?: (elapsedMs: number) => void;
 }
 
 export interface ToolDefinition<A = any, R = any> {
@@ -45,6 +47,7 @@ export type ToolCallAuditListener = (event: ToolCallAuditEvent) => void;
 export type ToolInterceptor = (
   name: string,
   args: Record<string, unknown>,
+  ctx?: ToolCallContext,
 ) => string | null | undefined | Promise<string | null | undefined>;
 
 /** Final-stage post-processor — runs on every dispatch return (success and error paths) so callers can append context like a remaining-budget hint. Whatever it returns becomes the dispatch result. */
@@ -157,6 +160,8 @@ export class ToolRegistry {
       maxResultTokens?: number;
       /** Inject a mock PauseGate for tests. */
       confirmationGate?: PauseGate;
+      /** Report modal / approval wait time so callers can keep runtime metrics honest. */
+      onInteractiveWait?: (elapsedMs: number) => void;
     } = {},
   ): Promise<string> {
     const tool = this._tools.get(name);
@@ -215,9 +220,15 @@ export class ToolRegistry {
     // the full tool result; null / undefined means "not my concern,
     // fall through." Uncaught throws from the interceptor are surfaced
     // through the same error path as a failed tool fn below.
+    const dispatchCtx: ToolCallContext = {
+      signal: opts.signal,
+      confirmationGate: opts.confirmationGate,
+      onInteractiveWait: opts.onInteractiveWait,
+    };
+
     if (this._interceptor) {
       try {
-        const short = await this._interceptor(name, args);
+        const short = await this._interceptor(name, args, dispatchCtx);
         if (typeof short === "string") return short;
       } catch (err) {
         return JSON.stringify({
@@ -233,10 +244,7 @@ export class ToolRegistry {
       } catch {
         /* audit path must never break tool execution */
       }
-      const result = await tool.fn(args, {
-        signal: opts.signal,
-        confirmationGate: opts.confirmationGate,
-      });
+      const result = await tool.fn(args, dispatchCtx);
       const str = typeof result === "string" ? result : JSON.stringify(result);
       // Pre-clip at dispatch so a single fat result can't balloon the
       // log (and disk session file) on its way in. Healing at load time

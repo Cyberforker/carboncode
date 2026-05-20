@@ -1,6 +1,6 @@
 import { Box, Text } from "ink";
 import React, { useMemo, useState } from "react";
-import { formatEditBlockSplit } from "../../code/diff-preview.js";
+import { type SplitDiffRow, formatEditBlockSplit } from "../../code/diff-preview.js";
 import type { EditBlock } from "../../code/edit-blocks.js";
 import { t } from "../../i18n/index.js";
 import { DenyContextInput } from "./DenyContextInput.js";
@@ -12,14 +12,25 @@ import { useReserveRows, useTotalRows } from "./layout/viewport-budget.js";
 export type EditReviewChoice = "apply" | "reject" | "apply-rest-of-turn" | "flip-to-auto";
 
 export interface EditConfirmProps {
-  block: EditBlock;
+  block?: EditBlock;
+  blocks?: readonly EditBlock[];
   onChoose: (choice: EditReviewChoice, denyContext?: string) => void;
 }
 
 const MODAL_OVERHEAD_ROWS = 18;
 const MIN_DIFF_ROWS = 8;
 
-export function EditConfirm({ block, onChoose }: EditConfirmProps) {
+type ReviewRow =
+  | { kind: "header"; key: string; text: string }
+  | { kind: "diff"; key: string; row: SplitDiffRow };
+
+export function EditConfirm({ block, blocks, onChoose }: EditConfirmProps) {
+  const effectiveBlocks = useMemo(() => {
+    if (blocks && blocks.length > 0) return [...blocks];
+    return block ? [block] : [];
+  }, [block, blocks]);
+  const firstBlock = effectiveBlocks[0];
+
   const rows = useTotalRows();
   const allocated = useReserveRows("modal", {
     min: MODAL_OVERHEAD_ROWS + MIN_DIFF_ROWS,
@@ -27,10 +38,27 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
   });
   const budget = Math.max(MIN_DIFF_ROWS, allocated - MODAL_OVERHEAD_ROWS);
 
-  const allRows = useMemo(
-    () => formatEditBlockSplit(block, { contextLines: 2, maxLines: 100_000 }),
-    [block],
-  );
+  const allRows = useMemo<ReviewRow[]>(() => {
+    const multi = effectiveBlocks.length > 1;
+    return effectiveBlocks.flatMap((b, index) => {
+      const diffRows = formatEditBlockSplit(b, { contextLines: 2, maxLines: 100_000 }).map(
+        (row): ReviewRow => ({
+          kind: "diff",
+          key: diffRowKey(b, row),
+          row,
+        }),
+      );
+      if (!multi) return diffRows;
+      return [
+        {
+          kind: "header",
+          key: `h:${b.path}:${b.search.length}:${b.replace.length}`,
+          text: `${index + 1}. ${b.path}`,
+        },
+        ...diffRows,
+      ];
+    });
+  }, [effectiveBlocks]);
 
   const [scroll, setScroll] = useState(0);
   const maxScroll = Math.max(0, allRows.length - budget);
@@ -90,9 +118,17 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
     }
   });
 
-  const isNew = block.search === "";
-  const removed = isNew ? 0 : (block.search.match(/\n/g)?.length ?? 0) + 1;
-  const added = block.replace === "" ? 0 : (block.replace.match(/\n/g)?.length ?? 0) + 1;
+  if (!firstBlock) return <></>;
+
+  const isNew = effectiveBlocks.every((b) => b.search === "");
+  const removed = effectiveBlocks.reduce(
+    (sum, b) => sum + (b.search === "" ? 0 : countLines(b.search)),
+    0,
+  );
+  const added = effectiveBlocks.reduce(
+    (sum, b) => sum + (b.replace === "" ? 0 : countLines(b.replace)),
+    0,
+  );
   const tag = isNew ? t("editConfirm.newTag") : t("editConfirm.editTag");
   const tone = isNew ? "ok" : "warn";
   const glyph = isNew ? "✚" : "✎";
@@ -135,7 +171,11 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
     <ApprovalCard
       tone={tone}
       glyph={glyph}
-      title={`${tag}  ${block.path}`}
+      title={
+        effectiveBlocks.length === 1
+          ? `${tag}  ${firstBlock.path}`
+          : `${tag}  ${new Set(effectiveBlocks.map((b) => b.path)).size} files`
+      }
       metaRight={metaParts.join("  ·  ")}
       footerHint={t("editConfirm.footer")}
     >
@@ -146,7 +186,15 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
           })}
         </Text>
       ) : null}
-      <SplitDiff rows={visibleRows} />
+      {visibleRows.map((row) =>
+        row.kind === "header" ? (
+          <Text key={row.key} bold>
+            {row.text}
+          </Text>
+        ) : (
+          <SplitDiff key={row.key} rows={[row.row]} />
+        ),
+      )}
       <Box>
         <Text color="#fbc8c8" backgroundColor="#2a1212">
           {t("editConfirm.oldLabel")}
@@ -166,4 +214,21 @@ export function EditConfirm({ block, onChoose }: EditConfirmProps) {
       ) : null}
     </ApprovalCard>
   );
+}
+
+function countLines(text: string): number {
+  return (text.match(/\n/g)?.length ?? 0) + 1;
+}
+
+function diffRowKey(block: EditBlock, row: SplitDiffRow): string {
+  return [
+    "d",
+    block.path,
+    row.left.num ?? "x",
+    row.right.num ?? "x",
+    row.left.kind,
+    row.right.kind,
+    row.left.text,
+    row.right.text,
+  ].join(":");
 }

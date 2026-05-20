@@ -49,6 +49,26 @@ describe("edit tool gate", () => {
     ]);
   });
 
+  it("turns apply_patch calls into reviewable edit blocks", () => {
+    const blocks = buildEditToolBlocks(
+      "apply_patch",
+      {
+        patch: [
+          "diff --git a/src/a.ts b/src/a.ts",
+          "--- a/src/a.ts",
+          "+++ b/src/a.ts",
+          "@@ -1 +1 @@",
+          "-old",
+          "+new",
+          "",
+        ].join("\n"),
+      },
+      root,
+    );
+
+    expect(blocks).toEqual([{ path: "src/a.ts", search: "old\n", replace: "new\n", offset: 0 }]);
+  });
+
   it("normalizes absolute in-root paths before showing the review", async () => {
     await writeFile(join(root, "a.ts"), "old");
     const blocks = buildEditToolBlocks(

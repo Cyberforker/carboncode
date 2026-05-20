@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatDuration,
   formatStructuredErrorOutput,
+  summarizeCommandOutput,
   summarizeToolResult,
 } from "../src/cli/ui/tool-summary.js";
 
@@ -107,6 +108,42 @@ describe("summarizeToolResult — known tools", () => {
     const out = summarizeToolResult("run_command", "exit 1\nError: something went wrong");
     expect(out.isError).toBe(true);
     expect(out.summary).toMatch(/exit 1/);
+  });
+
+  it("run_command: summarizes Vitest failures before the output tail", () => {
+    const output = [
+      "$ npm test",
+      "[exit 1]",
+      " FAIL  tests/cart.test.ts > cartTotal > multiplies quantity",
+      "AssertionError: expected 2 to be 4",
+      " ❯ tests/cart.test.ts:12:18",
+      " Test Files  1 failed (1)",
+      " Tests  1 failed | 3 passed (4)",
+    ].join("\n");
+
+    const summary = summarizeCommandOutput(output);
+
+    expect(summary.status).toBe("failed");
+    expect(summary.headline).toContain("1 failed");
+    expect(summary.failures).toContain("tests/cart.test.ts > cartTotal > multiplies quantity");
+    expect(summary.failures).toContain("tests/cart.test.ts:12:18");
+  });
+
+  it("run_command: summarizes TAP failures", () => {
+    const output = [
+      "$ npm test",
+      "[exit 1]",
+      "not ok 7 - shipping costs 5 when subtotal < 50",
+      "  error: 'Expected values to be strictly equal:'",
+      "1..7",
+      "# fail 1",
+    ].join("\n");
+
+    const summary = summarizeCommandOutput(output);
+
+    expect(summary.status).toBe("failed");
+    expect(summary.headline).toContain("1 failed");
+    expect(summary.failures).toContain("shipping costs 5 when subtotal < 50");
   });
 
   it("write_file: shows wrote line count + size", () => {
