@@ -201,7 +201,7 @@ export function PromptInput({
   const showHugeBufferHints = lines.length > 20;
 
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor={accentColor} paddingX={1}>
+    <Box flexDirection="column" paddingX={1}>
       {(() => {
         const rows: React.ReactNode[] = [];
         let firstRowEmitted = false;
@@ -320,15 +320,11 @@ export function PromptInput({
           </Text>
         </Box>
       ) : null}
-      {!disabled ? (
-        <Box marginTop={1}>
-          <HintRow />
-        </Box>
-      ) : (
+      {disabled ? (
         <Box marginTop={1}>
           <Text color={FG.faint}>{"  esc to stop"}</Text>
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 }

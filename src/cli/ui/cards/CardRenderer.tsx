@@ -34,7 +34,7 @@ function renderCard(card: Card): React.ReactElement {
     case "user":
       return <UserCard card={card} />;
     case "reasoning":
-      return <ReasoningCard card={card} expanded={true} />;
+      return <ReasoningCard card={card} expanded={false} />;
     case "streaming":
       return <StreamingCard card={card} />;
     case "tool":

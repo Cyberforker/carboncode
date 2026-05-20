@@ -153,7 +153,7 @@ export interface ReasonixConfig {
     /** Stable URL token (#968). If unset, a fresh token is minted each boot. Min 16 chars enforced at load time. */
     token?: string;
   };
-  /** Per-field visibility toggles for the bottom status row. All default to true (visible). */
+  /** Per-field visibility toggles for the bottom status row. Codex-style defaults keep only turn cost and context visible. */
   statusBar?: {
     showBalance?: boolean;
     showSessionCost?: boolean;

@@ -8,7 +8,6 @@ import {
   webSearchEngine,
 } from "../../config.js";
 import { loadDotenv } from "../../env.js";
-import { t } from "../../i18n/index.js";
 import {
   deleteSession,
   freshSessionName,
@@ -272,12 +271,6 @@ export async function chatCommand(opts: ChatOptions): Promise<void> {
   const mcpServers: McpServerSummary[] = [];
   const cfg = readConfig();
   const startupInfoHints: string[] = [];
-  if (cfg.setupCompleted === true && (cfg.mcp?.length ?? 0) === 0 && mcpSpecs.length === 0) {
-    startupInfoHints.push(t("mcpHealth.emptyHint"));
-  }
-  startupInfoHints.push(
-    "/copy  →  vim-style copy mode (j/k navigate, v select, y yank to clipboard)",
-  );
 
   // Register web search/fetch tools unless explicitly disabled. DDG
   // backs them with no key required; the model invokes them whenever

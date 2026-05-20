@@ -78,6 +78,7 @@ export function ModeStatusBar({
         : pendingCount > 0
           ? t("editMode.queuedApplyDiscard", { count: pendingCount })
           : t("editMode.editsQueued");
+  if (pendingCount === 0 && running === 0 && !undoArmed) return null;
   return (
     <ModeBarFrame>
       <ModePill label={label} color={pillColor} flash={flash} />

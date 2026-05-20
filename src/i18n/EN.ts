@@ -49,10 +49,10 @@ export const EN: TranslationSchema = {
   },
   ui: {
     welcome: "Run `carboncode` any time to start chatting — your settings are remembered.",
-    taglineChat: "DeepSeek-native agent",
-    taglineCode: "DeepSeek-native coding agent",
-    taglineSub: "cache-first · flash-first",
-    startSessionHint: "type a message to start your session",
+    taglineChat: "terminal coding agent",
+    taglineCode: "terminal coding agent",
+    taglineSub: "read the repo, edit files, run validation",
+    startSessionHint: "type a task to start",
     inputPlaceholder: "Ask anything... (type / for commands, @ for files)",
     busy: "Thinking...",
     thinking: "▸ thinking...",
@@ -1172,7 +1172,7 @@ export const EN: TranslationSchema = {
     queuedDots: "queued\u2026",
   },
   composer: {
-    placeholder: "ask anything  \u00b7  slash for commands  \u00b7  at-sign for files",
+    placeholder: "Ask for a code change",
     waitingForResponse: "\u2026waiting for response\u2026",
     hintSend: "send",
     hintNewline: "newline",

@@ -394,13 +394,13 @@ export function App(props: AppProps): React.ReactElement {
   const statusBar = React.useMemo((): StatusBarConfig => {
     const cfg = readConfig().statusBar ?? {};
     return {
-      showBalance: cfg.showBalance !== false,
-      showSessionCost: cfg.showSessionCost !== false,
+      showBalance: cfg.showBalance === true,
+      showSessionCost: cfg.showSessionCost === true,
       showTurnCost: cfg.showTurnCost !== false,
-      showCacheHit: cfg.showCacheHit !== false,
+      showCacheHit: cfg.showCacheHit === true,
       showCtxUsage: cfg.showCtxUsage !== false,
-      showVersion: cfg.showVersion !== false,
-      showFeedbackHint: cfg.showFeedbackHint !== false,
+      showVersion: cfg.showVersion === true,
+      showFeedbackHint: cfg.showFeedbackHint === true,
     };
   }, []);
   return (

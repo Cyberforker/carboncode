@@ -50,10 +50,10 @@ export const zhCN: TranslationSchema = {
   },
   ui: {
     welcome: "随时运行 `carboncode` 开始聊天 — 您的设置将被记住。",
-    taglineChat: "DeepSeek 原生智能体",
-    taglineCode: "DeepSeek 原生代码智能体",
-    taglineSub: "缓存优先 · Flash 优先",
-    startSessionHint: "输入消息以开始您的会话",
+    taglineChat: "终端代码智能体",
+    taglineCode: "终端代码智能体",
+    taglineSub: "读取仓库、编辑文件、运行验证",
+    startSessionHint: "输入任务开始",
     inputPlaceholder: "输入任何内容... (输入 / 使用命令, @ 引用文件)",
     busy: "思考中...",
     thinking: "▸ 思考中...",
@@ -1109,7 +1109,7 @@ export const zhCN: TranslationSchema = {
     queuedDots: "排队中…",
   },
   composer: {
-    placeholder: "输入任何内容  ·  / 使用命令  ·  @ 引用文件",
+    placeholder: "输入任务",
     waitingForResponse: "…等待响应…",
     hintSend: "发送",
     hintNewline: "换行",

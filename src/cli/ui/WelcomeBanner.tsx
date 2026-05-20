@@ -1,4 +1,4 @@
-/** Empty-session welcome card — Carbon Code × DeepSeek brand row + tagline + starter slash commands. */
+/** Empty-session welcome block — compact, task-first, and quiet. */
 
 import { Box, Text } from "ink";
 // biome-ignore lint/style/useImportType: tsconfig jsx=react needs React in value scope for JSX compilation
@@ -17,74 +17,34 @@ export interface WelcomeBannerProps {
   languageVersion?: number;
 }
 
-const HINTS = ["/help", "/init", "/memory", "/cost"] as const;
-
 export function WelcomeBanner({
   inCodeMode,
   workspaceRoot,
   dashboardUrl,
 }: WelcomeBannerProps): React.ReactElement {
   const tagline = inCodeMode ? t("ui.taglineCode") : t("ui.taglineChat");
-  const taglineSub = t("ui.taglineSub");
-  const startTextRaw = t("ui.startSessionHint");
 
   return (
-    <Box flexDirection="column" alignItems="center" marginY={1}>
-      <Box
-        flexDirection="column"
-        alignItems="center"
-        borderStyle="round"
-        borderColor={TONE.brand}
-        paddingX={4}
-        paddingY={1}
-      >
-        <Box flexDirection="row" gap={2}>
-          <Text color={TONE.brand} bold>
-            {"Carbon Code"}
-          </Text>
-          <Text color={FG.faint}>{"×"}</Text>
-          <Box flexDirection="row" gap={1}>
-            <Text>{"🐋"}</Text>
-            <Text color={TONE.accent} bold>
-              {"DeepSeek"}
-            </Text>
-          </Box>
-        </Box>
-
-        <Box marginTop={1} flexDirection="column" alignItems="center">
-          <Text color={FG.body}>{tagline}</Text>
-          <Text color={FG.meta}>{taglineSub}</Text>
-        </Box>
+    <Box flexDirection="column" marginY={1} paddingX={1}>
+      <Box flexDirection="row" gap={1}>
+        <Text color={TONE.brand} bold>
+          {"Carbon Code"}
+        </Text>
+        <Text color={FG.meta}>{tagline}</Text>
       </Box>
-
-      <Box marginTop={1}>
-        <Text color={FG.sub}>{startTextRaw}</Text>
-      </Box>
-
-      <Box marginTop={1} flexDirection="row" gap={3}>
-        {HINTS.map((cmd) => (
-          <Text key={cmd} color={FG.meta}>
-            {cmd}
-          </Text>
-        ))}
-      </Box>
-
       {inCodeMode && workspaceRoot ? (
-        <Box marginTop={1} flexDirection="row" gap={1}>
-          <Text color={TONE.brand}>{t("welcomeBanner.workspace")}</Text>
+        <Box flexDirection="row" gap={1}>
+          <Text color={FG.meta}>{t("welcomeBanner.workspace")}</Text>
           <Text color={FG.faint}>{"·"}</Text>
           <Text color={FG.body}>{workspaceRoot}</Text>
-          <Text color={FG.faint}>{t("welcomeBanner.relaunchHint")}</Text>
         </Box>
       ) : null}
 
       {dashboardUrl ? (
-        <Box marginTop={1} flexDirection="row" gap={1}>
-          <Text color={TONE.brand} bold>
-            {t("welcomeBanner.dashboard")}
-          </Text>
+        <Box flexDirection="row" gap={1}>
+          <Text color={FG.meta}>{t("welcomeBanner.dashboard")}</Text>
           <Text color={FG.faint}>{"·"}</Text>
-          <Text color={TONE.accent}>{dashboardUrl}</Text>
+          <Text color={FG.body}>{dashboardUrl}</Text>
         </Box>
       ) : null}
     </Box>

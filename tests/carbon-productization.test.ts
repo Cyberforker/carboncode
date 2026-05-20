@@ -102,7 +102,7 @@ describe("Carbon broad Reasonix import", () => {
     const externalEditor = readFileSync(resolve("src/cli/edit/external-editor.ts"), "utf8");
     const commitCommand = readFileSync(resolve("src/cli/commands/commit.ts"), "utf8");
 
-    expect(bootSplash).toContain("CARBON CODE");
+    expect(bootSplash).toContain("Carbon Code");
     expect(bootSplash).not.toContain("REASONIX");
     expect(welcomeBanner).toContain('{"Carbon Code"}');
     expect(welcomeBanner).not.toContain("REASONIX");

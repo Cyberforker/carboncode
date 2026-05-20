@@ -249,38 +249,30 @@ describe("chatCommand MCP startup summary states", { timeout: 15_000 }, () => {
     expect(mocks.initializeMock).not.toHaveBeenCalled();
   });
 
-  const COPY_HINT = "/copy  →  vim-style copy mode (j/k navigate, v select, y yank to clipboard)";
-
-  it("adds empty-MCP hint exactly when setup is completed and configured MCP list is empty", async () => {
+  it("keeps startup hints quiet when setup is completed and configured MCP list is empty", async () => {
     const props = await captureStartupState({
       readConfig: { setupCompleted: true, mcp: [] },
       mcp: [],
     });
 
-    expect(props.startupInfoHints).toEqual([
-      "\u2139 no MCP servers configured \u2014 try: `carboncode setup` to re-pick, or `carboncode mcp install filesystem`",
-      COPY_HINT,
-    ]);
+    expect(props.startupInfoHints).toEqual([]);
   });
 
-  it("does not add empty-MCP hint when configured MCP list is non-empty", async () => {
+  it("keeps startup hints quiet when configured MCP list is non-empty", async () => {
     const props = await captureStartupState({
       readConfig: { setupCompleted: true, mcp: ["fs=npx -y @scope/fs /tmp"] },
       mcp: ["fs=npx -y @scope/fs /tmp"],
     });
 
-    expect(props.startupInfoHints).toEqual([COPY_HINT]);
+    expect(props.startupInfoHints).toEqual([]);
   });
 
-  it("renders empty-MCP hint in zh-CN locale", async () => {
+  it("keeps startup hints quiet in zh-CN locale", async () => {
     const props = await captureStartupState({
       readConfig: { setupCompleted: true, mcp: [] },
       mcp: [],
       lang: "zh-CN",
     });
-    expect(props.startupInfoHints).toEqual([
-      "\u2139 未配置 MCP 服务器 —— 可尝试：`carboncode setup` 重新选择，或 `carboncode mcp install filesystem`",
-      COPY_HINT,
-    ]);
+    expect(props.startupInfoHints).toEqual([]);
   });
 });
