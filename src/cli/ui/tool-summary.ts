@@ -85,6 +85,12 @@ function summarizeStructured(content: string): ToolSummary | null {
   }
 }
 
+export function formatStructuredErrorOutput(content: string): string {
+  const structured = summarizeStructured(content);
+  if (!structured?.isError) return content;
+  return structured.summary;
+}
+
 /** Suffix-match so MCP-prefixed tools (`filesystem_read_file`) pick up the same specialized summary. */
 function summarizeKnownTool(toolName: string, content: string): ToolSummary | null {
   const hasSuffix = (s: string) => toolName === s || toolName.endsWith(`_${s}`);

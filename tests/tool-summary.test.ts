@@ -1,7 +1,11 @@
 /** summarizeToolResult — pure function; per-tool-name + structured-payload branches. */
 
 import { describe, expect, it } from "vitest";
-import { formatDuration, summarizeToolResult } from "../src/cli/ui/tool-summary.js";
+import {
+  formatDuration,
+  formatStructuredErrorOutput,
+  summarizeToolResult,
+} from "../src/cli/ui/tool-summary.js";
 
 describe("summarizeToolResult — error envelopes", () => {
   it("flags ERROR:-prefixed text as a real error and strips the prefix", () => {
@@ -37,6 +41,16 @@ describe("summarizeToolResult — error envelopes", () => {
     const out = summarizeToolResult("x", JSON.stringify({ error: "SomeError" }));
     expect(out.isError).toBe(true);
     expect(out.summary).toBe("SomeError");
+  });
+
+  it("formats structured error envelopes for tool-card display", () => {
+    const out = formatStructuredErrorOutput(JSON.stringify({ error: "Error: not a file: src" }));
+    expect(out).toBe("Error — not a file: src");
+  });
+
+  it("keeps non-error JSON output untouched for tool-card display", () => {
+    const json = JSON.stringify({ ok: true });
+    expect(formatStructuredErrorOutput(json)).toBe(json);
   });
 
   it("handles step_completed payload as a non-error tick", () => {

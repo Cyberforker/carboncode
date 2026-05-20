@@ -1,5 +1,5 @@
 import { type WriteStream, statSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { resolve } from "node:path";
 import { Box, Text, useStdin, useStdout } from "ink";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -17,10 +17,10 @@ import {
   restoreCheckpoint,
 } from "../../code/checkpoints.js";
 import {
+  type ApplyResult,
   type EditBlock,
   applyEditBlocks,
   snapshotBeforeEdits,
-  toWholeFileEditBlock,
 } from "../../code/edit-blocks.js";
 import { clearPendingEdits, loadPendingEdits } from "../../code/pending-edits.js";
 import {
@@ -89,7 +89,7 @@ import {
 import { defaultUsageLogPath } from "../../telemetry/usage.js";
 import type { ToolRegistry } from "../../tools.js";
 import type { ChoiceOption } from "../../tools/choice.js";
-import { looksLikeAbsoluteSystemPath, pathIsUnder } from "../../tools/filesystem.js";
+import { applyMultiEdit } from "../../tools/fs/edit.js";
 import type { PlanStep } from "../../tools/plan.js";
 import { formatCommandResult, runCommand } from "../../tools/shell.js";
 import { registerSkillTools } from "../../tools/skills.js";
@@ -127,6 +127,7 @@ import { CopyMode } from "./copy-mode/CopyMode.js";
 import type { PickerSnapshot, ViewerSnapshot } from "./dashboard/use-picker-broadcast.js";
 import { useViewerBroadcast } from "./dashboard/use-picker-broadcast.js";
 import { formatEditResults } from "./edit-history.js";
+import { buildEditToolBlocks } from "./edit-tool-gate.js";
 import { loopEventToDashboard } from "./effects/loop-to-dashboard.js";
 import { appendGlobalMemory, appendProjectMemory, detectHashMemory } from "./hash-memory.js";
 import { applySlashResult } from "./hooks/apply-slash-result.js";
@@ -1849,7 +1850,7 @@ function AppInner({
     // have to keep xterm mouse tracking on to grab the wheel.
   });
 
-  // Edit-gate interceptor. Reroutes `edit_file` / `write_file` tool
+  // Edit-gate interceptor. Reroutes `edit_file` / `write_file` / `multi_edit` tool
   // calls through the review queue (in `review` mode) or the auto-apply
   // snapshot/banner path (in `auto` mode) so the model's tool usage
   // respects the same gate as its text-form SEARCH/REPLACE output.
@@ -1864,46 +1865,13 @@ function AppInner({
   useEffect(() => {
     if (!tools || !codeMode) return;
     tools.setToolInterceptor(async (name, args) => {
-      if (name !== "edit_file" && name !== "write_file") return null;
-      const rawPath = typeof args.path === "string" ? args.path : "";
-      if (!rawPath) return null;
-
       // Read root via ref so a workspace swap (which runs reregisterTools
       // for read_file/run_command) is also visible to this interceptor
       // otherwise edit_file writes to the OLD root while read_file looks in
       // the NEW one, producing ENOENT on the next read of a just-edited file.
       const rootForEdit = currentRootDirRef.current;
-      const absRoot = resolve(rootForEdit);
-
-      // Absolute system paths (issue #942): defer outside-rootDir writes to the tool fn's safePath gate instead of stripping the leading slash and silently rewriting to <rootDir>/...
-      let relPath: string;
-      if (looksLikeAbsoluteSystemPath(rawPath)) {
-        const abs = resolve(rawPath);
-        if (!pathIsUnder(abs, absRoot)) return null;
-        const rel = relative(absRoot, abs);
-        if (!rel) return null;
-        relPath = rel;
-      } else {
-        let stripped = rawPath;
-        while (stripped.startsWith("/") || stripped.startsWith("\\")) {
-          stripped = stripped.slice(1);
-        }
-        if (!stripped) return null;
-        relPath = stripped;
-      }
-      let block: EditBlock;
-      if (name === "edit_file") {
-        const search = typeof args.search === "string" ? args.search : "";
-        const replace = typeof args.replace === "string" ? args.replace : "";
-        if (!search) return null; // let the tool fn surface the "empty search" error
-        block = { path: relPath, search, replace, offset: 0 };
-      } else {
-        // write_file: capture the current content (if any) as SEARCH so
-        // the queued block is a literal whole-file overwrite. For new
-        // files SEARCH stays empty —applyEditBlock's create-new sentinel.
-        const content = typeof args.content === "string" ? args.content : "";
-        block = toWholeFileEditBlock(relPath, content, rootForEdit);
-      }
+      const blocks = buildEditToolBlocks(name, args, rootForEdit);
+      if (!blocks) return null;
 
       // Helper: apply the current block + record into history + arm
       // undo. Used by auto mode AND by the various "apply" branches
@@ -1914,12 +1882,31 @@ function AppInner({
       // becomes the tool result AND the loop yields a `tool` event right
       // after —ToolCard renders that with the same text. Pushing here
       // would produce "result shown twice".
-      const applyNow = (opts: { source?: string; showUndoBanner?: boolean } = {}): string => {
-        const snaps = snapshotBeforeEdits([block], rootForEdit);
-        const results = applyEditBlocks([block], rootForEdit);
+      const applyNow = async (
+        opts: { source?: string; showUndoBanner?: boolean } = {},
+      ): Promise<string> => {
+        const snaps = snapshotBeforeEdits(blocks, rootForEdit);
+        if (name === "multi_edit") {
+          const output = await applyMultiEdit(
+            rootForEdit,
+            blocks.map((block) => ({
+              abs: resolve(rootForEdit, block.path),
+              search: block.search,
+              replace: block.replace,
+            })),
+          );
+          const results: ApplyResult[] = blocks.map((block) => ({
+            path: block.path,
+            status: block.search.length === 0 ? "created" : "applied",
+          }));
+          recordEdit(opts.source ?? "auto", blocks, results, snaps);
+          if (opts.showUndoBanner ?? true) armUndoBanner(results);
+          return output;
+        }
+        const results = applyEditBlocks(blocks, rootForEdit);
         const good = results.some((r) => r.status === "applied" || r.status === "created");
         if (good) {
-          recordEdit(opts.source ?? "auto", [block], results, snaps);
+          recordEdit(opts.source ?? "auto", blocks, results, snaps);
           if (opts.showUndoBanner ?? true) armUndoBanner(results);
         }
         return formatEditResults(results);
@@ -1937,19 +1924,34 @@ function AppInner({
       // land all at once with no mid-stream opportunity to prompt.
       if (turnEditPolicyRef.current === "apply-all") return applyNow();
 
-      const { choice, denyContext } = await new Promise<EditReviewResult>((resolveChoice) => {
-        editReviewResolveRef.current = resolveChoice;
-        setPendingEditReview(block);
-      });
-      // Clear the pending-review slot synchronously so a rapid-fire next
-      // tool call doesn't race the React state settling.
-      editReviewResolveRef.current = null;
-      setPendingEditReview(null);
+      let choice: EditReviewChoice = "apply";
+      let denyContext: string | undefined;
+      let rejectedBlock: EditBlock | null = null;
+      for (const block of blocks) {
+        const result = await new Promise<EditReviewResult>((resolveChoice) => {
+          editReviewResolveRef.current = resolveChoice;
+          setPendingEditReview(block);
+        });
+        // Clear the pending-review slot synchronously so a rapid-fire next
+        // tool call doesn't race the React state settling.
+        editReviewResolveRef.current = null;
+        setPendingEditReview(null);
+        choice = result.choice;
+        denyContext = result.denyContext;
+        if (choice === "reject" || choice === "apply-rest-of-turn" || choice === "flip-to-auto") {
+          rejectedBlock = choice === "reject" ? block : null;
+          break;
+        }
+      }
 
       if (choice === "reject") {
         const context = denyContext ? ` because: ${denyContext}` : "";
-        log.pushInfo(t("app.rejectedEdit", { path: block.path, context }));
-        return `User rejected this edit to ${block.path}${context}. Don't retry the same SEARCH/REPLACE; either try a different approach or ask the user what they want instead.`;
+        const path = rejectedBlock?.path ?? blocks[0]?.path ?? "(unknown)";
+        log.pushInfo(t("app.rejectedEdit", { path, context }));
+        if (blocks.length > 1) {
+          return `User rejected this multi_edit before any edits were applied${context}. Don't retry the same SEARCH/REPLACE batch; either try a different approach or ask the user what they want instead.`;
+        }
+        return `User rejected this edit to ${path}${context}. Don't retry the same SEARCH/REPLACE; either try a different approach or ask the user what they want instead.`;
       }
       if (choice === "apply-rest-of-turn") {
         turnEditPolicyRef.current = "apply-all";
@@ -3357,7 +3359,7 @@ function AppInner({
     (choice: ShellConfirmChoice, denyContext?: string) => {
       const pending = pendingShell;
       if (!pending || !codeMode) return;
-      const { id, command: cmd, kind } = pending;
+      const { id, command: cmd } = pending;
       setPendingShell(null);
 
       if (choice === "deny") {
@@ -3369,11 +3371,6 @@ function AppInner({
         log.pushInfo(t("app.alwaysAllowed", { prefix, dir: currentRootDir }));
         pauseGate.resolve(id, { type: "always_allow", prefix });
       } else {
-        log.pushInfo(
-          kind === "run_background"
-            ? t("app.startingBackground", { cmd })
-            : t("app.runningCommand", { cmd }),
-        );
         pauseGate.resolve(id, { type: "run_once" });
       }
     },

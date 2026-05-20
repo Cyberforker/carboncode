@@ -56,6 +56,7 @@ export async function applyMultiEdit(
     hunks: string[];
     deltaChars: number;
     touched: number;
+    created: boolean;
   };
   const filesByPath = new Map<string, FileState>();
 
@@ -73,27 +74,50 @@ export async function applyMultiEdit(
       );
     }
     const rel = displayRel(rootDir, e.abs);
-    if (e.search.length === 0) {
-      throw new Error(
-        `multi_edit: edit #${i + 1} (${rel}) search cannot be empty (no edits applied)`,
-      );
-    }
     let state = filesByPath.get(e.abs);
     if (!state) {
       let before: string;
-      try {
-        before = await fs.readFile(e.abs, "utf8");
-      } catch (err) {
-        throw new Error(
-          `multi_edit: edit #${i + 1} cannot read ${rel}: ${(err as Error).message} (no edits applied)`,
-        );
+      if (e.search.length === 0) {
+        try {
+          await fs.readFile(e.abs, "utf8");
+          throw new Error("empty SEARCH only creates new files — this file already exists");
+        } catch (err) {
+          const code = (err as NodeJS.ErrnoException).code;
+          if (code !== "ENOENT") {
+            throw new Error(
+              `multi_edit: edit #${i + 1} cannot create ${rel}: ${(err as Error).message} (no edits applied)`,
+            );
+          }
+        }
+        state = { buf: "", le: "\n", hunks: [], deltaChars: 0, touched: 0, created: true };
+        filesByPath.set(e.abs, state);
+      } else {
+        try {
+          before = await fs.readFile(e.abs, "utf8");
+        } catch (err) {
+          throw new Error(
+            `multi_edit: edit #${i + 1} cannot read ${rel}: ${(err as Error).message} (no edits applied)`,
+          );
+        }
+        const le = before.includes("\r\n") ? "\r\n" : "\n";
+        state = { buf: before, le, hunks: [], deltaChars: 0, touched: 0, created: false };
+        filesByPath.set(e.abs, state);
       }
-      const le = before.includes("\r\n") ? "\r\n" : "\n";
-      state = { buf: before, le, hunks: [], deltaChars: 0, touched: 0 };
-      filesByPath.set(e.abs, state);
+    }
+    if (e.search.length === 0 && (!state.created || state.touched > 0)) {
+      throw new Error(
+        `multi_edit: edit #${i + 1} (${rel}) empty search only creates new files (no edits applied)`,
+      );
     }
     const adaptedSearch = e.search.replace(/\r?\n/g, state.le);
     const adaptedReplace = e.replace.replace(/\r?\n/g, state.le);
+    if (adaptedSearch.length === 0) {
+      state.buf = adaptedReplace;
+      state.hunks.push(`# ${rel}\n${renderCreateDiff(adaptedReplace)}`);
+      state.deltaChars += adaptedReplace.length;
+      state.touched++;
+      continue;
+    }
     const firstIdx = state.buf.indexOf(adaptedSearch);
     if (firstIdx < 0) {
       throw new Error(
@@ -117,6 +141,7 @@ export async function applyMultiEdit(
   }
 
   for (const [abs, state] of filesByPath) {
+    if (state.created) await fs.mkdir(pathMod.dirname(abs), { recursive: true });
     await fs.writeFile(abs, state.buf, "utf8");
   }
 
@@ -142,6 +167,13 @@ function renderEditDiff(search: string, replace: string, startLine: number): str
   const hunk = `@@ -${startLine},${a.length} +${startLine},${b.length} @@`;
   const body = diff.map((d) => `${d.op === " " ? " " : d.op} ${d.line}`).join("\n");
   return `${hunk}\n${body}`;
+}
+
+function renderCreateDiff(replace: string): string {
+  const lines = replace.length === 0 ? [] : replace.split(/\r?\n/);
+  const hunk = `@@ -1,0 +1,${lines.length} @@`;
+  const body = lines.map((line) => `+ ${line}`).join("\n");
+  return body ? `${hunk}\n${body}` : hunk;
 }
 
 export function lineDiff(

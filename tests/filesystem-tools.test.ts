@@ -1137,6 +1137,42 @@ describe("filesystem tools (built-in, sandbox-enforced)", () => {
       expect(disk).toBe("ONE\r\ntwo\r\nTHREE\r\n");
     });
 
+    it("creates new files with an empty SEARCH while keeping the batch atomic", async () => {
+      await fs.writeFile(join(root, "a.txt"), "alpha\n");
+      const out = await tools.dispatch(
+        "multi_edit",
+        JSON.stringify({
+          edits: [
+            { path: "src/new.ts", search: "", replace: "export const created = true;\n" },
+            { path: "a.txt", search: "alpha", replace: "ALPHA" },
+          ],
+        }),
+      );
+
+      expect(out).toMatch(/applied 2 edits across 2 files/);
+      expect(await fs.readFile(join(root, "src", "new.ts"), "utf8")).toBe(
+        "export const created = true;\n",
+      );
+      expect(await fs.readFile(join(root, "a.txt"), "utf8")).toBe("ALPHA\n");
+    });
+
+    it("does not create new files when a later multi_edit entry fails", async () => {
+      await fs.writeFile(join(root, "a.txt"), "alpha\n");
+      const out = await tools.dispatch(
+        "multi_edit",
+        JSON.stringify({
+          edits: [
+            { path: "src/new.ts", search: "", replace: "export const created = true;\n" },
+            { path: "a.txt", search: "missing", replace: "MISSING" },
+          ],
+        }),
+      );
+
+      expect(out).toMatch(/no edits applied/);
+      await expect(fs.readFile(join(root, "src", "new.ts"), "utf8")).rejects.toThrow();
+      expect(await fs.readFile(join(root, "a.txt"), "utf8")).toBe("alpha\n");
+    });
+
     it("refuses when an edit references a non-existent file (atomic — no other files written)", async () => {
       await fs.writeFile(join(root, "a.txt"), "alpha\n");
       const out = await tools.dispatch(

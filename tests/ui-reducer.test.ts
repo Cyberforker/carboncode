@@ -151,6 +151,7 @@ describe("ui reducer", () => {
     ]);
     const card = s.cards[0] as ToolCard;
     expect(card.rejected).toBeUndefined();
+    expect(card.exitCode).toBe(1);
   });
 
   it("changes mode and accumulates session cost", () => {

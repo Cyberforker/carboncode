@@ -63,11 +63,12 @@ export function reduce(state: AgentState, event: AgentEvent): AgentState {
     case "tool.end": {
       const finalOutput = event.output ?? "";
       const rejected = isPlanModeRejection(finalOutput);
+      const exitCode = event.exitCode ?? inferToolExitCode(finalOutput);
       return mutateCard(state, event.id, "tool", (c) => ({
         ...c,
         done: true,
         output: event.output ?? c.output,
-        exitCode: event.exitCode,
+        exitCode,
         elapsedMs: event.elapsedMs,
         ...(event.aborted ? { aborted: true } : {}),
         ...(rejected ? { rejected: true } : {}),
@@ -457,4 +458,27 @@ function isPlanModeRejection(output: string): boolean {
   } catch {
     return false;
   }
+}
+
+function inferToolExitCode(output: string): number | undefined {
+  if (!output) return undefined;
+  try {
+    const parsed = JSON.parse(output.trim()) as unknown;
+    if (!parsed || typeof parsed !== "object") return undefined;
+    const error = (parsed as Record<string, unknown>).error;
+    if (typeof error !== "string") return undefined;
+    return isControlSignalError(error) ? undefined : 1;
+  } catch {
+    return undefined;
+  }
+}
+
+function isControlSignalError(error: string): boolean {
+  const tag = error.split(":", 1)[0]?.trim();
+  return (
+    tag === "PlanProposedError" ||
+    tag === "PlanRevisionProposedError" ||
+    tag === "ChoiceRequestedError" ||
+    tag === "NeedsConfirmationError"
+  );
 }

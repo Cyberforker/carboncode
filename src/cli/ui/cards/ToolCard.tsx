@@ -9,6 +9,7 @@ import { Spinner } from "../primitives/Spinner.js";
 import type { ToolCard as ToolCardData } from "../state/cards.js";
 import { useIsInflight } from "../state/inflight-context.js";
 import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
+import { formatStructuredErrorOutput } from "../tool-summary.js";
 
 const READ_TAIL = 2;
 const OTHER_TAIL = 5;
@@ -37,7 +38,8 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
     [card.name, card.output],
   );
 
-  const allLines = card.output.length > 0 ? card.output.split("\n") : [];
+  const displayOutput = formatStructuredErrorOutput(card.output);
+  const allLines = displayOutput.length > 0 ? displayOutput.split("\n") : [];
   const tail = tailLinesFor(card.name);
   const truncated = allLines.length > tail;
   const visible = truncated ? allLines.slice(-tail) : allLines;
