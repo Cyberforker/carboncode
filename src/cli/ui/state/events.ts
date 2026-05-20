@@ -88,6 +88,13 @@ const turnAbort = z.object({
   type: z.literal("turn.abort"),
 });
 
+const turnInterruptCleanup = z.object({
+  type: z.literal("turn.interrupt.cleanup"),
+  id: cardId,
+  ts: ts,
+  text: z.string(),
+});
+
 const turnEnd = z.object({
   type: z.literal("turn.end"),
   usage: z.object({
@@ -332,6 +339,7 @@ export const AgentEventSchema = z.discriminatedUnion("type", [
   toolEnd,
   toolRetry,
   turnAbort,
+  turnInterruptCleanup,
   turnEnd,
   modeChange,
   networkChange,

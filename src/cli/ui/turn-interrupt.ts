@@ -5,6 +5,7 @@ export interface TurnInterruptController {
   turnActiveRef: { readonly current: boolean };
   abortedThisTurn: { current: boolean };
   resetPendingModals: () => void;
+  cleanupInterruptedTurn?: () => void;
   isLoopActive: () => boolean;
   stopLoop: () => void;
   loop: { abort: () => void };
@@ -17,6 +18,7 @@ export function handleTurnInterrupt(
     turnActiveRef,
     abortedThisTurn,
     resetPendingModals,
+    cleanupInterruptedTurn,
     isLoopActive,
     stopLoop,
     loop,
@@ -27,6 +29,7 @@ export function handleTurnInterrupt(
     if (abortedThisTurn.current) return "already-aborted";
     abortedThisTurn.current = true;
     resetPendingModals();
+    cleanupInterruptedTurn?.();
     if (isLoopActive()) stopLoop();
     loop.abort();
     return "aborted";

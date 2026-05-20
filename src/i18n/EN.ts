@@ -569,6 +569,7 @@ export const EN: TranslationSchema = {
   app: {
     walkCancelledRemaining: "▸ walk cancelled — {count} block(s) still pending.",
     walkCancelled: "▸ walk cancelled.",
+    turnInterrupted: "▸ turn interrupted — type a follow-up to continue.",
     editModeYolo:
       "▸ edit mode: YOLO — edits AND shell commands auto-run. /undo still rolls back edits. Use carefully.",
     editModeAuto:

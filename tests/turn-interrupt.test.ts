@@ -7,6 +7,7 @@ describe("handleTurnInterrupt", () => {
     const stopLoop = vi.fn();
     const abort = vi.fn();
     const quitProcess = vi.fn();
+    const cleanupInterruptedTurn = vi.fn();
     const controller = {
       turnActiveRef: { current: true },
       abortedThisTurn: { current: false },
@@ -15,6 +16,7 @@ describe("handleTurnInterrupt", () => {
       stopLoop,
       loop: { abort },
       quitProcess,
+      cleanupInterruptedTurn,
     };
 
     expect(handleTurnInterrupt("ctrl-c", controller)).toBe("aborted");
@@ -22,6 +24,7 @@ describe("handleTurnInterrupt", () => {
     expect(resetPendingModals).toHaveBeenCalledTimes(1);
     expect(stopLoop).toHaveBeenCalledTimes(1);
     expect(abort).toHaveBeenCalledTimes(1);
+    expect(cleanupInterruptedTurn).toHaveBeenCalledTimes(1);
     expect(quitProcess).not.toHaveBeenCalled();
   });
 

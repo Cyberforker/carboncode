@@ -555,6 +555,7 @@ export const zhCN: TranslationSchema = {
   app: {
     walkCancelledRemaining: "▸ 浏览已取消 — 还有 {count} 个待处理编辑块。",
     walkCancelled: "▸ 浏览已取消。",
+    turnInterrupted: "▸ 本轮已中断 — 输入后续内容可继续。",
     editModeYolo:
       "▸ 编辑模式：YOLO — 编辑和 shell 命令都自动执行。/undo 仍可撤销编辑。请谨慎使用。",
     editModeAuto:

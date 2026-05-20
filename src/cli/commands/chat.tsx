@@ -27,6 +27,7 @@ import { SessionPicker } from "../ui/SessionPicker.js";
 import { Setup } from "../ui/Setup.js";
 import { drainTtyResponses } from "../ui/drain-tty.js";
 import { KeystrokeProvider } from "../ui/keystroke-context.js";
+import { collectStartupRuleFiles, formatRuleSummary } from "../ui/rule-summary.js";
 import type { McpServerSummary } from "../ui/slash.js";
 import {
   type McpLifecycleNotice,
@@ -308,6 +309,13 @@ export async function chatCommand(opts: ChatOptions): Promise<void> {
     opts.forceResume,
   );
   const launchWorkspace = opts.codeMode?.rootDir ?? process.cwd();
+  if (opts.codeMode) {
+    const ruleSummary = formatRuleSummary(
+      launchWorkspace,
+      collectStartupRuleFiles(launchWorkspace),
+    );
+    if (ruleSummary) startupInfoHints.push(`▸ ${ruleSummary}`);
+  }
   const showPicker =
     !opts.session && !opts.forceResume && listSessionsForWorkspace(launchWorkspace).length > 0;
 

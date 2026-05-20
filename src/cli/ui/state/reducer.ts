@@ -1,3 +1,4 @@
+import { cleanupInterruptedCards } from "../interrupt-cleanup.js";
 import type {
   Card,
   CardId,
@@ -87,6 +88,24 @@ export function reduce(state: AgentState, event: AgentEvent): AgentState {
         turnInProgress: false,
         composer: { ...state.composer, abortedHint: true },
       };
+
+    case "turn.interrupt.cleanup":
+      return appendCard(
+        {
+          ...state,
+          cards: cleanupInterruptedCards(state.cards, event.ts) as Card[],
+          turnInProgress: false,
+          composer: { ...state.composer, abortedHint: true },
+        },
+        {
+          kind: "live",
+          id: event.id,
+          ts: event.ts,
+          variant: "aborted",
+          tone: "warn",
+          text: event.text,
+        },
+      );
 
     case "turn.end": {
       const sessionCost = state.status.sessionCost + event.usage.cost;

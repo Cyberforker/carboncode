@@ -171,6 +171,7 @@ export interface TranslationSchema {
   app: {
     walkCancelledRemaining: string;
     walkCancelled: string;
+    turnInterrupted: string;
     editModeYolo: string;
     editModeAuto: string;
     editModeReview: string;

@@ -1567,6 +1567,15 @@ function AppInner({
 
   // Esc handles "abort the current turn" separately; Ctrl+C is the universal "I'm done" key.
   const quitProcess = useQuit(transcriptRef);
+  const cleanupInterruptedTurn = useCallback(() => {
+    const ts = Date.now();
+    agentStore.dispatch({
+      type: "turn.interrupt.cleanup",
+      id: `interrupt-${ts}`,
+      ts,
+      text: t("app.turnInterrupted"),
+    });
+  }, [agentStore]);
 
   // Ctrl+D = standard TUI exit (matches the boot-banner hint). Always-on
   // — no modal / picker should swallow it.
@@ -1621,6 +1630,7 @@ function AppInner({
         turnActiveRef: submittingRef,
         abortedThisTurn,
         resetPendingModals,
+        cleanupInterruptedTurn,
         isLoopActive,
         stopLoop,
         loop,
@@ -1633,6 +1643,7 @@ function AppInner({
         turnActiveRef: submittingRef,
         abortedThisTurn,
         resetPendingModals,
+        cleanupInterruptedTurn,
         isLoopActive,
         stopLoop,
         loop,
