@@ -1,7 +1,7 @@
 # Carbon Code
 
-Chinese-first, DeepSeek-powered terminal coding agent derived from
-DeepSeek-Reasonix.
+Chinese-first, DeepSeek-powered terminal coding agent for personal developer
+workflows.
 
 Carbon Code is aimed at personal developer workflows: open a repository, let the
 agent read and search the codebase, review planned edits, approve shell commands,
@@ -64,20 +64,13 @@ with one-turn Pro escalation for harder turns.
 
 ## Release
 
-The first npm publish is a one-time bootstrap because npm trusted publishing can
-only be configured after the package exists:
+npm publishing is tag-driven through GitHub Actions after the package is
+configured for Trusted Publishing on npmjs.com. In the npm package settings, add
+a GitHub Actions trusted publisher with repository `Yapie0/carboncode`, workflow
+file `publish.yml`, and environment `npm`.
 
-```bash
-npm whoami
-npm publish --dry-run --access public
-npm publish --access public
-npm install -g npm@^11.10.0
-npm trust github @carboncode/cli --repo Yapie0/carboncode --file publish.yml --env npm
-```
-
-After trusted publishing is configured, releases are tag-driven through GitHub
-Actions. Update `package.json`, commit the release, then push a matching semver
-tag:
+To release, update `package.json`, commit the release, then push a matching
+semver tag:
 
 ```bash
 git tag v0.1.0
@@ -91,19 +84,17 @@ tag as an idempotent release marker and skips the publish step.
 
 ## Current Scope
 
-This repository currently imports the Reasonix main codebase and productizes it
-as Carbon Code. The first productization pass covers package identity, command
-names, Carbon config paths, update/install commands, Chinese-first CLI copy, npm
-publishing, and license attribution.
+Carbon Code is currently early-stage and focused on the personal CLI workflow:
+package identity, command names, Carbon config paths, update/install commands,
+Chinese-first CLI copy, npm publishing, and license compliance.
 
 ## License And Attribution
 
-Carbon Code is MIT licensed. It is derived from DeepSeek-Reasonix, which is also
-MIT licensed.
+Carbon Code is MIT licensed.
 
-The upstream notice is preserved in:
+Third-party MIT notices are preserved in:
 
 - `THIRD_PARTY_NOTICES.md`
-- `LICENSES/DeepSeek-Reasonix-MIT.txt`
+- `LICENSES/`
 
-Do not remove upstream copyright or MIT notices from derived files.
+Do not remove copyright or MIT notices from derived files.

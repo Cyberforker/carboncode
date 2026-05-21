@@ -1,7 +1,7 @@
 {
   "name": "@carboncode/cli",
   "version": "0.1.0",
-  "description": "Chinese-first DeepSeek-powered terminal coding agent, derived from DeepSeek-Reasonix.",
+  "description": "Chinese-first DeepSeek-powered terminal coding agent for personal developer workflows.",
   "type": "module",
   "bin": {
     "carboncode": "dist/cli/index.js",

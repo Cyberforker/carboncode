@@ -1,7 +1,6 @@
 # Carbon Code
 
-中文优先、DeepSeek 驱动的终端代码智能体，基于 DeepSeek-Reasonix 主体进行
-Carbon Code 产品化。
+中文优先、DeepSeek 驱动的个人开发者终端代码智能体。
 
 Carbon Code 面向个人开发者工作流：进入一个仓库，让智能体读取和搜索代码、规划
 修改、展示 diff、在执行 shell 命令前请求确认、按需运行验证，并输出简洁结果。
@@ -62,8 +61,11 @@ export DEEPSEEK_API_KEY=sk-...
 
 ## 发布
 
-npm 发布由 GitHub Actions 的 tag 流程触发。先更新 `package.json`，提交发布版本，
-再推送匹配的 semver tag：
+npm 发布由 GitHub Actions 的 tag 流程触发。需要先在 npmjs.com 的 package
+settings 里配置 Trusted Publishing：选择 GitHub Actions，仓库填
+`Yapie0/carboncode`，workflow 文件填 `publish.yml`，environment 填 `npm`。
+
+发布时先更新 `package.json`，提交发布版本，再推送匹配的 semver tag：
 
 ```bash
 git tag v0.1.0
@@ -75,17 +77,17 @@ git push origin main --tags
 
 ## 当前范围
 
-当前策略是“导入 Reasonix 主体，然后做 Carbon Code 产品化”。第一轮产品化覆盖
-包名、命令名、Carbon 配置目录、更新/安装命令、中文优先 CLI 文案、npm 发布流程
-和开源许可归因。
+Carbon Code 目前处于早期阶段，重点是个人开发者 CLI 工作流。当前产品化覆盖包名、
+命令名、Carbon 配置目录、更新/安装命令、中文优先 CLI 文案、npm 发布流程和开源
+许可合规。
 
 ## 许可与归因
 
-Carbon Code 使用 MIT 许可证。项目基于 MIT 许可的 DeepSeek-Reasonix 派生。
+Carbon Code 使用 MIT 许可证。
 
-上游声明保留在：
+第三方 MIT 声明保留在：
 
 - `THIRD_PARTY_NOTICES.md`
-- `LICENSES/DeepSeek-Reasonix-MIT.txt`
+- `LICENSES/`
 
-不要移除派生源码中的上游 copyright 或 MIT notice。
+不要移除派生源码中的 copyright 或 MIT notice。
