@@ -10,8 +10,8 @@ const PILLARS = [
       zh: 'DeepSeek 的 prefix-cache 从 prompt 第 0 字节开始指纹化。Carbon Code 的循环是 append-only —— 不重排、不基于 marker 做压缩 —— 让缓存前缀在每一次工具调用后都保持稳定。',
       en: 'DeepSeek\'s prefix cache fingerprints prompts from byte 0. The Carbon Code loop is append-only — no reordering, no marker-based compaction — so the cached prefix survives every tool call.',
     },
-    metric: '94%',
-    metricLabel: { zh: 'cache hit · 长会话', en: 'cache hit · long sessions' },
+    metric: 'stable',
+    metricLabel: { zh: 'append-only message flow', en: 'append-only message flow' },
     points: [
       { n: '01', label: 'append-only', desc: { zh: '消息、工具结果一律尾部追加，绝不修改历史', en: 'Messages and tool results are appended; history is never mutated' } },
       { n: '02', label: 'no marker',   desc: { zh: '不使用 cache_control 之类的标记触发器', en: 'No reliance on triggers like cache_control markers' } },
@@ -28,8 +28,8 @@ const PILLARS = [
       zh: '当模型在 <think> 块里"想偏了"把工具调用写进了思考内容，Carbon Code 会做一次扫掠（scavenge pass）把这些逃逸的 tool call 抓回来执行，不浪费推理 token。',
       en: 'When the model strays inside a <think> block and writes tool calls into its reasoning, Carbon Code runs a scavenge pass to recover those escaped calls and dispatch them — no reasoning tokens go to waste.',
     },
-    metric: '+38%',
-    metricLabel: { zh: 'tool dispatch 回收', en: 'tool dispatch recovered' },
+    metric: 'recover',
+    metricLabel: { zh: 'escaped tool calls', en: 'escaped tool calls' },
     points: [
       { n: '01', label: 'capture', desc: { zh: '解析 <think> 块，识别其中的 tool-call 语法', en: 'Parse <think> blocks; recognise tool-call syntax inside them' } },
       { n: '02', label: 'replay',  desc: { zh: '把抓出的调用重新走 dispatch 通道', en: 'Replay recovered calls through the dispatch path' } },
@@ -46,8 +46,8 @@ const PILLARS = [
       zh: '模型生成的工具参数偶尔会有 JSON 拼写错、引号不闭合、shape 不一致的情况。Carbon Code 在送入 dispatch 之前先做一轮 schema-aware 的修复，把畸形参数补好再执行。',
       en: 'Tool arguments the model produces occasionally have JSON typos, unclosed quotes, or shape mismatches. Carbon Code runs a schema-aware repair pass before dispatch so malformed args still execute.',
     },
-    metric: '< 0.3%',
-    metricLabel: { zh: '修复后剩余工具失败率', en: 'tool failures after repair' },
+    metric: 'repair',
+    metricLabel: { zh: 'schema-aware arguments', en: 'schema-aware arguments' },
     points: [
       { n: '01', label: 'parse',   desc: { zh: 'JSON5 / 容错解析，识别常见畸形写法', en: 'JSON5 / lenient parser catches common malformations' } },
       { n: '02', label: 'reshape', desc: { zh: '按 schema 重排字段名 · 修补默认值', en: 'Reshape against the schema; fill in defaults' } },
@@ -69,8 +69,8 @@ function Agents() {
         label="Three Pillars"
         title={t({ zh: '为什么是 <em>DeepSeek</em> 原生', en: 'Why <em>DeepSeek</em>-native' }, lang)}
         sub={t({
-          zh: 'Carbon Code 只对接 DeepSeek，因为这套循环的不变量是按 DeepSeek 的 cache 机制设计的。同样的模型、同样的 API —— 改变的是循环的工程姿态。',
-          en: 'Carbon Code only targets DeepSeek because the loop\'s invariants are designed against DeepSeek\'s cache mechanics. Same model, same API — what changes is the engineering stance of the loop.',
+          zh: '这不是通用聊天壳，而是面向代码任务的本地循环：稳定上下文、工具调用修复、可回放事件。',
+          en: 'This is not a generic chat wrapper. It is a local coding loop with stable context, repaired tool calls, and replayable events.',
         }, lang)}
       />
 

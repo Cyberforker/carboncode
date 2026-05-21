@@ -11,13 +11,10 @@ function Nav({ active }) {
 
   const NAV_LINKS = [
     { href: "index.html#install",  label: { zh: "安装",     en: "Install" } },
-    { href: "index.html#agents",   label: { zh: "原理",     en: "How it works" } },
+    { href: "index.html#agents",   label: { zh: "工作流",   en: "Workflow" } },
     { href: "index.html#features", label: { zh: "特性",     en: "Features" } },
     { href: "index.html#config",   label: { zh: "配置",     en: "Config" } },
-    { href: "configuration.html",  label: { zh: "Guide",    en: "Guide" } },
-    { href: "download.html",       label: { zh: "下载",     en: "Download" }, key: "download" },
-    { href: "index.html#roadmap",  label: { zh: "Roadmap",  en: "Roadmap" } },
-    { href: "index.html#faq",      label: { zh: "FAQ",      en: "FAQ" } },
+    { href: "configuration.html",  label: { zh: "文档",     en: "Docs" } },
   ];
 
   return (
@@ -59,8 +56,8 @@ function Nav({ active }) {
           <a className="btn btn-ghost btn-sm" href="https://github.com/Yapie0/carboncode" target="_blank" rel="noreferrer">
             <Ic.Github size={13}/> GitHub
           </a>
-          <a className="btn btn-primary btn-sm" href="download.html">
-            {t({ zh: "下载桌面端 →", en: "Download desktop →" }, lang)}
+          <a className="btn btn-primary btn-sm" href="https://www.npmjs.com/package/@carboncode/cli" target="_blank" rel="noreferrer">
+            npm
           </a>
         </div>
       </div>

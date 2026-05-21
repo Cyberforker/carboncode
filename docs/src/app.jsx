@@ -34,7 +34,6 @@ function App() {
       <Nav/>
       <Hero/>
       <Install/>
-      <DlPromo/>
       <Agents/>
       <Features/>
       <Config/>

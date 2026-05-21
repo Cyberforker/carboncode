@@ -97,7 +97,7 @@ const Ic = {
 
 window.Ic = Ic;
 
-// Shared editorial section header
+// Shared section header
 function SecHead({ num, label, title, sub, actions }) {
   return (
     <>

@@ -1,4 +1,4 @@
-// Feature grid — editorial numbered tiles
+// Feature grid — compact developer-tool capabilities.
 
 const FEATURES = [
   {
@@ -59,12 +59,12 @@ function Features() {
         num="03"
         label="Features"
         title={t({
-          zh: '围绕 <em>DeepSeek API</em> 的工程姿态。',
-          en: 'Engineering stance around the <em>DeepSeek API</em>.',
+          zh: '日常写代码需要的核心能力。',
+          en: 'Core capabilities for daily coding work.',
         }, lang)}
         sub={t({
-          zh: '十几个工具一起构成一个看似简单的命令行 —— 但底下的每一层都在为缓存命中、成本和稳定性服务。',
-          en: 'A dozen-odd tools combine into what looks like a simple CLI — but every layer beneath is working to keep cache hit, cost, and stability where they need to be.',
+          zh: 'Carbon Code 的界面保持简单，把重点放在读仓库、改文件、审批命令、验证结果这条主路径上。',
+          en: 'Carbon Code keeps the interface quiet and centers the path that matters: read the repo, edit files, approve commands, and verify the result.',
         }, lang)}
       />
 

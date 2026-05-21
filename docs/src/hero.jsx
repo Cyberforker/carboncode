@@ -3,14 +3,18 @@
 // Based on the actual carboncode code TUI: cache-first loop, SEARCH/REPLACE edits,
 // tool calls sandboxed to launch dir.
 const TERM_SCRIPT = [
-  { t: 'cmd', text: 'npx --package @carboncode/cli carboncode' },
-  { t: 'out', text: `⏺ carboncode ${window.CARBONCODE_VERSION} · model: deepseek-v4-flash · workspace: ~/app`, cls: 'term-info', delay: 280 },
-  { t: 'out', text: '⏺ cache: 94.2% hit · session: 18m23s · cost: $0.043', cls: 'term-dim', delay: 220 },
+  { t: 'cmd', text: 'npm install -g @carboncode/cli' },
+  { t: 'out', text: '+ @carboncode/cli installed', cls: 'term-ok', delay: 240 },
+  { t: 'blank' },
+  { t: 'cmd', text: 'carboncode' },
+  { t: 'out', text: `Carbon Code ${window.CARBONCODE_VERSION} · model deepseek-v4-flash`, cls: 'term-info', delay: 260 },
+  { t: 'out', text: 'rules loaded · AGENTS.md · workspace ~/app', cls: 'term-dim', delay: 220 },
   { t: 'blank' },
   { t: 'cmd', text: 'fix the case-sensitivity bug in findByEmail' },
-  { t: 'out', text: '▸ tool<search_files>  → src/users.ts, src/users.test.ts', cls: 'term-dim', delay: 260 },
-  { t: 'out', text: '▸ tool<read_file>     → src/users.ts (412 chars)', cls: 'term-dim', delay: 220 },
-  { t: 'out', text: '▸ thinking …  reasoning on  · /effort high', cls: 'term-info', delay: 280 },
+  { t: 'out', text: 'plan · inspect files, reproduce test, patch, rerun', cls: 'term-dim', delay: 260 },
+  { t: 'out', text: 'read_file · src/users.ts', cls: 'term-dim', delay: 220 },
+  { t: 'out', text: 'run_command · npm test users', cls: 'term-info', delay: 280 },
+  { t: 'out', text: '1 failing · findByEmail should ignore case', cls: 'term-warn', delay: 180 },
   { t: 'out', text: 'src/users.ts', cls: 'term-warn', delay: 180 },
   { t: 'out', text: '<<<<<<< SEARCH', cls: 'term-dim', delay: 80 },
   { t: 'out', text: '  return users.find(u => u.email === email);', delay: 80 },
@@ -18,17 +22,19 @@ const TERM_SCRIPT = [
   { t: 'out', text: '  const needle = email.toLowerCase();', cls: 'term-ok', delay: 80 },
   { t: 'out', text: '  return users.find(u => u.email.toLowerCase() === needle);', cls: 'term-ok', delay: 80 },
   { t: 'out', text: '>>>>>>> REPLACE', cls: 'term-dim', delay: 80 },
-  { t: 'out', text: '▸ 1 pending edit · /apply to write · /discard to drop', cls: 'term-info', delay: 240 },
+  { t: 'out', text: 'edit pending · approve to apply', cls: 'term-info', delay: 240 },
   { t: 'blank' },
   { t: 'cmd', text: '/apply' },
-  { t: 'out', text: '✓ wrote src/users.ts · 2 lines changed', cls: 'term-ok', delay: 200 },
-  { t: 'out', text: '✓ npm test users  · 14 passed · 0 failed (3.1s)', cls: 'term-ok', delay: 220 },
+  { t: 'out', text: 'wrote src/users.ts · 2 lines changed', cls: 'term-ok', delay: 200 },
+  { t: 'out', text: 'npm test users · passed', cls: 'term-ok', delay: 220 },
 ];
 
+const INITIAL_TERM_LINES = TERM_SCRIPT.slice(0, 6);
+
 function Terminal() {
-  const [lines, setLines] = React.useState([]);
+  const [lines, setLines] = React.useState(INITIAL_TERM_LINES);
   const [typing, setTyping] = React.useState('');
-  const stepRef = React.useRef(0);
+  const stepRef = React.useRef(INITIAL_TERM_LINES.length);
   const charRef = React.useRef(0);
 
   React.useEffect(() => {
@@ -41,9 +47,9 @@ function Terminal() {
       if (i >= TERM_SCRIPT.length) {
         timer = setTimeout(() => {
           if (cancelled) return;
-          stepRef.current = 0;
+          stepRef.current = INITIAL_TERM_LINES.length;
           charRef.current = 0;
-          setLines([]);
+          setLines(INITIAL_TERM_LINES);
           run();
         }, 3600);
         return;
@@ -131,38 +137,35 @@ function Hero() {
       <div className="hero-grid">
         <div>
           {lang === 'en' ? (
-            <h1>
-              A <em>DeepSeek</em>-native<br/>
-              coding <em>agent</em>,<br/>
-              for your terminal.
-            </h1>
+            <h1>Carbon Code</h1>
           ) : (
-            <h1>
-              为终端而生的<br/>
-              <em>DeepSeek</em> 原生<br/>
-              编程 <em>Agent</em>。
-            </h1>
+            <h1>Carbon Code</h1>
           )}
           <p className="lede">
             {t({
-              zh: <>Carbon Code 直接对接 <b>api.deepseek.com</b>，围绕 DeepSeek 的字节稳定 prefix-cache 设计了 append-only 的运行循环 —— 长会话能把缓存命中保持在 90%+，输入 token 成本降到 1/5。终端优先，留它一直跑着。</>,
-              en: <>Carbon Code talks straight to <b>api.deepseek.com</b>. The loop is append-only, engineered around DeepSeek's byte-stable prefix cache — long sessions hold 90%+ cache hit and input-token cost collapses to ~1/5. Terminal-first, leave it running.</>,
+              zh: <>DeepSeek 驱动的终端代码智能体。进入仓库，描述任务，Carbon Code 会读取代码、规划修改、展示 diff、请求命令确认，并运行验证。</>,
+              en: <>DeepSeek-powered terminal coding agent. Open a repository, describe a task, review the diff, approve commands, and let Carbon Code run validation.</>,
             }, lang)}
           </p>
+          <div className="hero-install">
+            <CopyCmd cmd="npm install -g @carboncode/cli" />
+          </div>
           <div className="hero-actions">
             <a className="btn btn-primary" href="#install">
-              {t({ zh: '立即开始 →', en: 'Get started →' }, lang)}
+              {t({ zh: '查看安装', en: 'Install' }, lang)}
             </a>
-            <a className="btn btn-ghost" href="download.html">
-              {t({ zh: '下载桌面端', en: 'Download desktop' }, lang)}
+            <a className="btn btn-ghost" href="https://github.com/Yapie0/carboncode" target="_blank" rel="noreferrer">
+              GitHub
+            </a>
+            <a className="btn btn-ghost" href="https://www.npmjs.com/package/@carboncode/cli" target="_blank" rel="noreferrer">
+              npm
             </a>
           </div>
-          <div className="hero-stats">
-            <div className="hero-stat"><b>94<span style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:18,marginLeft:2,color:'var(--cream-mute)'}}>%</span></b><span>Cache Hit</span></div>
-            <div className="hero-stat"><b>2.5<span style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:18,marginLeft:2,color:'var(--cream-mute)'}}>×</span></b><span>Cost Down</span></div>
-            <div className="hero-stat"><b>2837</b><span>Tests</span></div>
-            <div className="hero-stat"><b>MIT</b><span>License</span></div>
-          </div>
+          <p className="hero-note">
+            <span>carboncode GitHub</span>
+            <span>@carboncode/cli</span>
+            <span>MIT</span>
+          </p>
         </div>
         <div style={{position:'relative'}}>
           <Terminal/>

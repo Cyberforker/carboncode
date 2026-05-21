@@ -4,15 +4,15 @@ const FAQS = [
   {
     q: { zh: '为什么只支持 DeepSeek？能不能换 Claude / GPT？', en: 'Why DeepSeek only? Can I swap to Claude / GPT?' },
     a: {
-      zh: '这不是限制，是设计。DeepSeek 的 prefix-cache 从 prompt 第 0 字节开始指纹化，Carbon Code 的循环是围绕这个不变量构建的 —— 长会话能保持 ~94% 缓存命中。挂到 Anthropic 兼容端点能拿到便宜 token，但 cache_control 标记会失效；通用 backend (Aider / Cline / Continue) 的压缩模式则会破坏字节稳定性。Coupling to one backend is the feature。',
-      en: 'It\'s a design choice, not a limitation. DeepSeek\'s prefix cache fingerprints prompts from byte 0; the Carbon Code loop is engineered around that invariant — long sessions hold ~94% cache hit. Pointing at an Anthropic-compatible endpoint gets you cheap tokens but breaks the cache_control markers. Generic backends (Aider / Cline / Continue) compress history, which destroys byte stability. Coupling to one backend is the feature.',
+      zh: '这是产品边界。Carbon Code 先把 DeepSeek 的模型、推理输出和工具调用路径做扎实，再考虑其他 provider。把一个本地编码 agent 做稳定，比堆很多模型入口更重要。',
+      en: 'That is the product boundary. Carbon Code focuses first on making the DeepSeek model, reasoning output, and tool path stable before adding more providers. A reliable local coding agent matters more than a long provider list.',
     },
   },
   {
     q: { zh: '需要付费吗？', en: 'Is it free?' },
     a: {
-      zh: 'Carbon Code 本身 MIT 开源，完全免费。但需要付费的 DeepSeek API Key。参考定价：DeepSeek V4 Flash $0.07/Mtok 未命中、$0.014/Mtok 命中，长会话下成本通常只到通用工具的 1/3。',
-      en: 'Carbon Code itself is MIT-licensed and free. The DeepSeek API key is paid: DeepSeek V4 Flash is $0.07/Mtok uncached and $0.014/Mtok cached. In long sessions the bill typically lands at ~1/3 of comparable generic tooling.',
+      zh: 'Carbon Code 本身 MIT 开源，完全免费。模型调用使用你自己的 DeepSeek API Key，费用按 DeepSeek 官方 API 计费规则结算。',
+      en: 'Carbon Code itself is MIT-licensed and free. Model calls use your own DeepSeek API key and are billed by DeepSeek API pricing.',
     },
   },
   {
