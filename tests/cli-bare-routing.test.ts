@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { writeConfig } from "../src/config.js";
 
+const HEAP_REEXEC_ENV = "REASONIX_HEAP_REEXEC";
 const codeCommand = vi.fn(async () => {});
 const chatCommand = vi.fn(async () => {});
 const setupCommand = vi.fn(async () => {});
@@ -25,6 +26,7 @@ describe("bare CLI routing", () => {
   let cwd: string;
   const origHome = process.env.HOME;
   const origUserProfile = process.env.USERPROFILE;
+  const origHeapReexec = process.env[HEAP_REEXEC_ENV];
   const origArgv = process.argv;
   const origCwd = process.cwd();
   let stderr: ReturnType<typeof vi.spyOn>;
@@ -38,6 +40,7 @@ describe("bare CLI routing", () => {
     cwd = realpathSync(mkdtempSync(join(tmpdir(), "carboncode-cli-cwd-")));
     process.env.HOME = home;
     process.env.USERPROFILE = home;
+    process.env[HEAP_REEXEC_ENV] = "1";
     process.chdir(cwd);
     codeCommand.mockClear();
     chatCommand.mockClear();
@@ -62,6 +65,11 @@ describe("bare CLI routing", () => {
       delete process.env.USERPROFILE;
     } else {
       process.env.USERPROFILE = origUserProfile;
+    }
+    if (origHeapReexec === undefined) {
+      delete process.env[HEAP_REEXEC_ENV];
+    } else {
+      process.env[HEAP_REEXEC_ENV] = origHeapReexec;
     }
   });
 
