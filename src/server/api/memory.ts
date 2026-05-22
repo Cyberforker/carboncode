@@ -10,26 +10,25 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { homedir } from "node:os";
 import { basename, dirname, join, resolve as resolvePath } from "node:path";
 import {
   PROJECT_MEMORY_FILE,
   findProjectMemoryPath,
   resolveProjectMemoryWritePath,
 } from "../../memory/project.js";
-import type { DashboardContext } from "../context.js";
+import { type DashboardContext, resolveCarboncodeHome } from "../context.js";
 import type { ApiResult } from "../router.js";
 
 function projectHash(rootDir: string): string {
   return createHash("sha1").update(resolvePath(rootDir)).digest("hex").slice(0, 16);
 }
 
-function globalMemoryDir(): string {
-  return join(homedir(), ".carboncode", "memory", "global");
+function globalMemoryDir(carboncodeHome: string): string {
+  return join(carboncodeHome, "memory", "global");
 }
 
-function projectMemoryDir(rootDir: string): string {
-  return join(homedir(), ".carboncode", "memory", projectHash(rootDir));
+function projectMemoryDir(carboncodeHome: string, rootDir: string): string {
+  return join(carboncodeHome, "memory", projectHash(rootDir));
 }
 
 interface WriteBody {
@@ -74,8 +73,9 @@ export async function handleMemory(
   ctx: DashboardContext,
 ): Promise<ApiResult> {
   const cwd = ctx.getCurrentCwd?.();
-  const globalDir = globalMemoryDir();
-  const projectMemDir = cwd ? projectMemoryDir(cwd) : "";
+  const carboncodeHome = resolveCarboncodeHome(ctx.configPath);
+  const globalDir = globalMemoryDir(carboncodeHome);
+  const projectMemDir = cwd ? projectMemoryDir(carboncodeHome, cwd) : "";
 
   if (method === "GET" && rest.length === 0) {
     const existingProjectMemory = cwd ? findProjectMemoryPath(cwd) : null;

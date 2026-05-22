@@ -136,7 +136,8 @@ function runCommand(
   args: readonly string[],
 ): Promise<HarnessCommandResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, [...args], {
+    const executable = process.platform === "win32" && command === "npm" ? "npm.cmd" : command;
+    const child = spawn(executable, [...args], {
       cwd,
       env: { ...process.env, CI: "1" },
       stdio: ["ignore", "pipe", "pipe"],
