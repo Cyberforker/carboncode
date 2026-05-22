@@ -1,9 +1,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
-import { listSessions } from "../../memory/session.js";
 import { VERSION } from "../../version.js";
-import type { DashboardContext } from "../context.js";
+import { type DashboardContext, resolveCarboncodeHome } from "../context.js";
 import type { ApiResult } from "../router.js";
 
 interface DirStat {
@@ -56,6 +54,17 @@ function dirSize(path: string): DirStat {
   return { path, exists: true, fileCount, totalBytes };
 }
 
+function countSessionFiles(path: string): number {
+  if (!existsSync(path)) return 0;
+  try {
+    return readdirSync(path).filter(
+      (file) => file.endsWith(".jsonl") && !file.endsWith(".events.jsonl"),
+    ).length;
+  } catch {
+    return 0;
+  }
+}
+
 export async function handleHealth(
   method: string,
   _rest: string[],
@@ -65,8 +74,7 @@ export async function handleHealth(
   if (method !== "GET") {
     return { status: 405, body: { error: "GET only" } };
   }
-  const home = homedir();
-  const carboncodeHome = join(home, ".carboncode");
+  const carboncodeHome = resolveCarboncodeHome(ctx.configPath);
 
   const sessionsStat = dirSize(join(carboncodeHome, "sessions"));
   const memoryStat = dirSize(join(carboncodeHome, "memory"));
@@ -81,8 +89,6 @@ export async function handleHealth(
     }
   }
 
-  const sessions = listSessions();
-
   return {
     status: 200,
     body: {
@@ -91,7 +97,7 @@ export async function handleHealth(
       carboncodeHome,
       sessions: {
         path: sessionsStat.path,
-        count: sessions.length,
+        count: countSessionFiles(sessionsStat.path),
         totalBytes: sessionsStat.totalBytes,
       },
       memory: {

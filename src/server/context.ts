@@ -1,10 +1,19 @@
 /** Callbacks (not refs) so endpoints read live loop state per request, not a frozen closure. */
 
+import { homedir } from "node:os";
+import { basename, dirname, join } from "node:path";
 import type { McpServerSummary } from "../cli/ui/slash/types.js";
 import type { EditMode } from "../config.js";
 import type { CacheFirstLoop } from "../loop.js";
 import type { ToolRegistry } from "../tools.js";
 import type { JobRegistry } from "../tools/jobs.js";
+
+export function resolveCarboncodeHome(configPath: string): string {
+  if (!configPath.trim()) return join(homedir(), ".carboncode");
+  const configDir = dirname(configPath);
+  if (basename(configDir).toLowerCase() === ".carboncode") return configDir;
+  return join(configDir, ".carboncode");
+}
 
 export interface DashboardContext {
   /** Caller resolves via `defaultConfigPath()`; module deliberately avoids `homedir()` so tests can redirect. */
