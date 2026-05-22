@@ -1371,6 +1371,8 @@ export const EN: TranslationSchema = {
       '\u25b8 carboncode code: rooted at {rootDir}, session "{session}" \u00b7 {tools} native tool(s){semantic}',
     ephemeral: "(ephemeral)",
     semanticOn: " \u00b7 semantic_search on",
+    updateAvailable:
+      "\u25b8 Update available: {current} -> {latest}\n  Run `npm install -g @carboncode/cli` to update.",
   },
   doctorErrors: {
     unreadable: "{path} unreadable \u2014 {message}",

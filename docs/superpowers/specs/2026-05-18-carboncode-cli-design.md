@@ -10,24 +10,13 @@ The project should not start from scratch. The recommended path is to fork or de
 
 ## Goals
 
-- Ship a personal developer CLI, not an enterprise platform.
+- Ship a personal developer CLI.
 - Use DeepSeek API as the default and primary model provider.
 - Provide a Chinese-first experience while working well on English codebases.
 - Support Codex-like agent behavior: inspect, plan, edit, run, verify, summarize.
 - Publish as an npm package owned by Carbon Code.
 - Keep the legal posture clean under MIT attribution requirements.
-- Avoid code obfuscation in the first version to preserve trust and debuggability.
-
-## Non-Goals
-
-- Enterprise account management.
-- Cloud task execution.
-- Team audit dashboards.
-- VS Code or JetBrains plugins.
-- Private model gateway.
-- Multi-user collaboration.
-- Default global command named `cc`.
-- Hiding or removing upstream license notices.
+- Preserve trust and debuggability for a local npm-distributed CLI.
 
 ## Base Project
 
@@ -150,9 +139,7 @@ The project should not remove upstream copyright notices from copied source file
 
 ## Security and Trust
 
-The first version should not obfuscate the local CLI code. Obfuscation would make stack traces worse, reduce developer trust, and provide little real protection for a local npm package.
-
-Commercial defensibility should come from product quality, Chinese workflow design, DeepSeek optimization, skills, integrations, and future hosted or enterprise features.
+Local CLI code should stay readable so stack traces, debugging, and user trust stay strong.
 
 ## Milestones
 

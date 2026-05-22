@@ -69,8 +69,10 @@ export function computeCardStreamItems<T extends { id: string }>(
  */
 export function CardStream({
   suppressLive = false,
+  maxRows,
 }: {
   suppressLive?: boolean;
+  maxRows?: number;
 }): React.ReactElement {
   const cards = useAgentState((s) => s.cards);
   const scrollRows = useChatScrollState((s) => s.scrollRows);
@@ -109,7 +111,14 @@ export function CardStream({
       <Box height={1} flexShrink={0}>
         {scrollRows > 0 ? <ScrollIndicator scrollRows={scrollRows} maxScroll={maxScroll} /> : null}
       </Box>
-      <Box ref={outerRef} flexDirection="column" flexGrow={1} overflow="hidden">
+      <Box
+        ref={outerRef}
+        flexDirection="column"
+        flexGrow={maxRows === undefined ? 1 : 0}
+        flexShrink={1}
+        maxHeight={maxRows}
+        overflow="hidden"
+      >
         <Box ref={innerRef} flexDirection="column" marginTop={-scrollRows} flexShrink={0}>
           {items.map((item) =>
             item.kind === "spacer" ? (

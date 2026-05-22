@@ -605,6 +605,7 @@ export interface TranslationSchema {
     codeRooted: string;
     ephemeral: string;
     semanticOn: string;
+    updateAvailable: string;
   };
   doctorErrors: {
     unreadable: string;

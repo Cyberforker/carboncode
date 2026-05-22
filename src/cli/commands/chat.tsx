@@ -22,6 +22,7 @@ import { registerMemoryTools } from "../../tools/memory.js";
 import { registerWebTools } from "../../tools/web.js";
 import { stopAndSaveCpuProfile } from "../cpu-prof.js";
 import { markPhase } from "../startup-profile.js";
+import { createStartupUpdateCheck } from "../startup-update.js";
 import { App } from "../ui/App.js";
 import { SessionPicker } from "../ui/SessionPicker.js";
 import { Setup } from "../ui/Setup.js";
@@ -116,6 +117,8 @@ interface RootProps extends ChatOptions {
   mcpRuntime: McpRuntime;
   /** One-time startup info rows shown after App mounts. */
   startupInfoHints: string[];
+  /** Non-blocking startup update hint; App invokes it after first paint. */
+  startupUpdateCheck?: () => Promise<string | null>;
   /** Pre-created QQ channel (started before TUI mounts). */
   qqChannel?: QQChannel;
   /** App fills this ref on mount so QQ messages flow into the TUI input queue. */
@@ -133,6 +136,7 @@ function Root({
   showPicker,
   mcpRuntime,
   startupInfoHints,
+  startupUpdateCheck,
   ...appProps
 }: RootProps) {
   const [key, setKey] = useState<string | undefined>(initialKey);
@@ -225,6 +229,7 @@ function Root({
         mcpRuntime={mcpRuntime}
         progressSink={progressSink}
         startupInfoHints={startupInfoHints}
+        startupUpdateCheck={startupUpdateCheck}
         codeMode={codeMode}
         noDashboard={appProps.noDashboard}
         openDashboard={appProps.openDashboard}
@@ -272,6 +277,7 @@ export async function chatCommand(opts: ChatOptions): Promise<void> {
   const mcpServers: McpServerSummary[] = [];
   const cfg = readConfig();
   const startupInfoHints: string[] = [];
+  const startupUpdateCheck = createStartupUpdateCheck(cfg);
 
   // Register web search/fetch tools unless explicitly disabled. DDG
   // backs them with no key required; the model invokes them whenever
@@ -357,6 +363,7 @@ export async function chatCommand(opts: ChatOptions): Promise<void> {
       mcpRuntime={runtime}
       progressSink={progressSink}
       startupInfoHints={startupInfoHints}
+      startupUpdateCheck={startupUpdateCheck}
       showPicker={showPicker}
       {...opts}
       session={resolvedSession}

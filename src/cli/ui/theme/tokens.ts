@@ -149,39 +149,41 @@ const dark = defineTheme({
   },
 });
 
-const light = defineTheme({
+const codexLightBase: ThemeBase = {
   fg: {
-    strong: "#111827",
-    body: "#1f2937",
-    sub: "#4b5563",
-    meta: "#6b7280",
-    faint: "#9ca3af",
+    strong: "#0d0d0d",
+    body: "#111111",
+    sub: "#666666",
+    meta: "#9a9a9a",
+    faint: "#c7c7c7",
   },
   tone: {
-    brand: "#2563eb",
-    accent: "#7c3aed",
-    violet: "#6d28d9",
-    ok: "#15803d",
-    warn: "#b45309",
-    err: "#dc2626",
-    info: "#0369a1",
+    brand: "#0096a6",
+    accent: "#c000c0",
+    violet: "#7a5cff",
+    ok: "#238636",
+    warn: "#8a7a00",
+    err: "#c62828",
+    info: "#0096a6",
   },
   toneActive: {
-    brand: "#1d4ed8",
-    accent: "#6d28d9",
-    violet: "#5b21b6",
-    ok: "#166534",
-    warn: "#92400e",
-    err: "#b91c1c",
-    info: "#075985",
+    brand: "#00a3b5",
+    accent: "#d000d0",
+    violet: "#8a6dff",
+    ok: "#2ea043",
+    warn: "#9a8700",
+    err: "#d32f2f",
+    info: "#00a3b5",
   },
   surface: {
     bg: "#ffffff",
-    bgInput: "#f8fafc",
-    bgCode: "#f3f4f6",
-    bgElev: "#eef2f7",
+    bgInput: "#f2f2f2",
+    bgCode: "#f5f5f5",
+    bgElev: "#e7e7e7",
   },
-});
+};
+
+const light = defineTheme(codexLightBase);
 
 const tokyoNight = defineTheme({
   fg: {
@@ -217,39 +219,7 @@ const tokyoNight = defineTheme({
   },
 });
 
-const githubLight = defineTheme({
-  fg: {
-    strong: "#1f2328",
-    body: "#24292f",
-    sub: "#57606a",
-    meta: "#6e7781",
-    faint: "#8c959f",
-  },
-  tone: {
-    brand: "#0969da",
-    accent: "#8250df",
-    violet: "#6639ba",
-    ok: "#1a7f37",
-    warn: "#9a6700",
-    err: "#cf222e",
-    info: "#0969da",
-  },
-  toneActive: {
-    brand: "#0550ae",
-    accent: "#6639ba",
-    violet: "#512a97",
-    ok: "#116329",
-    warn: "#7d4e00",
-    err: "#a40e26",
-    info: "#0550ae",
-  },
-  surface: {
-    bg: "#ffffff",
-    bgInput: "#f6f8fa",
-    bgCode: "#f6f8fa",
-    bgElev: "#eaeef2",
-  },
-});
+const githubLight = defineTheme(codexLightBase);
 
 const highContrast = defineTheme({
   fg: {
@@ -286,7 +256,7 @@ const highContrast = defineTheme({
 });
 
 export const THEMES = {
-  default: githubDark,
+  default: githubLight,
   dark,
   light,
   "tokyo-night": tokyoNight,
@@ -295,7 +265,7 @@ export const THEMES = {
   "high-contrast": highContrast,
 } as const satisfies Record<ThemeName, ThemeTokens>;
 
-export const DEFAULT_THEME_NAME: ThemeName = "default";
+export const DEFAULT_THEME_NAME: ThemeName = "github-light";
 
 export function isThemeName(value: string): value is ThemeName {
   return Object.prototype.hasOwnProperty.call(THEMES, value);

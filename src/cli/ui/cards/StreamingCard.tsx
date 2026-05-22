@@ -15,8 +15,6 @@ import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
 import { useSlowTick } from "../ticker.js";
 import { useIncrementalWrap } from "./useIncrementalWrap.js";
 
-/** Streaming preview tail length — bounded live region so chunks don't thrash whole-card layout. */
-const STREAMING_PREVIEW_LINES = 4;
 /** Expanded mode shows up to this many lines so the card can't swallow the whole viewport. */
 const EXPANDED_MAX_LINES = 60;
 
@@ -64,9 +62,9 @@ export function StreamingCard({ card }: { card: StreamingCardData }): React.Reac
   const { stdout } = useStdout();
   const cols = stdout?.columns ?? 80;
   const expanded = useContext(LiveExpandContext);
-  const reserveCap = expanded ? EXPANDED_MAX_LINES + 2 : STREAMING_PREVIEW_LINES + 2;
+  const reserveCap = expanded ? EXPANDED_MAX_LINES + 2 : Number.POSITIVE_INFINITY;
   useReserveRows("stream", {
-    min: STREAMING_PREVIEW_LINES + 1,
+    min: 1,
     max: reserveCap,
   });
   // Re-render at 1Hz so the rate keeps updating even when chunks stall.
@@ -84,9 +82,7 @@ export function StreamingCard({ card }: { card: StreamingCardData }): React.Reac
     );
   }
 
-  const cap = expanded ? EXPANDED_MAX_LINES : STREAMING_PREVIEW_LINES;
-  const visible = visualLines.slice(-cap);
-  const droppedAbove = Math.max(0, visualLines.length - visible.length);
+  const visible = visualLines;
   const aborted = !!card.aborted;
   const headColor = aborted ? TONE.err : TONE_ACTIVE.brand;
   const glyph = aborted ? "⊘" : "●";
@@ -100,15 +96,8 @@ export function StreamingCard({ card }: { card: StreamingCardData }): React.Reac
         title={headLabel}
         right={aborted ? null : <Spinner kind="braille" color={TONE_ACTIVE.brand} />}
       />
-      {expanded && droppedAbove > 0 ? (
-        <Text color={FG.faint}>
-          {t(droppedAbove === 1 ? "cardLabels.earlierLine" : "cardLabels.earlierLines", {
-            count: droppedAbove,
-          })}
-        </Text>
-      ) : null}
       {visible.map((line, i) => (
-        <Box key={`${card.id}:${visualLines.length - visible.length + i}`} flexDirection="row">
+        <Box key={`${card.id}:${i}`} flexDirection="row">
           <Text color={aborted ? FG.meta : FG.body}>{clipToCells(line, lineCells)}</Text>
         </Box>
       ))}

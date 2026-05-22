@@ -444,7 +444,7 @@ describe("config", () => {
     expect(resolveThemePreference("auto", "github-light")).toBe("github-light");
     expect(resolveThemePreference(undefined, "tokyo-night")).toBe("tokyo-night");
     expect(resolveThemePreference("github-dark", "github-light")).toBe("github-dark");
-    expect(resolveThemePreference("auto", "unknown")).toBe("default");
+    expect(resolveThemePreference("auto", "unknown")).toBe("github-light");
   });
 
   it("saveTheme doesn't clobber other persisted fields", () => {

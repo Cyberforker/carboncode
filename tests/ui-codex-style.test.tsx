@@ -224,6 +224,29 @@ describe("Codex-style terminal surface", () => {
     expect(out).not.toContain("t/s");
   });
 
+  it("keeps assistant text stable while streaming instead of tail-folding it", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <StreamingCard
+        card={{
+          kind: "streaming",
+          id: "s1",
+          ts: Date.now() - 1000,
+          text: ["first line", "second line", "third line", "fourth line", "fifth line"].join("\n"),
+          done: false,
+          model: "deepseek-v4-pro",
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("first line");
+    expect(out).toContain("fifth line");
+    expect(out).not.toContain("earlier");
+    expect(out).not.toContain("更早");
+  });
+
   it("shows successful read tools as a compact action, not a file preview dump", () => {
     setLanguageRuntime("zh-CN");
     const { lastFrame, unmount } = render(
@@ -248,6 +271,42 @@ describe("Codex-style terminal surface", () => {
     expect(out).toContain("package.json");
     expect(out).not.toContain("@carboncode/cli");
     expect(out).not.toContain('"version"');
+  });
+
+  it("keeps failed shell summaries ahead of tail output", () => {
+    setLanguageRuntime("zh-CN");
+    const { lastFrame, unmount } = render(
+      <ToolCard
+        card={{
+          kind: "tool",
+          id: "tool-fail",
+          ts: 1,
+          name: "run_command",
+          args: { command: "npm test" },
+          output: [
+            "FAIL tests/alpha.test.ts > alpha",
+            "FAIL tests/beta.test.ts > beta",
+            "FAIL tests/gamma.test.ts > gamma",
+            "FAIL tests/delta.test.ts > delta",
+            "FAIL tests/epsilon.test.ts > epsilon",
+            "FAIL tests/zeta.test.ts > zeta",
+            "Tests 6 failed",
+            "Test Files 6 failed (6)",
+            "[exit code 1]",
+          ].join("\n"),
+          done: true,
+          exitCode: 1,
+          elapsedMs: 20,
+        }}
+      />,
+    );
+    const out = lastFrame() ?? "";
+    unmount();
+
+    expect(out).toContain("6 failed");
+    expect(out).toContain("tests/zeta.test.ts");
+    expect(out).not.toContain("earlier");
+    expect(out).not.toContain("更早");
   });
 
   it("keeps edit review hints compact instead of exposing every mode shortcut", () => {

@@ -17,6 +17,21 @@ describe("theme tokens", () => {
     expect(resolveThemeName("unknown")).toBe(DEFAULT_THEME_NAME);
   });
 
+  it("uses a Codex-like light terminal palette by default", () => {
+    expect(DEFAULT_THEME_NAME).toBe("github-light");
+    expect(THEMES.default).toBe(THEMES["github-light"]);
+
+    const theme = THEMES.default;
+    expect(theme.fg.strong).toBe("#0d0d0d");
+    expect(theme.fg.body).toBe("#111111");
+    expect(theme.tone.brand).toBe("#0096a6");
+    expect(theme.tone.accent).toBe("#c000c0");
+    expect(theme.tone.ok).toBe("#238636");
+    expect(theme.tone.warn).toBe("#8a7a00");
+    expect(theme.surface.bgInput).toBe("#f2f2f2");
+    expect(theme.surface.bgElev).toBe("#e7e7e7");
+  });
+
   it("lists all registered themes", () => {
     expect(listThemeNames()).toEqual([
       "default",

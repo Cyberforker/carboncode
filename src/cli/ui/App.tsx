@@ -154,6 +154,7 @@ import { useTranscriptWriter } from "./hooks/useTranscriptWriter.js";
 import { useWorkspaceRoot } from "./hooks/useWorkspaceRoot.js";
 import { useKeystroke } from "./keystroke-context.js";
 import { CardStream } from "./layout/CardStream.js";
+import { ConversationViewport } from "./layout/ConversationViewport.js";
 import { InputAreaWithHistoryHint } from "./layout/InputAreaWithHistoryHint.js";
 import { LiveExpandContext } from "./layout/LiveExpandContext.js";
 import { ModeStatusBar } from "./layout/LiveRows.js";
@@ -279,6 +280,8 @@ export interface AppProps {
   onSwitchSession?: (name: string | undefined) => void;
   /** One-time startup info rows injected by chatCommand. */
   startupInfoHints?: string[];
+  /** Non-blocking startup update check; returns a compact hint or null. */
+  startupUpdateCheck?: () => Promise<string | null>;
   /** Pre-created QQ channel (started before TUI mounts). */
   qqChannel?: QQChannel;
   /** Ref filled by App on mount so QQ messages flow into the TUI input queue. */
@@ -449,6 +452,7 @@ function AppInner({
   dashboardToken,
   onSwitchSession,
   startupInfoHints,
+  startupUpdateCheck,
   qqChannel,
   qqSubmitRef,
   qqErrorRef,
@@ -1564,6 +1568,19 @@ function AppInner({
       markMouseClipboardHintShown();
     }
   }, [session, loop, codeMode, syncPendingCount, log, pendingEdits, startupInfoHints]);
+
+  const startupUpdateCheckStarted = useRef(false);
+  useEffect(() => {
+    if (!startupUpdateCheck || startupUpdateCheckStarted.current) return;
+    startupUpdateCheckStarted.current = true;
+    let cancelled = false;
+    void startupUpdateCheck().then((hint) => {
+      if (!cancelled && hint) log.pushInfo(hint);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [startupUpdateCheck, log]);
 
   // Esc handles "abort the current turn" separately; Ctrl+C is the universal "I'm done" key.
   const quitProcess = useQuit(transcriptRef);
@@ -4054,11 +4071,12 @@ function AppInner({
       <TickerProvider disabled={tickerSuspended}>
         <ViewportBudgetProvider>
           <InflightProvider inflight={loop.inflight}>
-            <Box flexDirection="row" height={stdout?.rows ?? 24}>
-              <Box flexDirection="column" flexGrow={1}>
-                <Box flexDirection="column" flexGrow={1}>
+            <ConversationViewport
+              bottomReserveRows={modalOpen ? 12 : 4}
+              history={({ maxRows }) => (
+                <Box flexDirection="column" flexShrink={1}>
                   <LiveExpandContext.Provider value={liveExpand}>
-                    <CardStream suppressLive={modalOpen} />
+                    <CardStream suppressLive={modalOpen} maxRows={Math.max(1, maxRows - 1)} />
                   </LiveExpandContext.Provider>
                   {/*
           Welcome card on the empty state. Visible only when nothing
@@ -4103,7 +4121,9 @@ function AppInner({
                     }
                   />
                 </Box>
-                {stagedInput ? (
+              )}
+              controls={
+                stagedInput ? (
                   <PlanRefineInput
                     mode={stagedInput.mode}
                     questions={stagedInput.questions}
@@ -4458,9 +4478,9 @@ function AppInner({
                     slashArgMatches={slashArgMatches}
                     slashArgSelected={slashArgSelected}
                   />
-                )}
-              </Box>
-            </Box>
+                )
+              }
+            />
           </InflightProvider>
         </ViewportBudgetProvider>
       </TickerProvider>

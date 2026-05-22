@@ -50,8 +50,9 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
     const formatted = formatStructuredErrorOutput(card.output);
     if (!isShellTool(card.name)) return formatted;
     const summary = summarizeCommandOutput(formatted);
-    if (summary.status !== "failed" || summary.failures.length === 0) return formatted;
-    return [summary.headline, ...summary.failures].join("\n");
+    if (summary.status !== "failed") return formatted;
+    const details = summary.failures.length > 0 ? summary.failures : summary.tail;
+    return compactFailureLines(summary.headline, details).join("\n");
   }, [card.name, card.output]);
   const allLines = displayOutput.length > 0 ? displayOutput.split("\n") : [];
   const tail = tailLinesFor(card.name);
@@ -206,6 +207,18 @@ function formatArgsSummary(args: unknown): string {
     return keys.join(" ");
   }
   return "";
+}
+
+function compactFailureLines(headline: string, details: readonly string[]): string[] {
+  const lines = [headline.trim()].filter(Boolean);
+  const seen = new Set(lines);
+  for (const detail of details.slice(-4)) {
+    const trimmed = detail.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    lines.push(trimmed);
+  }
+  return lines.length > 0 ? lines : ["failed"];
 }
 
 const INPUT_SIZE_THRESHOLD = 1024;

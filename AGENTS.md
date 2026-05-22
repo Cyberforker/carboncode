@@ -23,7 +23,7 @@ The repository is intentionally early. The main design reference is:
 
 ## Product Direction
 
-Build a personal developer CLI, not an enterprise platform in v1.
+Build a personal developer CLI for v1.
 
 The intended user flow:
 
@@ -70,16 +70,6 @@ Include:
 - Basic token/cost visibility.
 - MIT license compliance for upstream code.
 
-Defer:
-
-- Enterprise accounts.
-- Cloud execution.
-- Team audit dashboards.
-- VS Code / JetBrains plugins.
-- Private model gateway.
-- Multi-user collaboration.
-- Code obfuscation.
-
 ## License And Attribution
 
 If code is copied or derived from DeepSeek-Reasonix, preserve upstream MIT notices.
@@ -97,7 +87,7 @@ Attribution can be low-profile, but must remain discoverable in the repository a
 - Use existing upstream abstractions where they are sound.
 - Keep early changes tightly scoped to branding, packaging, DeepSeek defaults, config, permission flow, and documentation.
 - Do not add unrelated rewrites while importing the base.
-- Keep local CLI code readable; do not obfuscate in v1.
+- Keep local CLI code readable for local debugging and user trust.
 - Before claiming a feature is done, run relevant verification commands and report what passed or failed.
 
 ## Next Recommended Steps

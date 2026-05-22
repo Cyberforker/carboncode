@@ -118,6 +118,8 @@ export interface ReasonixConfig {
   mouseClipboardHintShown?: boolean;
   /** When false, skip the boot splash animation and show the main UI immediately. Default true. */
   banner?: boolean;
+  /** When false, skip the non-blocking npm latest check shown at startup. Default true. */
+  updateCheck?: boolean;
   reasoningEffort?: ReasoningEffort;
   /** Default workspace root for the desktop client. CLI uses cwd. */
   workspaceDir?: string;
