@@ -136,10 +136,10 @@ function runCommand(
   args: readonly string[],
 ): Promise<HarnessCommandResult> {
   return new Promise((resolve, reject) => {
-    const executable = process.platform === "win32" && command === "npm" ? "npm.cmd" : command;
-    const child = spawn(executable, [...args], {
+    const child = spawn(command, [...args], {
       cwd,
       env: { ...process.env, CI: "1" },
+      shell: process.platform === "win32",
       stdio: ["ignore", "pipe", "pipe"],
     });
     const chunks: Buffer[] = [];
