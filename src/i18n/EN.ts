@@ -241,6 +241,7 @@ export const EN: TranslationSchema = {
     skipConfirmHint: "skip the confirmation prompt",
     yoloHint:
       "auto-approve plan checkpoints for this invocation (equivalent to editMode=yolo without mutating config)",
+    ruleSummaryLabel: "rules",
   },
   code: {
     workspaceConflict:

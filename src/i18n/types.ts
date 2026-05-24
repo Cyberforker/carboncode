@@ -154,6 +154,7 @@ export interface TranslationSchema {
     modelOverrideFlash: string;
     skipConfirmHint: string;
     yoloHint: string;
+    ruleSummaryLabel: string;
   };
   code: {
     workspaceConflict: string;

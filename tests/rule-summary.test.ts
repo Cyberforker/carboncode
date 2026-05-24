@@ -3,15 +3,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { collectStartupRuleFiles, formatRuleSummary } from "../src/cli/ui/rule-summary.js";
+import { setLanguageRuntime } from "../src/i18n/index.js";
 
 describe("formatRuleSummary", () => {
   let root: string;
 
   beforeEach(() => {
+    setLanguageRuntime("EN");
     root = mkdtempSync(join(tmpdir(), "carbon-rule-summary-"));
   });
 
   afterEach(() => {
+    setLanguageRuntime("EN");
     rmSync(root, { recursive: true, force: true });
   });
 
@@ -49,5 +52,11 @@ describe("formatRuleSummary", () => {
     const pkgRules = join(root, "pkg", "AGENTS.md");
 
     expect(formatRuleSummary(root, [pkgRules, pkgRules])).toBe("rules · pkg/AGENTS.md");
+  });
+
+  it("localizes the startup rule label in zh-CN", () => {
+    setLanguageRuntime("zh-CN");
+
+    expect(formatRuleSummary(root, [join(root, "AGENTS.md")])).toBe("规则 · AGENTS.md");
   });
 });
