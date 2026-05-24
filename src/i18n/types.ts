@@ -302,6 +302,8 @@ export interface TranslationSchema {
     mcpArgsRequiredParam: string;
     mcpArgsEmpty: string;
     mcpArgsNotADir: string;
+    mcpArgsFilesystemPlaceholder: string;
+    mcpArgsSqlitePlaceholder: string;
     themeTitle: string;
     themeSubtitle: string;
     themeSampleHeading: string;

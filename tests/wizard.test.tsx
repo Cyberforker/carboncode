@@ -7,6 +7,7 @@ import {
   Wizard,
   buildSpec,
   mcpItems,
+  placeholderFor,
   presetItems,
   validateDeepSeekApiKey,
 } from "../src/cli/ui/Wizard.js";
@@ -110,6 +111,38 @@ describe("Wizard — localized MCP catalog descriptions", () => {
     expect(github?.hint).toContain("启动前请在环境变量中设置 GITHUB_PERSONAL_ACCESS_TOKEN");
     expect(items.map((item) => item.hint).join("\n")).not.toContain(
       "read/write/search files inside a sandboxed directory",
+    );
+  });
+});
+
+describe("Wizard MCP argument placeholders", () => {
+  afterEach(() => {
+    setLanguageRuntime("EN");
+  });
+
+  it("localizes filesystem and sqlite placeholders in zh-CN", () => {
+    setLanguageRuntime("zh-CN");
+
+    const filesystem = placeholderFor({
+      name: "filesystem",
+      command: "npx",
+      args: [],
+      userArgs: "<dir>",
+    });
+    const sqlite = placeholderFor({ name: "sqlite", command: "npx", args: [], userArgs: "<db>" });
+
+    expect(filesystem).toContain("/tmp/carboncode-sandbox");
+    expect(filesystem).not.toBe("e.g. /tmp/carboncode-sandbox");
+    expect(sqlite).toContain("./notes.sqlite");
+    expect(sqlite).not.toBe("e.g. ./notes.sqlite");
+  });
+
+  it("keeps filesystem and sqlite placeholders in EN", () => {
+    expect(
+      placeholderFor({ name: "filesystem", command: "npx", args: [], userArgs: "<dir>" }),
+    ).toBe("e.g. /tmp/carboncode-sandbox");
+    expect(placeholderFor({ name: "sqlite", command: "npx", args: [], userArgs: "<db>" })).toBe(
+      "e.g. ./notes.sqlite",
     );
   });
 });
