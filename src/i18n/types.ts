@@ -331,6 +331,14 @@ export interface TranslationSchema {
     currentPref: string;
     activeNow: string;
     autoDesc: string;
+    autoLabel: string;
+    defaultLabel: string;
+    darkLabel: string;
+    lightLabel: string;
+    tokyoNightLabel: string;
+    githubDarkLabel: string;
+    githubLightLabel: string;
+    highContrastLabel: string;
   };
   planFlow: {
     approveCardTitle: string;
