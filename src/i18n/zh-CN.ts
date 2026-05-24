@@ -221,7 +221,7 @@ export const zhCN: TranslationSchema = {
     tuiHint: "打开交互式 TUI",
     labelAHint: "左侧面板的标签",
     labelBHint: "右侧面板的标签",
-    mcpListDescription: "浏览 MCP 注册表（官方 → smithery → 本地 fallback）",
+    mcpListDescription: "浏览 MCP 注册表（官方 → Smithery 第三方目录 → 本地备选）",
     mcpInspectDescription: "检查 MCP 服务器规格（工具、资源、提示）",
     mcpSearchDescription: "在 MCP 注册表中搜索匹配的服务器",
     mcpInstallDescription: "按名称安装 MCP 服务器（将其规格写入配置）",

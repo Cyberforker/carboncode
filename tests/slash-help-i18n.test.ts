@@ -13,4 +13,10 @@ describe("slash help i18n coverage", () => {
     const missing = SLASH_COMMANDS.filter((c) => !zhCN.slash[c.cmd]?.description);
     expect(missing.map((c) => c.cmd)).toEqual([]);
   });
+
+  it("localizes the zh-CN MCP registry fallback wording", () => {
+    expect(zhCN.ui.mcpListDescription).toContain("Smithery 第三方目录");
+    expect(zhCN.ui.mcpListDescription).toContain("本地备选");
+    expect(zhCN.ui.mcpListDescription).not.toContain("fallback");
+  });
 });
