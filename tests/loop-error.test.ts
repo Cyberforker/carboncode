@@ -142,6 +142,16 @@ describe("formatLoopError — zh-CN runtime switch", () => {
     expect(out).toContain("Authentication Fails");
     expect(out).toContain("carboncode setup");
   });
+
+  it("402 balance error translates when language is zh-CN without repeating the English server text", () => {
+    setLanguageRuntime("zh-CN");
+    const out = formatLoopError(
+      new Error('DeepSeek 402: {"error":{"message":"Insufficient Balance"}}'),
+    );
+    expect(out).toContain("余额不足");
+    expect(out).toContain("top_up");
+    expect(out).not.toContain("Insufficient Balance");
+  });
 });
 
 describe("healLoadedMessages", () => {

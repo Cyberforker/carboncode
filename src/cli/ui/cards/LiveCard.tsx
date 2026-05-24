@@ -29,6 +29,7 @@ const VARIANT_GLYPH = {
 
 export function LiveCard({ card }: { card: LiveCardData }): React.ReactElement {
   const color = TONE_TO_COLOR[card.tone];
+  const metaColor = card.tone === "err" || card.tone === "warn" ? color : FG.faint;
   const glyph = VARIANT_GLYPH[card.variant];
   return (
     <Box paddingLeft={2} flexDirection="row" gap={1}>
@@ -40,7 +41,7 @@ export function LiveCard({ card }: { card: LiveCardData }): React.ReactElement {
         </Text>
       )}
       <Text color={FG.body}>{card.text}</Text>
-      {card.meta !== undefined ? <Text color={FG.faint}>{`· ${card.meta}`}</Text> : null}
+      {card.meta !== undefined ? <Text color={metaColor}>{`· ${card.meta}`}</Text> : null}
     </Box>
   );
 }
