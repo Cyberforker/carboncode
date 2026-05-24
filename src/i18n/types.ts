@@ -304,6 +304,8 @@ export interface TranslationSchema {
     mcpArgsNotADir: string;
     mcpArgsFilesystemPlaceholder: string;
     mcpArgsSqlitePlaceholder: string;
+    mcpArgsFilesystemSummary: string;
+    mcpArgsFilesystemNote: string;
     themeTitle: string;
     themeSubtitle: string;
     themeSampleHeading: string;

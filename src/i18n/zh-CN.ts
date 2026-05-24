@@ -488,6 +488,8 @@ export const zhCN: TranslationSchema = {
     mcpArgsNotADir: "{path} 存在但不是目录。",
     mcpArgsFilesystemPlaceholder: "例如：/tmp/carboncode-sandbox",
     mcpArgsSqlitePlaceholder: "例如：./notes.sqlite",
+    mcpArgsFilesystemSummary: "在沙盒目录内读写和搜索文件",
+    mcpArgsFilesystemNote: "该目录是严格沙盒，服务器会拒绝访问目录外的内容",
     reviewTitle: "确认保存",
     reviewLabelApiKey: "API key",
     reviewLabelLanguage: "语言",

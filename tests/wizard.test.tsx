@@ -6,6 +6,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   Wizard,
   buildSpec,
+  mcpArgsNoteFor,
+  mcpArgsSummaryFor,
   mcpItems,
   placeholderFor,
   presetItems,
@@ -118,6 +120,24 @@ describe("Wizard — localized MCP catalog descriptions", () => {
 describe("Wizard MCP argument placeholders", () => {
   afterEach(() => {
     setLanguageRuntime("EN");
+  });
+
+  it("localizes the filesystem argument step copy in zh-CN", () => {
+    setLanguageRuntime("zh-CN");
+    const entry = {
+      name: "filesystem",
+      summary: "read/write/search files inside a sandboxed directory",
+      package: "@modelcontextprotocol/server-filesystem",
+      command: "npx",
+      args: [],
+      userArgs: "<dir>",
+      note: "the directory is a hard sandbox — the server refuses access outside it",
+    };
+
+    expect(mcpArgsSummaryFor(entry)).toContain("沙盒");
+    expect(mcpArgsSummaryFor(entry)).not.toBe(entry.summary);
+    expect(mcpArgsNoteFor(entry)).toContain("目录外");
+    expect(mcpArgsNoteFor(entry)).not.toBe(entry.note);
   });
 
   it("localizes filesystem and sqlite placeholders in zh-CN", () => {

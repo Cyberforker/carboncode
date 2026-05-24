@@ -548,6 +548,8 @@ function McpArgsStep({
 }) {
   const [value, setValue] = useState("");
   const [pendingCreate, setPendingCreate] = useState<string | null>(null);
+  const summary = mcpArgsSummaryFor(entry);
+  const note = mcpArgsNoteFor(entry);
 
   useInput((input, key) => {
     if (!pendingCreate) return;
@@ -596,10 +598,10 @@ function McpArgsStep({
   return (
     <StepFrame title={t("wizard.mcpArgsTitle", { name: entry.name })} step={2} total={3}>
       <Box flexDirection="column">
-        <Text>{mcpCatalogSummary(entry)}</Text>
-        {mcpCatalogNote(entry) ? (
+        <Text>{summary}</Text>
+        {note ? (
           <Box marginTop={1}>
-            <Text dimColor>{mcpCatalogNote(entry)}</Text>
+            <Text dimColor>{note}</Text>
           </Box>
         ) : null}
         <Box marginTop={1}>
@@ -733,6 +735,16 @@ function mcpCatalogSummary(entry: CatalogEntry): string {
 function mcpCatalogNote(entry: CatalogEntry): string | undefined {
   if (!entry.note) return undefined;
   return t(`wizard.mcpCatalog.${entry.name}.note`);
+}
+
+export function mcpArgsSummaryFor(entry: CatalogEntry): string {
+  if (entry.name === "filesystem") return t("wizard.mcpArgsFilesystemSummary");
+  return mcpCatalogSummary(entry);
+}
+
+export function mcpArgsNoteFor(entry: CatalogEntry): string | undefined {
+  if (entry.name === "filesystem") return t("wizard.mcpArgsFilesystemNote");
+  return mcpCatalogNote(entry);
 }
 
 export function placeholderFor(entry: CatalogEntry): string {

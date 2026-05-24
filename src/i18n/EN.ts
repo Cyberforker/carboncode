@@ -502,6 +502,8 @@ export const EN: TranslationSchema = {
     mcpArgsNotADir: "{path} exists but is not a directory.",
     mcpArgsFilesystemPlaceholder: "e.g. /tmp/carboncode-sandbox",
     mcpArgsSqlitePlaceholder: "e.g. ./notes.sqlite",
+    mcpArgsFilesystemSummary: "read/write/search files inside a sandboxed directory",
+    mcpArgsFilesystemNote: "the directory is a hard sandbox — the server refuses access outside it",
     reviewTitle: "Ready to save",
     reviewLabelApiKey: "API key",
     reviewLabelLanguage: "Language",
