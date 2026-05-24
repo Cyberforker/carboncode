@@ -4,8 +4,18 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { type DoctorCheck, doctorCommand, formatDoctorJson } from "../src/cli/commands/doctor.js";
+import {
+  type DoctorCheck,
+  doctorCommand,
+  formatDoctorJson,
+  runDoctorChecks,
+} from "../src/cli/commands/doctor.js";
+import { setLanguageRuntime } from "../src/i18n/index.js";
 import { VERSION } from "../src/version.js";
+
+afterEach(() => {
+  setLanguageRuntime("EN");
+});
 
 describe("formatDoctorJson", () => {
   it("emits version, summary, and {id,status,message} per check", () => {
@@ -101,6 +111,38 @@ describe("doctorCommand --json (integration)", () => {
       expect(exitSpy).toHaveBeenCalledWith(1);
     } else {
       expect(exitSpy).not.toHaveBeenCalled();
+    }
+  });
+});
+
+describe("doctorCommand i18n", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("localizes plain zh-CN check labels and common details", async () => {
+    const tmpHome = mkdtempSync(join(tmpdir(), "carboncode-doctor-home-"));
+    const tmpCwd = mkdtempSync(join(tmpdir(), "carboncode-doctor-cwd-"));
+    try {
+      vi.stubEnv("HOME", tmpHome);
+      vi.stubEnv("USERPROFILE", tmpHome);
+      vi.stubEnv("DEEPSEEK_API_KEY", "");
+      setLanguageRuntime("zh-CN");
+
+      const checks = await runDoctorChecks(tmpCwd);
+      const apiKey = checks.find((c) => c.id === "api-key");
+      const apiReach = checks.find((c) => c.id === "api-reach");
+      const semantic = checks.find((c) => c.id === "semantic");
+
+      expect(apiKey?.label.trim()).toBe("API 密钥");
+      expect(apiKey?.detail).toContain("未设置");
+      expect(apiReach?.label.trim()).toBe("API 连通");
+      expect(apiReach?.detail).toContain("已跳过");
+      expect(semantic?.label.trim()).toBe("语义索引");
+      expect(semantic?.detail).toContain("未启用");
+    } finally {
+      rmSync(tmpHome, { recursive: true, force: true });
+      rmSync(tmpCwd, { recursive: true, force: true });
     }
   });
 });
