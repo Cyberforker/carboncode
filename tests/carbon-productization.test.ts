@@ -96,6 +96,18 @@ describe("Carbon broad Reasonix import", () => {
     expect(indexHtml).toContain("<title>Carbon Code</title>");
   });
 
+  test("desktop developer env vars prefer Carbon names with legacy fallback", () => {
+    const rpc = readFileSync(resolve("desktop/src-tauri/src/rpc.rs"), "utf8");
+    const main = readFileSync(resolve("desktop/src-tauri/src/main.rs"), "utf8");
+
+    expect(rpc).toContain('"CARBONCODE_CLI"');
+    expect(rpc).toContain('"REASONIX_CLI"');
+    expect(rpc.indexOf('"CARBONCODE_CLI"')).toBeLessThan(rpc.indexOf('"REASONIX_CLI"'));
+    expect(main).toContain('"CARBONCODE_DEVTOOLS"');
+    expect(main).toContain('"REASONIX_DEVTOOLS"');
+    expect(main.indexOf('"CARBONCODE_DEVTOOLS"')).toBeLessThan(main.indexOf('"REASONIX_DEVTOOLS"'));
+  });
+
   test("CLI startup and empty-session branding uses Carbon Code", () => {
     const bootSplash = readFileSync(resolve("src/cli/ui/BootSplash.tsx"), "utf8");
     const welcomeBanner = readFileSync(resolve("src/cli/ui/WelcomeBanner.tsx"), "utf8");
