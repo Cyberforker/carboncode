@@ -19,6 +19,7 @@ import {
   isPlausibleKey,
   loadBaseUrl,
   loadTheme,
+  loadThemeEnv,
   readConfig,
   redactKey,
   resolveThemePreference,
@@ -94,13 +95,13 @@ export function Wizard({
   useEffect(() => onLanguageChange(() => setLanguageVersion((v) => v + 1)), []);
 
   const [previewTheme, setPreviewTheme] = useState<ThemeName>(() =>
-    resolveThemePreference(initial?.theme ?? loadTheme(), process.env.REASONIX_THEME),
+    resolveThemePreference(initial?.theme ?? loadTheme(), loadThemeEnv()),
   );
 
   const [step, setStep] = useState<Step>("language");
   const [data, setData] = useState<WizardData>(() => ({
     language: getLanguage(),
-    theme: resolveThemePreference(initial?.theme ?? loadTheme(), process.env.REASONIX_THEME),
+    theme: resolveThemePreference(initial?.theme ?? loadTheme(), loadThemeEnv()),
     apiKey: existingApiKey ?? "",
     preset: initial?.preset ?? "auto",
     selectedCatalog: deriveInitialCatalog(initial?.mcp ?? []),

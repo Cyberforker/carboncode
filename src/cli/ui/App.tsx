@@ -37,6 +37,7 @@ import {
   loadBaseUrl,
   loadReasoningEffort,
   loadTheme,
+  loadThemeEnv,
   markEditModeHintShown,
   markMouseClipboardHintShown,
   mouseClipboardHintShown,
@@ -393,7 +394,7 @@ export function App(props: AppProps): React.ReactElement {
     [props.session],
   );
   const [themeName, setThemeName] = React.useState<ThemeName>(() =>
-    resolveThemePreference(loadTheme(), process.env.REASONIX_THEME),
+    resolveThemePreference(loadTheme(), loadThemeEnv()),
   );
   const statusBar = React.useMemo((): StatusBarConfig => {
     const cfg = readConfig().statusBar ?? {};
@@ -2535,7 +2536,7 @@ function AppInner({
   const handleQQThemePick = useCallback(
     (target: ThemeChoice): string => {
       saveTheme(target);
-      const active = resolveThemePreference(target, process.env.REASONIX_THEME);
+      const active = resolveThemePreference(target, loadThemeEnv());
       setThemeName(active);
       return `theme saved: ${target}\nactive now: ${active}`;
     },
@@ -4280,10 +4281,7 @@ function AppInner({
                       setPendingThemePicker(false);
                       if (outcome.kind === "quit") return;
                       saveTheme(outcome.value);
-                      const active = resolveThemePreference(
-                        outcome.value,
-                        process.env.REASONIX_THEME,
-                      );
+                      const active = resolveThemePreference(outcome.value, loadThemeEnv());
                       setThemeName(active);
                       log.pushInfo(`theme saved: ${outcome.value}\n  active now: ${active}`);
                     }}

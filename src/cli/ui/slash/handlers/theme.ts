@@ -1,4 +1,4 @@
-import { resolveThemePreference, saveTheme } from "@/config.js";
+import { loadThemeEnv, resolveThemePreference, saveTheme } from "@/config.js";
 import { type ThemeName, isThemeName, listThemeNames } from "../../theme/tokens.js";
 import type { SlashHandler } from "../dispatch.js";
 
@@ -17,7 +17,7 @@ const theme: SlashHandler = (args) => {
   }
 
   saveTheme(next);
-  const active = resolveThemePreference(next, process.env.REASONIX_THEME);
+  const active = resolveThemePreference(next, loadThemeEnv());
   return { info: `theme saved: ${next}\nactive on next launch: ${active}` };
 };
 

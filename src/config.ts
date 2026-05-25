@@ -814,6 +814,10 @@ export function loadTheme(path: string = defaultConfigPath()): ThemeName | "auto
   return undefined;
 }
 
+export function loadThemeEnv(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  return env.CARBONCODE_THEME ?? env.REASONIX_THEME;
+}
+
 export function resolveThemePreference(
   configTheme: ThemeName | "auto" | undefined,
   envTheme?: string | null,

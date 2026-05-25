@@ -23,6 +23,7 @@ import {
   loadReasoningEffort,
   loadSemanticEmbeddingUserConfig,
   loadTheme,
+  loadThemeEnv,
   markEditModeHintShown,
   readConfig,
   redactKey,
@@ -445,6 +446,14 @@ describe("config", () => {
     expect(resolveThemePreference(undefined, "tokyo-night")).toBe("tokyo-night");
     expect(resolveThemePreference("github-dark", "github-light")).toBe("github-dark");
     expect(resolveThemePreference("auto", "unknown")).toBe("github-light");
+  });
+
+  it("loadThemeEnv prefers Carbon Code theme env over the legacy Reasonix env", () => {
+    expect(loadThemeEnv({ CARBONCODE_THEME: "tokyo-night", REASONIX_THEME: "github-dark" })).toBe(
+      "tokyo-night",
+    );
+    expect(loadThemeEnv({ REASONIX_THEME: "github-dark" })).toBe("github-dark");
+    expect(loadThemeEnv({})).toBeUndefined();
   });
 
   it("saveTheme doesn't clobber other persisted fields", () => {
