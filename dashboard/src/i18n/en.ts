@@ -26,6 +26,7 @@ export const en = {
   },
   changes: {
     chatPlaceholder: "Ask about your code...",
+    chatCommentSummaryPlaceholder: "Summarize comments...",
     chatWelcome: "Changes — ask questions about your project files.",
     chatSend: "Send",
     viewerPlaceholder: "Select a file to view",
@@ -43,6 +44,7 @@ export const en = {
     clearFailed: "/clear failed: {error}",
     chatSendBtn: "Send",
     fileTreeTitle: "Files",
+    fileSearchPlaceholder: "Search files...",
     codeViewerTitle: "Code Viewer",
     chatPanelTitle: "Chat",
     loadingFiles: "Loading project files…",

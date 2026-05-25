@@ -26,6 +26,7 @@ export const zhCN = {
   },
   changes: {
     chatPlaceholder: "询问代码问题…",
+    chatCommentSummaryPlaceholder: "总结评论…",
     chatWelcome: "变更 — 询问项目文件相关问题。",
     chatSend: "发送",
     viewerPlaceholder: "选择一个文件查看",
@@ -43,6 +44,7 @@ export const zhCN = {
     clearFailed: "/clear 失败：{error}",
     chatSendBtn: "发送",
     fileTreeTitle: "文件",
+    fileSearchPlaceholder: "搜索文件…",
     codeViewerTitle: "代码查看器",
     chatPanelTitle: "对话",
     loadingFiles: "正在加载项目文件…",

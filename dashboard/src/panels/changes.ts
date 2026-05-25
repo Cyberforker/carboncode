@@ -1041,7 +1041,7 @@ function TabBar(props: TabBarProps) {
         "position:fixed;top:20%;left:50%;transform:translateX(-50%);background:var(--bg-elev-2);border:1px solid var(--bd);border-radius:6px;max-height:400px;display:flex;flex-direction:column;z-index:1000;min-width:380px;max-width:600px;box-shadow:0 8px 24px rgba(0,0,0,.4)";
 
       const input = document.createElement("input");
-      input.placeholder = "搜索文件...";
+      input.placeholder = t("changes.fileSearchPlaceholder");
       input.style.cssText =
         "margin:6px 8px;padding:5px 8px;font-size:12px;background:var(--bg);color:var(--fg-0);border:1px solid var(--bd);border-radius:4px;outline:none;flex-shrink:0";
       input.onclick = (ev) => ev.stopPropagation();
@@ -1973,7 +1973,7 @@ function ChatPane(props: ChatPaneProps) {
             <textarea
               class="input"
               style=${{ width: "100%", resize: "none", minHeight: "36px", fontFamily: "inherit", fontSize: "13px", padding: "8px 10px", lineHeight: "1.4", background: "var(--bg-input)", border: "1px solid var(--bd)", borderRadius: "4px", color: "var(--fg-0)" }}
-              placeholder=${busy ? t("chat.placeholderBusy") : props.comments.length > 0 ? "总结评论..." : t("changes.chatPlaceholder")}
+              placeholder=${busy ? t("chat.placeholderBusy") : props.comments.length > 0 ? t("changes.chatCommentSummaryPlaceholder") : t("changes.chatPlaceholder")}
               value=${input}
               onInput=${onInput}
               onKeyDown=${onKeyDown}
