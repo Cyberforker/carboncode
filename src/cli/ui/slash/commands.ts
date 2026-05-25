@@ -173,7 +173,7 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
   {
     cmd: "memory",
     group: "extend",
-    argsHint: "[list|show <name>|forget <name>|clear <scope> confirm]",
+    argsHint: "[for <path>|list|show <name>|forget <name>|clear <scope> confirm]",
     summary: "show / manage pinned memory (AGENTS.md/CARBON.md + ~/.carboncode/memory)",
   },
   {

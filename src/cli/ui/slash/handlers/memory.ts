@@ -1,6 +1,12 @@
-import { basename } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { basename, isAbsolute, relative, resolve } from "node:path";
 import { t } from "@/i18n/index.js";
 import { PROJECT_MEMORY_FILE, memoryEnabled, readProjectMemory } from "@/memory/project.js";
+import {
+  findDirMemory,
+  findSubdirMemoryAncestors,
+  readSubdirMemoryContent,
+} from "@/memory/subdir.js";
 import { type MemoryScope, MemoryStore, effectivePriority } from "@/memory/user.js";
 import type { SlashHandler } from "../dispatch.js";
 import { resolveMemoryTarget } from "../helpers.js";
@@ -27,6 +33,55 @@ function pickTypeFlag(args: string[]): { type: string | null; rest: string[] } {
     rest.push(a);
   }
   return { type, rest };
+}
+
+function isInsideRoot(rootDir: string, path: string): boolean {
+  const rel = relative(resolve(rootDir), resolve(path));
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+function isExistingDirectory(path: string): boolean {
+  try {
+    return existsSync(path) && statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function formatRuleLayer(rootDir: string, path: string, kind: "root" | "module"): string[] | null {
+  const content =
+    kind === "root" ? readProjectMemory(rootDir)?.content : readSubdirMemoryContent(path);
+  if (!content) return null;
+  const label = relative(resolve(rootDir), resolve(path)).replaceAll("\\", "/") || basename(path);
+  return [`- ${kind}: ${label}`, "```", content, "```"];
+}
+
+function formatRulesForPath(rootDir: string, rawTarget: string): string {
+  const target = rawTarget.trim();
+  if (!target) return "usage: /memory for <path>";
+
+  const abs = resolve(rootDir, target);
+  if (!isInsideRoot(rootDir, abs)) {
+    return `path is outside the current workspace: ${target}`;
+  }
+
+  const moduleRulePaths = isExistingDirectory(abs)
+    ? findDirMemory(abs, rootDir)
+    : findSubdirMemoryAncestors(abs, rootDir);
+  const lines = [`rules for ${relative(resolve(rootDir), abs).replaceAll("\\", "/") || "."}`];
+  const rootLayer = readProjectMemory(rootDir);
+  if (rootLayer) {
+    const rendered = formatRuleLayer(rootDir, rootLayer.path, "root");
+    if (rendered) lines.push("", ...rendered);
+  }
+  for (const path of moduleRulePaths) {
+    const rendered = formatRuleLayer(rootDir, path, "module");
+    if (rendered) lines.push("", ...rendered);
+  }
+  if (lines.length === 1) {
+    lines.push("", "No project rule files apply to this path.");
+  }
+  return lines.join("\n");
 }
 
 const memory: SlashHandler = (args, _loop, ctx) => {
@@ -88,6 +143,11 @@ const memory: SlashHandler = (args, _loop, ctx) => {
     } catch (err) {
       return { info: t("handlers.memory.showFailed", { reason: (err as Error).message }) };
     }
+  }
+
+  if (sub === "for" || sub === "path" || sub === "explain") {
+    const target = filteredArgs.slice(1).join(" ");
+    return { info: formatRulesForPath(ctx.memoryRoot, target) };
   }
 
   if (sub === "forget" || sub === "rm" || sub === "delete") {
