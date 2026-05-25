@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { setLanguageRuntime } from "../src/i18n/index.js";
 
 const mocks = vi.hoisted(() => {
   const initializeMock = vi.fn(async () => undefined);
@@ -56,6 +57,7 @@ vi.mock("../src/mcp/transport-from-spec.js", () => ({
 
 describe("acp --mcp loader", () => {
   afterEach(() => {
+    setLanguageRuntime("EN");
     mocks.initializeMock.mockReset();
     mocks.closeMock.mockReset();
     mocks.bridgeMock.mockReset();
@@ -123,6 +125,24 @@ describe("acp --mcp loader", () => {
     const { clients } = await callLoader(["bad=cmd1", "good=cmd2"]);
     expect(clients).toHaveLength(1);
     expect(mocks.closeMock).toHaveBeenCalledTimes(1); // bad client closed after failure
+  });
+
+  it("does not duplicate the setup hint arrow on initialize failure", async () => {
+    const writes: string[] = [];
+    vi.spyOn(process.stderr, "write").mockImplementation((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    });
+    mocks.initializeMock.mockImplementationOnce(async () => {
+      throw new Error("spawn ENOENT");
+    });
+
+    const { clients } = await callLoader(["bad=cmd1"]);
+
+    expect(clients).toHaveLength(0);
+    const out = writes.join("");
+    expect(out).toContain("`carboncode setup`");
+    expect(out).not.toContain("→ →");
   });
 
   it("is non-fatal on malformed spec (parse error)", async () => {

@@ -65,7 +65,7 @@ export const stderrLifecycleSink: McpLifecycleSink = (n) => {
   }
   if (n.kind === "failed") {
     process.stderr.write(
-      `${formatMcpLifecycleEvent({ state: "failed", name: n.name, reason: n.reason })}\n  → ${t("mcpLifecycle.failedSetupHint")}\n`,
+      `${formatMcpLifecycleEvent({ state: "failed", name: n.name, reason: n.reason })}\n  ${t("mcpLifecycle.failedSetupHint")}\n`,
     );
     return;
   }
