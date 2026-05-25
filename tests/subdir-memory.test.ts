@@ -92,6 +92,16 @@ describe("findSubdirMemoryAncestors", () => {
       join(root, "b", "AGENT.md"),
     ]);
   });
+
+  it("skips non-file candidates and falls back to the next memory file", () => {
+    mkdirSync(join(root, "pkg"), { recursive: true });
+    mkdirSync(join(root, "pkg", "AGENTS.md"));
+    writeFileSync(join(root, "pkg", "CARBON.md"), "carbon subdir rules");
+    writeFileSync(join(root, "pkg", "x.ts"), "");
+    expect(findSubdirMemoryAncestors(join(root, "pkg", "x.ts"), root)).toEqual([
+      join(root, "pkg", "CARBON.md"),
+    ]);
+  });
 });
 
 describe("readSubdirMemoryContent", () => {
@@ -208,6 +218,12 @@ describe("findDirMemory — for list_directory's listed dir", () => {
     mkdirSync(join(root, "pkg"), { recursive: true });
     writeFileSync(join(root, "pkg", "AGENTS.md"), "pkg rules");
     expect(findDirMemory(join(root, "pkg"), root)).toEqual([join(root, "pkg", "AGENTS.md")]);
+  });
+
+  it("falls back to CARBON.md when AGENTS.md exists but is not a file", () => {
+    mkdirSync(join(root, "pkg", "AGENTS.md"), { recursive: true });
+    writeFileSync(join(root, "pkg", "CARBON.md"), "pkg carbon rules");
+    expect(findDirMemory(join(root, "pkg"), root)).toEqual([join(root, "pkg", "CARBON.md")]);
   });
 
   it("walks ancestors innermost-first when nested dirs each have memory", () => {

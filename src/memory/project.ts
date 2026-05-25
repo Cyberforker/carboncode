@@ -33,11 +33,19 @@ function isDir(path: string): boolean {
   }
 }
 
+export function isProjectMemoryFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
 /** Absolute path of the first PROJECT_MEMORY_FILES candidate that exists at rootDir, or null. */
 export function findProjectMemoryPath(rootDir: string): string | null {
   for (const name of PROJECT_MEMORY_FILES) {
     const path = join(rootDir, name);
-    if (existsSync(path)) return path;
+    if (isProjectMemoryFile(path)) return path;
   }
   return null;
 }
