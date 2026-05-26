@@ -1,4 +1,5 @@
 import { basename, relative, resolve } from "node:path";
+import { t } from "../../i18n/index.js";
 import { memoryEnabled, readProjectMemory } from "../../memory/project.js";
 
 export function collectStartupRuleFiles(rootDir: string): string[] {
@@ -12,7 +13,7 @@ export function formatRuleSummary(rootDir: string, files: ReadonlyArray<string>)
     .map((file) => displayRulePath(rootDir, file))
     .filter((label) => label.length > 0);
   if (labels.length === 0) return null;
-  return `rules · ${labels.join(", ")}`;
+  return `${t("ui.ruleSummaryLabel")} · ${labels.join(", ")}`;
 }
 
 function unique(files: ReadonlyArray<string>): string[] {

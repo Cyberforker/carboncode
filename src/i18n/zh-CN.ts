@@ -237,6 +237,7 @@ export const zhCN: TranslationSchema = {
     modelOverrideFlash: "覆盖模型（默认：deepseek-v4-flash）",
     skipConfirmHint: "跳过确认提示",
     yoloHint: "自动批准本次调用的计划检查点（等同于 editMode=yolo，但不修改配置文件）",
+    ruleSummaryLabel: "规则",
   },
   code: {
     workspaceConflict:
