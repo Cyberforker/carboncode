@@ -1,10 +1,16 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { openUrl, resolveNoOpenEnv } from "../src/cli/ui/open-url.js";
 
 describe("openUrl", () => {
   const originalCi = process.env.CI;
   const originalCarbonNoOpen = process.env.CARBONCODE_NO_OPEN;
   const originalReasonixNoOpen = process.env.REASONIX_NO_OPEN;
+
+  beforeEach(() => {
+    Reflect.deleteProperty(process.env, "CI");
+    Reflect.deleteProperty(process.env, "CARBONCODE_NO_OPEN");
+    Reflect.deleteProperty(process.env, "REASONIX_NO_OPEN");
+  });
 
   afterEach(() => {
     if (originalCi === undefined) Reflect.deleteProperty(process.env, "CI");
