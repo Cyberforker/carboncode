@@ -81,6 +81,7 @@ describe("Carbon broad Reasonix import", () => {
 
   test("protocol-facing runtime identities are Carbon-branded", () => {
     const acp = readFileSync(resolve("src/cli/commands/acp.ts"), "utf8");
+    const acpGates = readFileSync(resolve("src/acp/gates.ts"), "utf8");
     const mcpClient = readFileSync(resolve("src/mcp/client.ts"), "utf8");
     const dashboardErrorBoundary = readFileSync(
       resolve("dashboard/src/lib/error-boundary.ts"),
@@ -91,6 +92,8 @@ describe("Carbon broad Reasonix import", () => {
 
     expect(acp).toContain('source: "carboncode acp"');
     expect(acp).toContain('agentInfo: { name: "carboncode", title: "Carbon Code"');
+    expect(acpGates).toContain("Carbon Code's internal `PauseGate`");
+    expect(acpGates).not.toContain("Reasonix's internal `PauseGate`");
     expect(mcpClient).toContain('clientInfo = opts.clientInfo ?? { name: "carboncode"');
     expect(dashboardErrorBoundary).toContain("https://github.com/Yapie0/carboncode");
     expect(slashCommands).toContain("~/.carboncode/config.json");
