@@ -1,7 +1,7 @@
 /** CARBONCODE_DEBUG_MCP=1 surfaces dropped malformed lines on stderr; otherwise silent. */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mcpStdioDebugEnabled, StdioTransport } from "../src/mcp/stdio.js";
+import { StdioTransport, mcpStdioDebugEnabled } from "../src/mcp/stdio.js";
 
 const GARBAGE_THEN_EXIT = "process.stdout.write('not-json-banner\\n'); process.exit(0)";
 
@@ -59,7 +59,9 @@ describe("StdioTransport MCP debug env", { timeout: 5_000 }, () => {
   });
 
   it("lets CARBONCODE_DEBUG_MCP override legacy REASONIX_DEBUG_MCP", () => {
-    expect(mcpStdioDebugEnabled({ CARBONCODE_DEBUG_MCP: "0", REASONIX_DEBUG_MCP: "1" })).toBe(false);
+    expect(mcpStdioDebugEnabled({ CARBONCODE_DEBUG_MCP: "0", REASONIX_DEBUG_MCP: "1" })).toBe(
+      false,
+    );
     expect(mcpStdioDebugEnabled({ CARBONCODE_DEBUG_MCP: "1", REASONIX_DEBUG_MCP: "0" })).toBe(true);
   });
 

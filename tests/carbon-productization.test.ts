@@ -155,12 +155,12 @@ describe("Carbon broad Reasonix import", () => {
   });
 
   test("loop runtime tuning env vars use Carbon Code prefixes", () => {
-    const loop = readFileSync(resolve("src/loop.ts"), "utf8");
+    const loopEnv = readFileSync(resolve("src/loop/env.ts"), "utf8");
 
-    expect(loop).toContain("process.env.CARBONCODE_TOOL_DISPATCH");
-    expect(loop).toContain("process.env.CARBONCODE_PARALLEL_MAX");
-    expect(loop).toContain("process.env.CARBONCODE_STORM_THRESHOLD");
-    expect(loop).toContain("process.env.CARBONCODE_STORM_WINDOW");
+    expect(loopEnv).toContain("env.CARBONCODE_TOOL_DISPATCH");
+    expect(loopEnv).toContain("env.CARBONCODE_PARALLEL_MAX");
+    expect(loopEnv).toContain("env.CARBONCODE_STORM_THRESHOLD");
+    expect(loopEnv).toContain("env.CARBONCODE_STORM_WINDOW");
   });
 
   test("dashboard static shell labels are Carbon-branded", () => {
