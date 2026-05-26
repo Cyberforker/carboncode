@@ -90,6 +90,17 @@ Attribution can be low-profile, but must remain discoverable in the repository a
 - Keep local CLI code readable for local debugging and user trust.
 - Before claiming a feature is done, run relevant verification commands and report what passed or failed.
 
+## PR Merge Principles
+
+A PR is mergeable only when it satisfies all of these checks:
+
+- It is useful: it fixes a real issue, reduces maintenance risk, or clearly advances Carbon Code productization.
+- It has no known bug: tests, typecheck, lint, and review should not reveal regressions, broken compatibility, or conflicting behavior.
+- Its behavior is verifiable: prefer focused tests; at minimum, the changed code path must be clearly reachable in normal use.
+- Its scope is clear: one PR should solve one understandable problem and avoid bundling unrelated UI, env, docs, and test changes.
+- It is not duplicated: do not merge a PR that is already covered by a smaller, newer, or better-tested PR.
+- Its compatibility story is intentional: prefer `CARBONCODE_*` names, but keep legacy `REASONIX_*` fallbacks for existing external interfaces such as env vars, public types, config fields, and historical data directories. Do not preserve Reasonix wording in user-visible copy, docs, comments, unused placeholders, or newly added internal names.
+
 ## Next Recommended Steps
 
 1. Continue Carbon Code productization of imported Reasonix surfaces.
