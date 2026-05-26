@@ -10,7 +10,9 @@ interface UsageFile {
 }
 
 export function slashUsagePath(): string {
-  const override = process.env.CARBONCODE_SLASH_USAGE_PATH ?? process.env.REASONIX_SLASH_USAGE_PATH;
+  const override = (
+    process.env.CARBONCODE_SLASH_USAGE_PATH ?? process.env.REASONIX_SLASH_USAGE_PATH
+  )?.trim();
   if (override) return override;
   return join(homedir(), ".carboncode", "slash-usage.json");
 }
