@@ -6,7 +6,7 @@ let cachedLocale: Locale | null = null;
 
 export function detectLocale(): Locale {
   if (cachedLocale) return cachedLocale;
-  const override = (process.env.REASONIX_LANG ?? "").toLowerCase();
+  const override = (process.env.CARBONCODE_LANG ?? process.env.REASONIX_LANG ?? "").toLowerCase();
   if (override === "zh" || override === "en") {
     cachedLocale = override;
     return cachedLocale;

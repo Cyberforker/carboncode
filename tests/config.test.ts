@@ -50,6 +50,8 @@ describe("config", () => {
   const originalCarbonSearch = process.env.CARBONCODE_SEARCH;
   const originalSearch = process.env.REASONIX_SEARCH;
   const originalBaseUrl = process.env.DEEPSEEK_BASE_URL;
+  const originalCarbonEmbedModel = process.env.CARBONCODE_EMBED_MODEL;
+  const originalReasonixEmbedModel = process.env.REASONIX_EMBED_MODEL;
 
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), "reasonix-test-"));
@@ -62,6 +64,10 @@ describe("config", () => {
     delete process.env.REASONIX_SEARCH;
     // biome-ignore lint/performance/noDelete: same reason
     delete process.env.DEEPSEEK_BASE_URL;
+    // biome-ignore lint/performance/noDelete: same reason
+    delete process.env.CARBONCODE_EMBED_MODEL;
+    // biome-ignore lint/performance/noDelete: same reason
+    delete process.env.REASONIX_EMBED_MODEL;
   });
 
   afterEach(() => {
@@ -89,6 +95,18 @@ describe("config", () => {
       delete process.env.DEEPSEEK_BASE_URL;
     } else {
       process.env.DEEPSEEK_BASE_URL = originalBaseUrl;
+    }
+    if (originalCarbonEmbedModel === undefined) {
+      // biome-ignore lint/performance/noDelete: same reason
+      delete process.env.CARBONCODE_EMBED_MODEL;
+    } else {
+      process.env.CARBONCODE_EMBED_MODEL = originalCarbonEmbedModel;
+    }
+    if (originalReasonixEmbedModel === undefined) {
+      // biome-ignore lint/performance/noDelete: same reason
+      delete process.env.REASONIX_EMBED_MODEL;
+    } else {
+      process.env.REASONIX_EMBED_MODEL = originalReasonixEmbedModel;
     }
   });
 
@@ -519,6 +537,28 @@ describe("config", () => {
     expect(resolved.provider).toBe("ollama");
     expect(resolved.baseUrl).toBe("http://localhost:11434");
     expect(resolved.model).toBe("nomic-embed-text");
+  });
+
+  it("prefers CARBONCODE_EMBED_MODEL for semantic ollama model env", () => {
+    process.env.CARBONCODE_EMBED_MODEL = "bge-m3-carbon";
+    process.env.REASONIX_EMBED_MODEL = "bge-m3-legacy";
+
+    const resolved = resolveSemanticEmbeddingConfig(path);
+
+    expect(resolved.provider).toBe("ollama");
+    expect(resolved.model).toBe("bge-m3-carbon");
+  });
+
+  it("keeps REASONIX_EMBED_MODEL as a legacy semantic ollama model fallback", () => {
+    // biome-ignore lint/performance/noDelete: the string "undefined" leaks into process.env otherwise
+    delete process.env.CARBONCODE_EMBED_MODEL;
+    process.env.REASONIX_EMBED_MODEL = "bge-m3-legacy";
+
+    const resolved = resolveSemanticEmbeddingConfig(path);
+    const view = redactSemanticEmbeddingConfig(loadSemanticEmbeddingUserConfig(path));
+
+    expect(resolved.model).toBe("bge-m3-legacy");
+    expect(view.ollama.model).toBe("bge-m3-legacy");
   });
 
   it("accepts semantic API URLs that already include /embeddings", () => {

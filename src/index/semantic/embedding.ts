@@ -1,3 +1,5 @@
+import { resolveSemanticOllamaModelEnv } from "../../config.js";
+
 const DEFAULT_OLLAMA_URL = "http://localhost:11434";
 const DEFAULT_EMBED_MODEL = "nomic-embed-text";
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -87,7 +89,7 @@ async function embedOllama(
   opts: Extract<EmbedOptions, { provider?: "ollama" }>,
 ): Promise<Float32Array> {
   const baseUrl = opts.baseUrl ?? process.env.OLLAMA_URL ?? DEFAULT_OLLAMA_URL;
-  const model = opts.model ?? process.env.REASONIX_EMBED_MODEL ?? DEFAULT_EMBED_MODEL;
+  const model = opts.model ?? resolveSemanticOllamaModelEnv() ?? DEFAULT_EMBED_MODEL;
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const { controller, cleanup } = composeAbort(opts.signal, timeoutMs, "embedding timeout");
 
