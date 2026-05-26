@@ -87,7 +87,7 @@ Type `/` mid-chat to open the picker. Aliases shown in parentheses. Code-mode-on
 | `/mcp` | Open the MCP hub (live + marketplace tabs) |
 | `/resource [uri]` | Browse / read MCP resources |
 | `/prompt [name]` | Browse / fetch MCP prompts |
-| `/memory [list\|show\|forget\|clear]` | Manage pinned memory (CARBON.md + `~/.carboncode/memory`) |
+| `/memory [list\|show\|forget\|clear]` | Manage pinned memory (AGENTS.md / CARBON.md + `~/.carboncode/memory`) |
 | `/skill [list\|show\|new\|<name>]` | List / run / scaffold user skills |
 
 ### Session
