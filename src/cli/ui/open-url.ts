@@ -1,4 +1,4 @@
-/** Cross-platform URL opener; no-op under CI / when REASONIX_NO_OPEN is set. */
+/** Cross-platform URL opener; no-op under CI / when CARBONCODE_NO_OPEN is set. */
 
 import { spawn } from "node:child_process";
 import { platform } from "node:os";
@@ -8,9 +8,13 @@ export interface OpenUrlResult {
   reason?: "ci" | "disabled" | "spawn-failed";
 }
 
+export function resolveNoOpenEnv(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  return env.CARBONCODE_NO_OPEN ?? env.REASONIX_NO_OPEN;
+}
+
 export function openUrl(url: string): OpenUrlResult {
   if (process.env.CI) return { opened: false, reason: "ci" };
-  if (process.env.REASONIX_NO_OPEN) return { opened: false, reason: "disabled" };
+  if (resolveNoOpenEnv()) return { opened: false, reason: "disabled" };
 
   const os = platform();
   let cmd: string;
