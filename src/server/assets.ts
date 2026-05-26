@@ -81,11 +81,7 @@ export function renderIndexHtml(token: string, mode: "standalone" | "attached"):
   const safeToken = token.replace(/[^a-zA-Z0-9]/g, "");
   // String.replace(string, replacement) only swaps the FIRST match. The template
   // repeats token/mode placeholders across meta, CSS, and script URLs.
-  return tpl
-    .replaceAll("__CARBONCODE_TOKEN__", safeToken)
-    .replaceAll("__CARBONCODE_MODE__", mode)
-    .replaceAll("__REASONIX_TOKEN__", safeToken)
-    .replaceAll("__REASONIX_MODE__", mode);
+  return tpl.replaceAll("__CARBONCODE_TOKEN__", safeToken).replaceAll("__CARBONCODE_MODE__", mode);
 }
 
 /** Vendor CSS the bundle pulls from npm and the build script copies into `dashboard/dist/`. */
