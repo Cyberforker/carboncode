@@ -12,6 +12,12 @@ import {
 import { ContextManager } from "./context-manager.js";
 import { InflightSet } from "./core/inflight.js";
 import { t } from "./i18n/index.js";
+import {
+  resolveParallelMaxEnv,
+  resolveStormThresholdEnv,
+  resolveStormWindowEnv,
+  resolveToolDispatchSerial,
+} from "./loop/env.js";
 import { formatLoopError, is5xxError, probeDeepSeekReachable } from "./loop/errors.js";
 import {
   NEEDS_PRO_BUFFER_CHARS,
@@ -202,12 +208,8 @@ export class CacheFirstLoop {
       allowedToolNames: allowedNames,
       isMutating: (call) => this.isMutating(call),
       isStormExempt,
-      stormThreshold: parsePositiveIntEnv(
-        process.env.CARBONCODE_STORM_THRESHOLD ?? process.env.REASONIX_STORM_THRESHOLD,
-      ),
-      stormWindow: parsePositiveIntEnv(
-        process.env.CARBONCODE_STORM_WINDOW ?? process.env.REASONIX_STORM_WINDOW,
-      ),
+      stormThreshold: resolveStormThresholdEnv(),
+      stormWindow: resolveStormWindowEnv(),
     });
 
     // Heal-on-load: oversized tool results would 400 the next call before the user types.
@@ -1128,20 +1130,8 @@ export class CacheFirstLoop {
         return;
       }
 
-      const dispatchSerial =
-        (
-          process.env.CARBONCODE_TOOL_DISPATCH ??
-          process.env.REASONIX_TOOL_DISPATCH ??
-          "auto"
-        ).toLowerCase() === "serial";
-      const parallelMaxParsed = Number.parseInt(
-        process.env.CARBONCODE_PARALLEL_MAX ?? process.env.REASONIX_PARALLEL_MAX ?? "",
-        10,
-      );
-      const parallelMax =
-        Number.isFinite(parallelMaxParsed) && parallelMaxParsed >= 1
-          ? Math.min(parallelMaxParsed, 16)
-          : 3;
+      const dispatchSerial = resolveToolDispatchSerial();
+      const parallelMax = resolveParallelMaxEnv();
 
       let callIdx = 0;
       while (callIdx < repairedCalls.length) {
@@ -1253,10 +1243,4 @@ export class CacheFirstLoop {
     }
     return final;
   }
-}
-
-function parsePositiveIntEnv(raw: string | undefined): number | undefined {
-  if (!raw) return undefined;
-  const n = Number.parseInt(raw, 10);
-  return Number.isFinite(n) && n > 0 ? n : undefined;
 }
