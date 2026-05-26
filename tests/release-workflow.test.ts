@@ -18,9 +18,17 @@ describe("npm publish workflow", () => {
     expect(workflow).toContain("package.json");
     expect(workflow).toContain('PACKAGE_NAME="$(node -p "require(\'./package.json\').name")"');
     expect(workflow).toContain('npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version');
-    expect(workflow).toContain('npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" gitHead');
-    expect(workflow).toContain('echo "published=true" >> "$GITHUB_OUTPUT"');
-    expect(workflow).toContain("steps.npm_version.outputs.published != 'true'");
+    expect(workflow).toContain('echo "publish=true" >> "$GITHUB_OUTPUT"');
+    expect(workflow).toContain("steps.npm_version.outputs.publish == 'true'");
     expect(workflow).toContain("npm publish --access public --provenance");
+  });
+
+  it("skips already-published and historical package versions without failing", () => {
+    expect(workflow).toContain('npm view "${PACKAGE_NAME}" versions --json');
+    expect(workflow).toContain('echo "publish=false" >> "$GITHUB_OUTPUT"');
+    expect(workflow).toContain("already exists on npm; skipping publish");
+    expect(workflow).toContain("is not newer than latest published");
+    expect(workflow).toContain("steps.npm_version.outputs.publish == 'true'");
+    expect(workflow).not.toContain("already exists with gitHead");
   });
 });
