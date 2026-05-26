@@ -4,9 +4,9 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { HEAP_REEXEC_ENV } from "../src/cli/heap-limit.js";
 import { writeConfig } from "../src/config.js";
 
-const HEAP_REEXEC_ENV = "REASONIX_HEAP_REEXEC";
 const codeCommand = vi.fn(async () => {});
 const chatCommand = vi.fn(async () => {});
 const setupCommand = vi.fn(async () => {});
