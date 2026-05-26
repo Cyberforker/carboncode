@@ -663,7 +663,7 @@ export const zhCN: TranslationSchema = {
     auth401:
       "认证失败（DeepSeek 401）：{inner}。你的 API key 被拒绝。运行 `carboncode setup` 或 `export DEEPSEEK_API_KEY=sk-...` 修复。在 https://platform.deepseek.com/api_keys 获取 key。",
     balance402:
-      "余额不足（DeepSeek 402）：{inner}。在 https://platform.deepseek.com/top_up 充值 — 余额非零时面板顶栏会显示。",
+      "余额不足（DeepSeek 402）。请在 https://platform.deepseek.com/top_up 充值；充值到账后重新发送。",
     badparam422: "参数错误（DeepSeek 422）：{inner}",
     badrequest400: "请求错误（DeepSeek 400）：{inner}",
     deepseek5xxHead:
