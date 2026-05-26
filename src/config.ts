@@ -198,6 +198,9 @@ export interface ReasonixConfig {
   qq?: QQBotConfig;
 }
 
+/** Carbon-branded name for the user configuration schema. */
+export type CarbonCodeConfig = ReasonixConfig;
+
 export interface CustomMemoryTypeConfig {
   name: string;
   description?: string;
