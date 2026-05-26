@@ -54,16 +54,29 @@ jobs:
         shell: bash
         run: |
           if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
-            EXISTING_GIT_HEAD="$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" gitHead 2>/dev/null || true)"
-            if [ "$EXISTING_GIT_HEAD" != "$GITHUB_SHA" ]; then
-              echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists with gitHead ${EXISTING_GIT_HEAD:-<empty>}, expected $GITHUB_SHA" >&2
-              exit 1
-            fi
-            echo "published=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists on npm; skipping publish"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
+          PUBLISHED_VERSIONS_JSON="$(npm view "${PACKAGE_NAME}" versions --json 2>/dev/null || echo "[]")"
+          LATEST_PUBLISHED="$(
+            PUBLISHED_VERSIONS_JSON="$PUBLISHED_VERSIONS_JSON" node -e 'const raw = JSON.parse(process.env.PUBLISHED_VERSIONS_JSON || "[]"); const versions = Array.isArray(raw) ? raw : [raw].filter(Boolean); const parse = (version) => { const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(version)); return match ? match.slice(1).map(Number) : null; }; const compare = (left, right) => { for (let index = 0; index < 3; index += 1) { if (left[index] !== right[index]) return left[index] - right[index]; } return 0; }; const latest = versions.map((version) => ({ version, parts: parse(version) })).filter((item) => item.parts).sort((left, right) => compare(right.parts, left.parts))[0]; process.stdout.write(latest?.version ?? "");'
+          )"
+
+          if [ -n "$LATEST_PUBLISHED" ]; then
+            IS_NEWER="$(
+              PACKAGE_VERSION="$PACKAGE_VERSION" LATEST_PUBLISHED="$LATEST_PUBLISHED" node -e 'const parse = (version) => { const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(version)); if (!match) throw new Error(`unsupported version: ${version}`); return match.slice(1).map(Number); }; const compare = (left, right) => { for (let index = 0; index < 3; index += 1) { if (left[index] !== right[index]) return left[index] - right[index]; } return 0; }; process.stdout.write(compare(parse(process.env.PACKAGE_VERSION), parse(process.env.LATEST_PUBLISHED)) > 0 ? "true" : "false");'
+            )"
+            if [ "$IS_NEWER" != "true" ]; then
+              echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is not newer than latest published ${LATEST_PUBLISHED}; skipping publish"
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
       - name: Publish to npm
-        if: steps.npm_version.outputs.published != 'true'
+        if: steps.npm_version.outputs.publish == 'true'
         run: npm publish --access public --provenance
