@@ -5,6 +5,8 @@
 Carbon Code 面向个人开发者工作流：进入一个仓库，让智能体读取和搜索代码、规划
 修改、展示 diff、在执行 shell 命令前请求确认、按需运行验证，并输出简洁结果。
 
+英文文档：[README.md](README.md)
+
 ## 安装
 
 要求 Node.js 22 或更新版本。
@@ -13,6 +15,14 @@ Carbon Code 面向个人开发者工作流：进入一个仓库，让智能体�
 npm install -g @carboncode/cli
 cd path/to/project
 carboncode
+```
+
+Windows PowerShell 运行 `npm` 命令时，如果提示 `npm.ps1` 被禁止执行，请改用 `npm.cmd`，例如：
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+npm.cmd run verify
 ```
 
 短命令：
