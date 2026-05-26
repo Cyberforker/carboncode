@@ -55,6 +55,20 @@ describe("slash-usage store", () => {
     expect(slashUsagePath()).toBe(join(dir, "legacy-slash-usage.json"));
   });
 
+  it("trims CARBONCODE_SLASH_USAGE_PATH before using it", () => {
+    const override = join(dir, "trimmed-slash-usage.json");
+    process.env.CARBONCODE_SLASH_USAGE_PATH = ` ${override} `;
+    expect(slashUsagePath()).toBe(override);
+  });
+
+  it("trims legacy REASONIX_SLASH_USAGE_PATH before using it", () => {
+    const override = join(dir, "trimmed-legacy-slash-usage.json");
+    // biome-ignore lint/performance/noDelete: legacy fallback must be explicit
+    delete process.env.CARBONCODE_SLASH_USAGE_PATH;
+    process.env.REASONIX_SLASH_USAGE_PATH = ` ${override} `;
+    expect(slashUsagePath()).toBe(override);
+  });
+
   it("recordSlashUse persists to disk and survives reload", () => {
     recordSlashUse("status");
     recordSlashUse("status");
