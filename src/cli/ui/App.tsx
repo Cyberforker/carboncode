@@ -129,6 +129,7 @@ import { useViewerBroadcast } from "./dashboard/use-picker-broadcast.js";
 import { formatEditResults } from "./edit-history.js";
 import { buildEditToolBlocks } from "./edit-tool-gate.js";
 import { loopEventToDashboard } from "./effects/loop-to-dashboard.js";
+import { resolveFlushIntervalMs } from "./flush-interval.js";
 import { appendGlobalMemory, appendProjectMemory, detectHashMemory } from "./hash-memory.js";
 import { applySlashResult } from "./hooks/apply-slash-result.js";
 import { handleAssistantFinal } from "./hooks/handle-assistant-final.js";
@@ -294,15 +295,9 @@ export interface AppProps {
  * Throttle interval in ms. 50ms —20Hz —slow enough that cursor-up
  * repaints on winpty/MINTTY/ConEmu/tmux don't leave half-drawn frames,
  * fast enough that streaming text still reads as continuous. Override
- * via `REASONIX_FLUSH_MS` if you want 60Hz on a terminal you trust.
+ * via `CARBONCODE_FLUSH_MS` if you want 60Hz on a terminal you trust.
  */
-const FLUSH_INTERVAL_MS = (() => {
-  const raw = process.env.REASONIX_FLUSH_MS;
-  if (!raw) return 50;
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed < 16 || parsed > 1000) return 50;
-  return Math.round(parsed);
-})();
+const FLUSH_INTERVAL_MS = resolveFlushIntervalMs();
 
 /**
  * Captures printable keys / backspace / Enter while history is unpinned so the
