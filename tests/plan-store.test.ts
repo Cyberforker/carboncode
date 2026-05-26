@@ -13,6 +13,7 @@ function writeFixture(path: string, content: string): void {
 import {
   archivePlanState,
   clearPlanState,
+  listAllPlanArchives,
   listPlanArchives,
   loadPlanState,
   planStatePath,
@@ -235,6 +236,27 @@ describe("listPlanArchives", () => {
     expect(listPlanArchives("nothing-here")).toEqual([]);
   });
 
+  it("lists archives from the Carbon sessions directory", async () => {
+    const fs = await import("node:fs");
+    const { join: pj } = await import("node:path");
+    const dir = pj(tempHome, ".carboncode", "sessions");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      pj(dir, "carbon-list.plan.2026-05-20-new.done.json"),
+      JSON.stringify({
+        version: 1,
+        steps: [{ id: "c", title: "carbon", action: "read" }],
+        completedStepIds: ["c"],
+        updatedAt: "2026-05-20T09:00:00.000Z",
+      }),
+    );
+
+    const archives = listPlanArchives("carbon-list");
+    expect(archives).toHaveLength(1);
+    expect(archives[0]?.path).toContain(".carboncode");
+    expect(archives[0]?.steps[0]?.title).toBe("carbon");
+  });
+
   it("lists archived plans newest-first by completedAt", async () => {
     // Two plans for the same session, archived ~milliseconds apart.
     // Force completedAt by hand-writing instead of going through
@@ -358,6 +380,37 @@ describe("listPlanArchives", () => {
     expect(archives).toHaveLength(1);
     // Should be a valid ISO timestamp (mtime fallback) — not empty
     expect(archives[0]?.completedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+});
+
+describe("listAllPlanArchives", () => {
+  it("discovers Carbon archives across sessions", async () => {
+    const fs = await import("node:fs");
+    const { join: pj } = await import("node:path");
+    const dir = pj(tempHome, ".carboncode", "sessions");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      pj(dir, "alpha.plan.2026-05-01-a.done.json"),
+      JSON.stringify({
+        version: 1,
+        steps: [{ id: "a", title: "alpha", action: "archive" }],
+        completedStepIds: ["a"],
+        updatedAt: "2026-05-01T10:00:00.000Z",
+      }),
+    );
+    fs.writeFileSync(
+      pj(dir, "beta.plan.2026-05-02-b.done.json"),
+      JSON.stringify({
+        version: 1,
+        steps: [{ id: "b", title: "beta", action: "archive" }],
+        completedStepIds: ["b"],
+        updatedAt: "2026-05-02T10:00:00.000Z",
+      }),
+    );
+
+    const archives = listAllPlanArchives();
+    expect(archives.map((archive) => archive.sessionName)).toEqual(["beta", "alpha"]);
+    expect(archives.every((archive) => archive.path.includes(".carboncode"))).toBe(true);
   });
 });
 
