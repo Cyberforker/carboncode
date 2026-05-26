@@ -53,6 +53,7 @@ const PUBLIC_API: readonly string[] = [
   "CacheFirstLoop",
   "CacheFirstLoopOptions",
   "CallToolResult",
+  "CarbonCodeConfig",
   "ChatMessage",
   "ChatResponse",
   "ChoiceOption",

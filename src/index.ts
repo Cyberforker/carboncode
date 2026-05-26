@@ -300,7 +300,7 @@ export {
   saveBaseUrl,
   writeConfig,
 } from "./config.js";
-export type { ReasonixConfig } from "./config.js";
+export type { CarbonCodeConfig, ReasonixConfig } from "./config.js";
 
 export type {
   ChatMessage,
