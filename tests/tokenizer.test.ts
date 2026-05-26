@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_BOUNDED_TOKENIZE_CHARS,
   countTokens,
@@ -7,7 +7,47 @@ import {
   estimateConversationTokens,
   estimateRequestTokens,
   formatDeepSeekPrompt,
+  resolveDataPath,
+  resolveTokenizerPathEnv,
 } from "../src/tokenizer.js";
+
+describe("tokenizer data path env", () => {
+  const originalCarbonTokenizerPath = process.env.CARBONCODE_TOKENIZER_PATH;
+  const originalReasonixTokenizerPath = process.env.REASONIX_TOKENIZER_PATH;
+
+  afterEach(() => {
+    if (originalCarbonTokenizerPath === undefined) {
+      // biome-ignore lint/performance/noDelete: restore the test process env to its original shape.
+      delete process.env.CARBONCODE_TOKENIZER_PATH;
+    } else {
+      process.env.CARBONCODE_TOKENIZER_PATH = originalCarbonTokenizerPath;
+    }
+
+    if (originalReasonixTokenizerPath === undefined) {
+      // biome-ignore lint/performance/noDelete: restore the test process env to its original shape.
+      delete process.env.REASONIX_TOKENIZER_PATH;
+    } else {
+      process.env.REASONIX_TOKENIZER_PATH = originalReasonixTokenizerPath;
+    }
+  });
+
+  it("prefers CARBONCODE_TOKENIZER_PATH over the legacy REASONIX_TOKENIZER_PATH", () => {
+    process.env.CARBONCODE_TOKENIZER_PATH = "C:/carbon-tokenizer.json.gz";
+    process.env.REASONIX_TOKENIZER_PATH = "C:/reasonix-tokenizer.json.gz";
+
+    expect(resolveTokenizerPathEnv()).toBe("C:/carbon-tokenizer.json.gz");
+    expect(resolveDataPath()).toBe("C:/carbon-tokenizer.json.gz");
+  });
+
+  it("keeps REASONIX_TOKENIZER_PATH as a legacy fallback", () => {
+    // biome-ignore lint/performance/noDelete: this test exercises the fallback branch.
+    delete process.env.CARBONCODE_TOKENIZER_PATH;
+    process.env.REASONIX_TOKENIZER_PATH = "C:/reasonix-tokenizer.json.gz";
+
+    expect(resolveTokenizerPathEnv()).toBe("C:/reasonix-tokenizer.json.gz");
+    expect(resolveDataPath()).toBe("C:/reasonix-tokenizer.json.gz");
+  });
+});
 
 describe("DeepSeek V4 tokenizer — golden cases", () => {
   it("empty string is zero tokens", () => {
