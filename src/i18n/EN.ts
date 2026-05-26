@@ -487,7 +487,15 @@ export const EN: TranslationSchema = {
     footer: "↑↓ pick · ⏎ confirm · esc cancel",
     currentPref: "current preference",
     activeNow: "active now",
-    autoDesc: "use REASONIX_THEME or default",
+    autoDesc: "use CARBONCODE_THEME or default",
+    autoLabel: "auto",
+    defaultLabel: "default",
+    darkLabel: "dark",
+    lightLabel: "light",
+    tokyoNightLabel: "tokyo-night",
+    githubDarkLabel: "github-dark",
+    githubLightLabel: "github-light",
+    highContrastLabel: "high-contrast",
   },
   planFlow: {
     approveCardTitle: "Approve plan",
@@ -760,6 +768,10 @@ export const EN: TranslationSchema = {
       titleUnavailable: "/title is only available in an active persisted TUI session.",
       titleStarted: "▸ naming session…",
       titleFailed: "▸ session title failed: {reason}",
+    },
+    theme: {
+      saved: "theme saved: {theme}\nactive on next launch: {active}",
+      unknownTheme: "unknown theme: {theme}\navailable: {available}",
     },
     admin: {
       doctorNeedsTui: "/doctor needs a TUI context (postDoctor wired).",

@@ -26,6 +26,8 @@ export interface SingleSelectProps<V extends string> {
   footer?: string;
   /** Render item hints on the same row as the label instead of a second row. */
   inlineHints?: boolean;
+  /** Render labels, hints, and footer with themed colors instead of terminal-dim text. */
+  vividHints?: boolean;
   /** Ignore matching keystrokes so an enclosing component can own them. */
   ignoreKey?: (ev: KeyEvent) => boolean;
 }
@@ -38,6 +40,7 @@ export function SingleSelect<V extends string>({
   onCancel,
   footer,
   inlineHints = false,
+  vividHints = false,
   ignoreKey,
 }: SingleSelectProps<V>) {
   const color = useColor();
@@ -74,11 +77,14 @@ export function SingleSelect<V extends string>({
           marker={i === index ? "▸" : " "}
           color={color}
           inlineHint={inlineHints}
+          vividHint={vividHints}
         />
       ))}
       {footer ? (
         <Box marginTop={1}>
-          <Text dimColor>{footer}</Text>
+          <Text color={vividHints ? color.info : undefined} dimColor={!vividHints}>
+            {footer}
+          </Text>
         </Box>
       ) : null}
     </Box>
@@ -168,14 +174,22 @@ function SelectRow<V extends string>({
   marker,
   color,
   inlineHint = false,
+  vividHint = false,
 }: {
   item: SelectItem<V>;
   active: boolean;
   marker: string;
   color: UiColor;
   inlineHint?: boolean;
+  vividHint?: boolean;
 }) {
-  const rowColor = item.disabled ? color.info : active ? color.primary : undefined;
+  const rowColor = item.disabled
+    ? color.info
+    : active
+      ? color.primary
+      : vividHint
+        ? color.info
+        : undefined;
   const labelText = `${marker} ${item.label}`;
   if (inlineHint) {
     return (
@@ -183,7 +197,11 @@ function SelectRow<V extends string>({
         <Text color={rowColor} bold={active} dimColor={item.disabled} wrap="truncate">
           {labelText}
         </Text>
-        {item.hint ? <Text dimColor wrap="truncate">{`  ${item.hint}`}</Text> : null}
+        {item.hint ? (
+          <Text color={vividHint ? color.accent : undefined} dimColor={!vividHint} wrap="truncate">
+            {`  ${item.hint}`}
+          </Text>
+        ) : null}
       </Box>
     );
   }

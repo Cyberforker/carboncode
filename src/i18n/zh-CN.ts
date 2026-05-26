@@ -469,11 +469,19 @@ export const zhCN: TranslationSchema = {
     themeSampleReasoning: "推理中",
   },
   themePicker: {
-    header: "主题",
+    header: "选择主题",
     footer: "↑↓ 选择 · ⏎ 确认 · Esc 取消",
     currentPref: "当前偏好",
     activeNow: "当前生效",
-    autoDesc: "使用 REASONIX_THEME 或默认主题",
+    autoDesc: "使用 CARBONCODE_THEME 或默认主题",
+    autoLabel: "自动",
+    defaultLabel: "默认",
+    darkLabel: "深色",
+    lightLabel: "浅色",
+    tokyoNightLabel: "东京夜色",
+    githubDarkLabel: "GitHub 深色",
+    githubLightLabel: "GitHub 浅色",
+    highContrastLabel: "高对比度",
   },
   planFlow: {
     approveCardTitle: "确认计划",
@@ -730,6 +738,10 @@ export const zhCN: TranslationSchema = {
       titleUnavailable: "/title 只能在已启用会话持久化的 TUI 会话中使用。",
       titleStarted: "▸ 正在命名会话…",
       titleFailed: "▸ 会话命名失败：{reason}",
+    },
+    theme: {
+      saved: "主题已保存：{theme}\n下次启动时生效：{active}",
+      unknownTheme: "未知主题：{theme}\n可用主题：{available}",
     },
     admin: {
       doctorNeedsTui: "/doctor 需要 TUI 上下文（postDoctor 已连接）。",

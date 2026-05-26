@@ -1,8 +1,9 @@
 import { render } from "ink";
 import React from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { ThemePicker } from "../src/cli/ui/ThemePicker.js";
 import { listThemeNames } from "../src/cli/ui/theme/tokens.js";
+import { setLanguageRuntime } from "../src/i18n/index.js";
 import { makeFakeStdin, makeFakeStdout } from "./helpers/ink-stdio.js";
 
 function renderPicker(props: {
@@ -23,6 +24,10 @@ function renderPicker(props: {
 }
 
 describe("ThemePicker", () => {
+  afterEach(() => {
+    setLanguageRuntime("EN");
+  });
+
   it("lists auto and all registered themes", () => {
     const text = renderPicker({ currentPreference: "auto", activeTheme: "github-dark" });
     expect(text).toContain("auto");
@@ -42,5 +47,16 @@ describe("ThemePicker", () => {
     expect(text).toContain("↑↓");
     expect(text).toContain("⏎");
     expect(text).toContain("esc");
+  });
+
+  it("renders Simplified Chinese labels when zh-CN is active", () => {
+    setLanguageRuntime("zh-CN");
+    const text = renderPicker({ currentPreference: "auto", activeTheme: "github-dark" });
+    expect(text).toContain("选择主题");
+    expect(text).toContain("auto - 自动");
+    expect(text).toContain("github-dark - GitHub 深色");
+    expect(text).toMatch(/auto[\s\S]*当前偏好/);
+    expect(text).toMatch(/github-dark[\s\S]*当前生效/);
+    expect(text).toContain("↑↓ 选择");
   });
 });

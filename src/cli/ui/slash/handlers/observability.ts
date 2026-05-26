@@ -1,5 +1,5 @@
 import { release } from "node:os";
-import { loadRateLimit, loadTheme, resolveThemePreference } from "@/config.js";
+import { loadRateLimit, loadTheme, loadThemeEnv, resolveThemePreference } from "@/config.js";
 import { getLanguage, t } from "@/i18n/index.js";
 import { DEEPSEEK_CONTEXT_TOKENS, DEFAULT_CONTEXT_TOKENS, pricingFor } from "@/telemetry/stats.js";
 import { countTokensBounded } from "@/tokenizer.js";
@@ -230,7 +230,7 @@ function estimateCost(userText: string, loop: import("@/loop.js").CacheFirstLoop
 }
 
 const feedback: SlashHandler = (_args, loop, ctx) => {
-  const themeName = resolveThemePreference(loadTheme(), process.env.REASONIX_THEME);
+  const themeName = resolveThemePreference(loadTheme(), loadThemeEnv());
   const diagnostic = buildFeedbackDiagnostic({
     version: VERSION,
     latestVersion: ctx.latestVersion ?? undefined,

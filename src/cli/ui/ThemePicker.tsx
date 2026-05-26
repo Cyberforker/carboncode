@@ -20,7 +20,7 @@ export function ThemePicker({
   const choices: ThemeChoice[] = ["auto", ...listThemeNames()];
   const items: SelectItem<ThemeChoice>[] = choices.map((value) => ({
     value,
-    label: value,
+    label: themeChoiceLabel(value),
     hint: describeTheme(value, currentPreference, activeTheme),
   }));
 
@@ -33,9 +33,37 @@ export function ThemePicker({
         onSubmit={(value) => onChoose({ kind: "select", value })}
         onCancel={() => onChoose({ kind: "quit" })}
         footer={t("themePicker.footer")}
+        inlineHints
+        vividHints
       />
     </Box>
   );
+}
+
+function themeChoiceLabel(value: ThemeChoice): string {
+  const label = t(themeLabelKey(value));
+  return label === value ? value : `${value} - ${label}`;
+}
+
+function themeLabelKey(value: ThemeChoice): string {
+  switch (value) {
+    case "auto":
+      return "themePicker.autoLabel";
+    case "default":
+      return "themePicker.defaultLabel";
+    case "dark":
+      return "themePicker.darkLabel";
+    case "light":
+      return "themePicker.lightLabel";
+    case "tokyo-night":
+      return "themePicker.tokyoNightLabel";
+    case "github-dark":
+      return "themePicker.githubDarkLabel";
+    case "github-light":
+      return "themePicker.githubLightLabel";
+    case "high-contrast":
+      return "themePicker.highContrastLabel";
+  }
 }
 
 function describeTheme(
