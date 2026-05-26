@@ -175,6 +175,24 @@ describe("read_file injects subdir memory on first read per session", () => {
     expect(out).not.toContain("[module memory:");
   });
 
+  it("respects CARBONCODE_MEMORY=off and skips injection entirely", async () => {
+    const prev = process.env.CARBONCODE_MEMORY;
+    process.env.CARBONCODE_MEMORY = "off";
+    try {
+      const tools2 = new ToolRegistry();
+      registerFilesystemTools(tools2, { rootDir: root });
+      const out = await tools2.dispatch("read_file", JSON.stringify({ path: "frontend/App.tsx" }));
+      expect(out).not.toContain("[module memory:");
+    } finally {
+      if (prev === undefined) {
+        // biome-ignore lint/performance/noDelete: env restore
+        delete process.env.CARBONCODE_MEMORY;
+      } else {
+        process.env.CARBONCODE_MEMORY = prev;
+      }
+    }
+  });
+
   it("respects REASONIX_MEMORY=off and skips injection entirely", async () => {
     const prev = process.env.REASONIX_MEMORY;
     process.env.REASONIX_MEMORY = "off";
