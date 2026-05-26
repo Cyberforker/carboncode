@@ -37,7 +37,6 @@ import {
 import type { LanguageCode } from "../../i18n/types.js";
 import { type CatalogEntry, MCP_CATALOG } from "../../mcp/catalog.js";
 import { MultiSelect, type SelectItem, SingleSelect } from "./Select.js";
-import { PRESET_DESCRIPTIONS } from "./presets.js";
 import { ThemeProvider, useTheme } from "./theme/context.js";
 import { type ThemeName, listThemeNames } from "./theme/tokens.js";
 
@@ -402,7 +401,7 @@ function LanguageStep({
   const items: SelectItem<LanguageCode>[] = getSupportedLanguages().map((code) => ({
     value: code,
     label: LANGUAGE_LABELS[code],
-    hint: code === detectSystemLanguage() ? "(detected)" : undefined,
+    hint: code === detectSystemLanguage() ? t("wizard.languageDetectedHint") : undefined,
   }));
   return (
     <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
@@ -550,6 +549,8 @@ function McpArgsStep({
 }) {
   const [value, setValue] = useState("");
   const [pendingCreate, setPendingCreate] = useState<string | null>(null);
+  const summary = mcpArgsSummaryFor(entry);
+  const note = mcpArgsNoteFor(entry);
 
   useInput((input, key) => {
     if (!pendingCreate) return;
@@ -598,10 +599,10 @@ function McpArgsStep({
   return (
     <StepFrame title={t("wizard.mcpArgsTitle", { name: entry.name })} step={2} total={3}>
       <Box flexDirection="column">
-        <Text>{entry.summary}</Text>
-        {entry.note ? (
+        <Text>{summary}</Text>
+        {note ? (
           <Box marginTop={1}>
-            <Text dimColor>{entry.note}</Text>
+            <Text dimColor>{note}</Text>
           </Box>
         ) : null}
         <Box marginTop={1}>
@@ -706,19 +707,20 @@ function SummaryLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-function presetItems(): SelectItem<PresetName>[] {
+export function presetItems(): SelectItem<PresetName>[] {
   return (["auto", "flash", "pro"] as const).map((name) => ({
     value: name as PresetName,
-    label: `${name} — ${PRESET_DESCRIPTIONS[name].headline}`,
-    hint: PRESET_DESCRIPTIONS[name].cost,
+    label: `${name} — ${t(`wizard.presetDescriptions.${name}.headline`)}`,
+    hint: t(`wizard.presetDescriptions.${name}.cost`),
   }));
 }
 
-function mcpItems(): SelectItem<string>[] {
+export function mcpItems(): SelectItem<string>[] {
   return MCP_CATALOG.map((entry) => {
-    const hintParts: string[] = [entry.summary];
+    const hintParts: string[] = [mcpCatalogSummary(entry)];
     if (entry.userArgs) hintParts.push(t("wizard.mcpUserArgsHint", { arg: entry.userArgs }));
-    if (entry.note) hintParts.push(entry.note);
+    const note = mcpCatalogNote(entry);
+    if (note) hintParts.push(note);
     return {
       value: entry.name,
       label: entry.name,
@@ -727,9 +729,28 @@ function mcpItems(): SelectItem<string>[] {
   });
 }
 
-function placeholderFor(entry: CatalogEntry): string {
-  if (entry.name === "filesystem") return "e.g. /tmp/carboncode-sandbox";
-  if (entry.name === "sqlite") return "e.g. ./notes.sqlite";
+function mcpCatalogSummary(entry: CatalogEntry): string {
+  return t(`wizard.mcpCatalog.${entry.name}.summary`);
+}
+
+function mcpCatalogNote(entry: CatalogEntry): string | undefined {
+  if (!entry.note) return undefined;
+  return t(`wizard.mcpCatalog.${entry.name}.note`);
+}
+
+export function mcpArgsSummaryFor(entry: CatalogEntry): string {
+  if (entry.name === "filesystem") return t("wizard.mcpArgsFilesystemSummary");
+  return mcpCatalogSummary(entry);
+}
+
+export function mcpArgsNoteFor(entry: CatalogEntry): string | undefined {
+  if (entry.name === "filesystem") return t("wizard.mcpArgsFilesystemNote");
+  return mcpCatalogNote(entry);
+}
+
+export function placeholderFor(entry: CatalogEntry): string {
+  if (entry.name === "filesystem") return t("wizard.mcpArgsFilesystemPlaceholder");
+  if (entry.name === "sqlite") return t("wizard.mcpArgsSqlitePlaceholder");
   return entry.userArgs ?? "";
 }
 

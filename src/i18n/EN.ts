@@ -427,6 +427,7 @@ export const EN: TranslationSchema = {
   wizard: {
     languageTitle: "Choose your language",
     languageSubtitle: "Detected from your system locale. Switch later via /language.",
+    languageDetectedHint: "(detected)",
     welcomeTitle: "Welcome to Carbon Code.",
     apiKeyPrompt: "Paste your DeepSeek API key to get started.",
     apiKeyGetOne: "Get one at: https://platform.deepseek.com/api_keys",
@@ -452,6 +453,41 @@ export const EN: TranslationSchema = {
       "github-light": "GitHub light",
       "high-contrast": "Accessibility",
     },
+    presetDescriptions: {
+      auto: {
+        headline: "flash → pro on hard turns",
+        cost: "default · ~96% turns stay on flash · pro kicks in only when needed",
+      },
+      flash: {
+        headline: "v4-flash always",
+        cost: "cheapest · predictable · /pro still works for a one-turn bump",
+      },
+      pro: {
+        headline: "v4-pro always",
+        cost: "~3× flash (5/31 discount) / ~12× full price · for hard multi-turn work",
+      },
+    },
+    mcpCatalog: {
+      filesystem: {
+        summary: "read/write/search files inside a sandboxed directory",
+        note: "the directory is a hard sandbox — the server refuses access outside it",
+      },
+      memory: {
+        summary: "persistent key-value memory across sessions",
+      },
+      github: {
+        summary: "read issues, PRs, code search (needs GITHUB_PERSONAL_ACCESS_TOKEN)",
+        note: "set GITHUB_PERSONAL_ACCESS_TOKEN in your env before spawning",
+      },
+      puppeteer: {
+        summary: "browser automation — take screenshots, click, type",
+        note: "downloads Chromium on first run (~200 MB)",
+      },
+      everything: {
+        summary: "official test server — exercises every MCP feature",
+        note: "useful for debugging your Carbon Code setup",
+      },
+    },
     reviewLabelTheme: "Theme",
     presetTitle: "Pick a preset",
     mcpTitle: "Which MCP servers should Carbon Code wire up for you?",
@@ -465,6 +501,10 @@ export const EN: TranslationSchema = {
     mcpArgsRequiredParam: "Required parameter: ",
     mcpArgsEmpty: "{name} needs a value — got an empty string.",
     mcpArgsNotADir: "{path} exists but is not a directory.",
+    mcpArgsFilesystemPlaceholder: "e.g. /tmp/carboncode-sandbox",
+    mcpArgsSqlitePlaceholder: "e.g. ./notes.sqlite",
+    mcpArgsFilesystemSummary: "read/write/search files inside a sandboxed directory",
+    mcpArgsFilesystemNote: "the directory is a hard sandbox — the server refuses access outside it",
     reviewTitle: "Ready to save",
     reviewLabelApiKey: "API key",
     reviewLabelLanguage: "Language",

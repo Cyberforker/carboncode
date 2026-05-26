@@ -281,6 +281,7 @@ export interface TranslationSchema {
   wizard: {
     languageTitle: string;
     languageSubtitle: string;
+    languageDetectedHint: string;
     welcomeTitle: string;
     apiKeyPrompt: string;
     apiKeyGetOne: string;
@@ -302,11 +303,20 @@ export interface TranslationSchema {
     mcpArgsRequiredParam: string;
     mcpArgsEmpty: string;
     mcpArgsNotADir: string;
+    mcpArgsFilesystemPlaceholder: string;
+    mcpArgsSqlitePlaceholder: string;
+    mcpArgsFilesystemSummary: string;
+    mcpArgsFilesystemNote: string;
     themeTitle: string;
     themeSubtitle: string;
     themeSampleHeading: string;
     themeFooter: string;
     themeCaption: Record<string, string>;
+    presetDescriptions: Record<"auto" | "flash" | "pro", { headline: string; cost: string }>;
+    mcpCatalog: Record<
+      "filesystem" | "memory" | "github" | "puppeteer" | "everything",
+      { summary: string; note?: string }
+    >;
     reviewTitle: string;
     reviewLabelApiKey: string;
     reviewLabelLanguage: string;

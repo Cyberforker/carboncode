@@ -416,6 +416,7 @@ export const zhCN: TranslationSchema = {
   wizard: {
     languageTitle: "选择语言",
     languageSubtitle: "已根据系统语言自动选中。之后可用 /language 切换。",
+    languageDetectedHint: "（已检测）",
     welcomeTitle: "欢迎使用 Carbon Code。",
     apiKeyPrompt: "粘贴你的 DeepSeek API key 开始使用。",
     apiKeyGetOne: "在此获取：https://platform.deepseek.com/api_keys",
@@ -439,6 +440,41 @@ export const zhCN: TranslationSchema = {
       "github-light": "GitHub 浅色",
       "high-contrast": "高对比度（无障碍）",
     },
+    presetDescriptions: {
+      auto: {
+        headline: "困难轮次从 flash 升级到 pro",
+        cost: "默认 · 大多数轮次使用 flash · 需要时才启用 pro",
+      },
+      flash: {
+        headline: "始终使用 v4-flash",
+        cost: "最便宜 · 可预测 · 仍可用 /pro 临时提升一轮",
+      },
+      pro: {
+        headline: "始终使用 v4-pro",
+        cost: "约 3 倍 flash（5/31 折扣）/ 原价约 12 倍 · 适合困难的多轮工作",
+      },
+    },
+    mcpCatalog: {
+      filesystem: {
+        summary: "在沙箱目录内读取、写入和搜索文件",
+        note: "该目录是严格沙箱 — 服务器会拒绝访问目录外的路径",
+      },
+      memory: {
+        summary: "跨会话保存持久化键值记忆",
+      },
+      github: {
+        summary: "读取 issues、PR 和代码搜索（需要 GITHUB_PERSONAL_ACCESS_TOKEN）",
+        note: "启动前请在环境变量中设置 GITHUB_PERSONAL_ACCESS_TOKEN",
+      },
+      puppeteer: {
+        summary: "浏览器自动化 — 截图、点击、输入",
+        note: "首次运行会下载 Chromium（约 200 MB）",
+      },
+      everything: {
+        summary: "官方测试服务器 — 覆盖所有 MCP 功能",
+        note: "适合调试 Carbon Code 设置",
+      },
+    },
     reviewLabelTheme: "主题",
     presetTitle: "选择预设",
     mcpTitle: "Carbon Code 要为你接入哪些 MCP 服务器？",
@@ -451,6 +487,10 @@ export const zhCN: TranslationSchema = {
     mcpArgsRequiredParam: "必填参数：",
     mcpArgsEmpty: "{name} 需要一个值 — 不能为空。",
     mcpArgsNotADir: "{path} 存在但不是目录。",
+    mcpArgsFilesystemPlaceholder: "例如：/tmp/carboncode-sandbox",
+    mcpArgsSqlitePlaceholder: "例如：./notes.sqlite",
+    mcpArgsFilesystemSummary: "在沙盒目录内读写和搜索文件",
+    mcpArgsFilesystemNote: "该目录是严格沙盒，服务器会拒绝访问目录外的内容",
     reviewTitle: "确认保存",
     reviewLabelApiKey: "API key",
     reviewLabelLanguage: "语言",
