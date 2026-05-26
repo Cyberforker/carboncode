@@ -89,7 +89,7 @@ export function readProjectMemory(rootDir: string): ProjectMemory | null {
 }
 
 export function memoryEnabled(): boolean {
-  const env = process.env.CARBONCODE_MEMORY ?? process.env.REASONIX_MEMORY;
+  const env = (process.env.CARBONCODE_MEMORY ?? process.env.REASONIX_MEMORY)?.trim().toLowerCase();
   if (env === "off" || env === "false" || env === "0") return false;
   return true;
 }

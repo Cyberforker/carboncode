@@ -185,8 +185,18 @@ describe("project-memory", () => {
       expect(memoryEnabled()).toBe(false);
     });
 
+    it("normalizes CARBONCODE_MEMORY before checking opt-out values", () => {
+      process.env.CARBONCODE_MEMORY = " OFF ";
+      expect(memoryEnabled()).toBe(false);
+    });
+
     it.each(["off", "false", "0"])("keeps legacy REASONIX_MEMORY=%s as an opt-out", (val) => {
       process.env.REASONIX_MEMORY = val;
+      expect(memoryEnabled()).toBe(false);
+    });
+
+    it("normalizes legacy REASONIX_MEMORY opt-out values", () => {
+      process.env.REASONIX_MEMORY = " False ";
       expect(memoryEnabled()).toBe(false);
     });
 
