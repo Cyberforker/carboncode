@@ -132,6 +132,7 @@ describe("Carbon broad Reasonix import", () => {
     const appBundle = readFileSync(resolve("dashboard/app.js"), "utf8");
     const indexHtml = readFileSync(resolve("dashboard/index.html"), "utf8");
     const memoryPanel = readFileSync(resolve("dashboard/src/panels/memory.ts"), "utf8");
+    const systemPanel = readFileSync(resolve("dashboard/src/panels/system.ts"), "utf8");
 
     expect(appBundle).toContain("CARBON CODE");
     expect(appBundle).not.toContain("REASONIX");
@@ -139,6 +140,8 @@ describe("Carbon broad Reasonix import", () => {
     expect(indexHtml).not.toContain("reasonix-token");
     expect(memoryPanel).toContain("CARBON.md");
     expect(memoryPanel).not.toContain("REASONIX.md");
+    expect(systemPanel).toContain("carboncodeHome");
+    expect(systemPanel).not.toContain("reasonixHome");
   });
 
   test("new-user model defaults expose official DeepSeek V4 API model IDs", () => {
