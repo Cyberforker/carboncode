@@ -18,9 +18,26 @@ describe("semantic i18n", () => {
   });
 
   describe("detectLocale", () => {
-    it("returns 'zh' when REASONIX_LANG=zh", () => {
+    it("returns 'zh' when CARBONCODE_LANG=zh", () => {
+      process.env.CARBONCODE_LANG = "zh";
+      expect(detectLocale()).toBe("zh");
+    });
+
+    it("keeps REASONIX_LANG=zh as a legacy fallback", () => {
       process.env.REASONIX_LANG = "zh";
       expect(detectLocale()).toBe("zh");
+    });
+
+    it("lets CARBONCODE_LANG override legacy REASONIX_LANG", () => {
+      process.env.CARBONCODE_LANG = "en";
+      process.env.REASONIX_LANG = "zh";
+      expect(detectLocale()).toBe("en");
+    });
+
+    it("returns 'en' when CARBONCODE_LANG=en (overrides system locale)", () => {
+      process.env.CARBONCODE_LANG = "en";
+      process.env.LANG = "zh_CN.UTF-8";
+      expect(detectLocale()).toBe("en");
     });
 
     it("returns 'en' when REASONIX_LANG=en (overrides system locale)", () => {

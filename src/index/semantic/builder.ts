@@ -1,6 +1,10 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { type ResolvedEmbeddingConfig, resolveSemanticEmbeddingConfig } from "../../config.js";
+import {
+  type ResolvedEmbeddingConfig,
+  resolveSemanticEmbeddingConfig,
+  resolveSemanticOllamaModelEnv,
+} from "../../config.js";
 import { type ResolvedIndexConfig, defaultIndexConfig } from "../config.js";
 import { walkChunks } from "./chunker.js";
 import type { CodeChunk, SkipReason } from "./chunker.js";
@@ -305,7 +309,7 @@ function resolveBuildEmbeddingConfig(opts: BuildOptions): ResolvedEmbeddingConfi
     return {
       provider: "ollama",
       baseUrl: opts.baseUrl ?? process.env.OLLAMA_URL ?? "http://localhost:11434",
-      model: opts.model ?? process.env.REASONIX_EMBED_MODEL ?? "nomic-embed-text",
+      model: opts.model ?? resolveSemanticOllamaModelEnv() ?? "nomic-embed-text",
       timeoutMs: opts.timeoutMs ?? 30_000,
     };
   }

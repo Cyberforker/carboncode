@@ -272,6 +272,12 @@ const DEFAULT_EMBED_MODEL = "nomic-embed-text";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_BATCH_SIZE = 10;
 
+export function resolveSemanticOllamaModelEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  return env.CARBONCODE_EMBED_MODEL ?? env.REASONIX_EMBED_MODEL;
+}
+
 export function defaultConfigPath(): string {
   return join(homedir(), ".carboncode", "config.json");
 }
@@ -968,7 +974,7 @@ export function resolveSemanticEmbeddingConfig(
   return {
     provider: "ollama",
     baseUrl: user.ollama?.baseUrl?.trim() || process.env.OLLAMA_URL || DEFAULT_OLLAMA_URL,
-    model: user.ollama?.model?.trim() || process.env.REASONIX_EMBED_MODEL || DEFAULT_EMBED_MODEL,
+    model: user.ollama?.model?.trim() || resolveSemanticOllamaModelEnv() || DEFAULT_EMBED_MODEL,
     timeoutMs: DEFAULT_TIMEOUT_MS,
   };
 }
@@ -982,7 +988,7 @@ export function redactSemanticEmbeddingConfig(
     ollama: {
       baseUrl: normalized.ollama?.baseUrl?.trim() || process.env.OLLAMA_URL || DEFAULT_OLLAMA_URL,
       model:
-        normalized.ollama?.model?.trim() || process.env.REASONIX_EMBED_MODEL || DEFAULT_EMBED_MODEL,
+        normalized.ollama?.model?.trim() || resolveSemanticOllamaModelEnv() || DEFAULT_EMBED_MODEL,
     },
     openaiCompat: {
       baseUrl: normalized.openaiCompat?.baseUrl?.trim() ?? "",

@@ -9,6 +9,7 @@ import {
   loadBaseUrl,
   readConfig,
   resolveSemanticEmbeddingConfig,
+  resolveSemanticOllamaModelEnv,
 } from "../../config.js";
 import { loadDotenv } from "../../env.js";
 import { loadHooks } from "../../hooks.js";
@@ -382,7 +383,7 @@ async function checkOllama(projectRoot: string): Promise<Check> {
     };
   }
   try {
-    const model = meta?.model || process.env.REASONIX_EMBED_MODEL || "nomic-embed-text";
+    const model = meta?.model || resolveSemanticOllamaModelEnv() || "nomic-embed-text";
     const status = await checkOllamaStatus(model);
     if (!status.binaryFound) {
       return {
