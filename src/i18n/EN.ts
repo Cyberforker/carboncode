@@ -1392,6 +1392,54 @@ export const EN: TranslationSchema = {
     parseFailed: "couldn't parse settings.json \u2014 {message}",
     probeFailed: "probe failed \u2014 {message}",
   },
+  doctorReport: {
+    labels: {
+      apiKey: "api key",
+      config: "config",
+      proxy: "http proxy",
+      apiReach: "api reach",
+      tokenizer: "tokenizer",
+      sessions: "sessions",
+      hooks: "hooks",
+      semantic: "semantic",
+      project: "project",
+    },
+    details: {
+      proxyDirect: "no HTTPS_PROXY / HTTP_PROXY / ALL_PROXY set \u2014 direct connection",
+      proxyRouting: "routing fetch through {url}",
+      apiKeyEnv: "set via env DEEPSEEK_API_KEY ({tail})",
+      apiKeyConfig: "from {path} ({tail})",
+      apiKeyMissing:
+        "not set \u2014 `carboncode setup` to save one, or export DEEPSEEK_API_KEY. Get a key at https://platform.deepseek.com/api_keys",
+      configMissing: "missing \u2014 running with library defaults. `carboncode setup` writes one.",
+      apiReachSkipped: "skipped \u2014 no api key to test with",
+      apiReachNull: "/user/balance returned null \u2014 auth failed or network blocked",
+      apiReachUnavailable:
+        "account flagged not-available ({summary}) \u2014 top up or check your dashboard",
+      apiReachOk: "/user/balance ok",
+      apiReachOkWithBalance: "/user/balance ok \u2014 {summary}",
+      tokenizerMissing:
+        "data/deepseek-tokenizer.json.gz not found \u2014 token counts will fall back to char heuristics",
+      sessionsZero: "0 saved",
+      sessionsSummary: "{count} saved \u00b7 {size} \u00b7 oldest {days}d",
+      sessionsStale: "{detail} \u00b7 {stale} idle \u226590d (run `carboncode prune-sessions`)",
+      hooksSummary: "{global} global, {project} project",
+      semanticNoIndex: "not in use (no semantic index built; `carboncode index` to enable)",
+      semanticMismatch:
+        "index uses {indexProvider}/{indexModel} but current config resolves to {configProvider}/{configModel} \u2014 rebuild before searching",
+      semanticOpenaiOk:
+        "openai-compat \u00b7 {baseUrl} \u00b7 model {model} \u00b7 api key configured",
+      semanticOllamaMissing:
+        "ollama binary not on PATH \u2014 semantic_search will fail; install from https://ollama.com",
+      semanticOllamaStopped:
+        "ollama daemon not running \u2014 `ollama serve` (or call /semantic in TUI to auto-start)",
+      semanticOllamaModelMissing: "model {model} not pulled \u2014 `ollama pull {model}`",
+      semanticOllamaReady: "ollama daemon up \u00b7 model {model} ready",
+      projectMissing:
+        "{path} has none of: {markers} \u2026 \u2014 `carboncode code` will still run, but @-mentions and project memory have nothing to anchor",
+      projectOk: "{path} ({markers})",
+    },
+  },
   webErrors: {
     status:
       "web_search {status} \u2014 try: the search backend returned an error; rephrase the query, or switch engine with /search-engine mojeek|searxng",

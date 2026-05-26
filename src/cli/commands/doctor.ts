@@ -39,6 +39,16 @@ export interface DoctorOptions {
 
 type Level = DoctorLevel;
 type Check = DoctorCheck;
+type DoctorLabelKey =
+  | "apiKey"
+  | "config"
+  | "proxy"
+  | "apiReach"
+  | "tokenizer"
+  | "sessions"
+  | "hooks"
+  | "semantic"
+  | "project";
 
 export async function runDoctorChecks(projectRoot: string): Promise<DoctorCheck[]> {
   return Promise.all([
@@ -59,9 +69,9 @@ function checkProxy(): Check {
   if (!url) {
     return {
       id: "proxy",
-      label: "http proxy   ",
+      label: doctorLabel("proxy"),
       level: "ok",
-      detail: "no HTTPS_PROXY / HTTP_PROXY / ALL_PROXY set — direct connection",
+      detail: t("doctorReport.details.proxyDirect"),
     };
   }
   let redacted = url;
@@ -77,9 +87,9 @@ function checkProxy(): Check {
   }
   return {
     id: "proxy",
-    label: "http proxy   ",
+    label: doctorLabel("proxy"),
     level: "ok",
-    detail: `routing fetch through ${redacted}`,
+    detail: t("doctorReport.details.proxyRouting", { url: redacted }),
   };
 }
 
@@ -106,14 +116,18 @@ function fmtBytes(n: number): string {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
+function doctorLabel(key: DoctorLabelKey): string {
+  return t(`doctorReport.labels.${key}`).padEnd(12);
+}
+
 async function checkApiKey(): Promise<Check> {
   const fromEnv = process.env.DEEPSEEK_API_KEY;
   if (fromEnv) {
     return {
       id: "api-key",
-      label: "api key      ",
+      label: doctorLabel("apiKey"),
       level: "ok",
-      detail: `set via env DEEPSEEK_API_KEY (${tail4(fromEnv)})`,
+      detail: t("doctorReport.details.apiKeyEnv", { tail: tail4(fromEnv) }),
     };
   }
   try {
@@ -121,9 +135,12 @@ async function checkApiKey(): Promise<Check> {
     if (cfg.apiKey) {
       return {
         id: "api-key",
-        label: "api key      ",
+        label: doctorLabel("apiKey"),
         level: "ok",
-        detail: `from ${defaultConfigPath()} (${tail4(cfg.apiKey)})`,
+        detail: t("doctorReport.details.apiKeyConfig", {
+          path: defaultConfigPath(),
+          tail: tail4(cfg.apiKey),
+        }),
       };
     }
   } catch {
@@ -131,10 +148,9 @@ async function checkApiKey(): Promise<Check> {
   }
   return {
     id: "api-key",
-    label: "api key      ",
+    label: doctorLabel("apiKey"),
     level: "fail",
-    detail:
-      "not set — `carboncode setup` to save one, or export DEEPSEEK_API_KEY. Get a key at https://platform.deepseek.com/api_keys",
+    detail: t("doctorReport.details.apiKeyMissing"),
   };
 }
 
@@ -143,9 +159,9 @@ async function checkConfig(): Promise<Check> {
   if (!existsSync(path)) {
     return {
       id: "config",
-      label: "config       ",
+      label: doctorLabel("config"),
       level: "warn",
-      detail: "missing — running with library defaults. `carboncode setup` writes one.",
+      detail: t("doctorReport.details.configMissing"),
     };
   }
   try {
@@ -156,14 +172,14 @@ async function checkConfig(): Promise<Check> {
     if (cfg.mcp && cfg.mcp.length > 0) parts.push(`mcp=${cfg.mcp.length}`);
     return {
       id: "config",
-      label: "config       ",
+      label: doctorLabel("config"),
       level: "ok",
       detail: `${path}${parts.length ? ` (${parts.join(", ")})` : ""}`,
     };
   } catch (err) {
     return {
       id: "config",
-      label: "config       ",
+      label: doctorLabel("config"),
       level: "fail",
       detail: t("doctorErrors.unreadable", { path, message: (err as Error).message }),
     };
@@ -175,9 +191,9 @@ async function checkApiReach(): Promise<Check> {
   if (!key) {
     return {
       id: "api-reach",
-      label: "api reach    ",
+      label: doctorLabel("apiReach"),
       level: "warn",
-      detail: "skipped — no api key to test with",
+      detail: t("doctorReport.details.apiReachSkipped"),
     };
   }
   try {
@@ -193,30 +209,32 @@ async function checkApiReach(): Promise<Check> {
     if (!balance) {
       return {
         id: "api-reach",
-        label: "api reach    ",
+        label: doctorLabel("apiReach"),
         level: "fail",
-        detail: "/user/balance returned null — auth failed or network blocked",
+        detail: t("doctorReport.details.apiReachNull"),
       };
     }
     const summary = summarizeBalances(balance.balance_infos);
     if (!balance.is_available) {
       return {
         id: "api-reach",
-        label: "api reach    ",
+        label: doctorLabel("apiReach"),
         level: "warn",
-        detail: `account flagged not-available${summary ? ` (${summary})` : ""} — top up or check your dashboard`,
+        detail: t("doctorReport.details.apiReachUnavailable", { summary }),
       };
     }
     return {
       id: "api-reach",
-      label: "api reach    ",
+      label: doctorLabel("apiReach"),
       level: "ok",
-      detail: summary ? `/user/balance ok — ${summary}` : "/user/balance ok",
+      detail: summary
+        ? t("doctorReport.details.apiReachOkWithBalance", { summary })
+        : t("doctorReport.details.apiReachOk"),
     };
   } catch (err) {
     return {
       id: "api-reach",
-      label: "api reach    ",
+      label: doctorLabel("apiReach"),
       level: "fail",
       detail: `${(err as Error).message}`,
     };
@@ -244,7 +262,7 @@ async function checkTokenizer(): Promise<Check> {
       const stat = statSync(path);
       return {
         id: "tokenizer",
-        label: "tokenizer    ",
+        label: doctorLabel("tokenizer"),
         level: "ok",
         detail: `${path} (${fmtBytes(stat.size)})`,
       };
@@ -254,10 +272,9 @@ async function checkTokenizer(): Promise<Check> {
   }
   return {
     id: "tokenizer",
-    label: "tokenizer    ",
+    label: doctorLabel("tokenizer"),
     level: "warn",
-    detail:
-      "data/deepseek-tokenizer.json.gz not found — token counts will fall back to char heuristics",
+    detail: t("doctorReport.details.tokenizerMissing"),
   };
 }
 
@@ -267,9 +284,9 @@ async function checkSessions(): Promise<Check> {
     if (list.length === 0) {
       return {
         id: "sessions",
-        label: "sessions     ",
+        label: doctorLabel("sessions"),
         level: "ok",
-        detail: "0 saved",
+        detail: t("doctorReport.details.sessionsZero"),
       };
     }
     const totalBytes = list.reduce((s, e) => s + e.size, 0);
@@ -278,20 +295,24 @@ async function checkSessions(): Promise<Check> {
     const stale = list.filter(
       (e) => Date.now() - e.mtime.getTime() >= 90 * 24 * 60 * 60 * 1000,
     ).length;
-    const detail = `${list.length} saved · ${fmtBytes(totalBytes)} · oldest ${ageDays}d`;
+    const detail = t("doctorReport.details.sessionsSummary", {
+      count: list.length,
+      size: fmtBytes(totalBytes),
+      days: ageDays,
+    });
     if (stale > 0) {
       return {
         id: "sessions",
-        label: "sessions     ",
+        label: doctorLabel("sessions"),
         level: "warn",
-        detail: `${detail} · ${stale} idle ≥90d (run \`carboncode prune-sessions\`)`,
+        detail: t("doctorReport.details.sessionsStale", { detail, stale }),
       };
     }
-    return { id: "sessions", label: "sessions     ", level: "ok", detail };
+    return { id: "sessions", label: doctorLabel("sessions"), level: "ok", detail };
   } catch (err) {
     return {
       id: "sessions",
-      label: "sessions     ",
+      label: doctorLabel("sessions"),
       level: "warn",
       detail: t("doctorErrors.cannotList", { message: (err as Error).message }),
     };
@@ -305,14 +326,14 @@ async function checkHooks(projectRoot: string): Promise<Check> {
     const project = all.filter((h) => h.scope === "project").length;
     return {
       id: "hooks",
-      label: "hooks        ",
+      label: doctorLabel("hooks"),
       level: "ok",
-      detail: `${global} global, ${project} project`,
+      detail: t("doctorReport.details.hooksSummary", { global, project }),
     };
   } catch (err) {
     return {
       id: "hooks",
-      label: "hooks        ",
+      label: doctorLabel("hooks"),
       level: "warn",
       detail: t("doctorErrors.parseFailed", { message: (err as Error).message }),
     };
@@ -329,9 +350,9 @@ async function checkOllama(projectRoot: string): Promise<Check> {
   if (!exists) {
     return {
       id: "semantic",
-      label: "semantic     ",
+      label: doctorLabel("semantic"),
       level: "ok",
-      detail: "not in use (no semantic index built; `carboncode index` to enable)",
+      detail: t("doctorReport.details.semanticNoIndex"),
     };
   }
   const meta = readSemanticMeta(projectRoot);
@@ -340,16 +361,24 @@ async function checkOllama(projectRoot: string): Promise<Check> {
     if (resolved.provider !== "openai-compat") {
       return {
         id: "semantic",
-        label: "semantic     ",
+        label: doctorLabel("semantic"),
         level: "warn",
-        detail: `index uses openai-compat/${meta.model} but current config resolves to ${resolved.provider}/${resolved.model} — rebuild before searching`,
+        detail: t("doctorReport.details.semanticMismatch", {
+          indexProvider: "openai-compat",
+          indexModel: meta.model,
+          configProvider: resolved.provider,
+          configModel: resolved.model,
+        }),
       };
     }
     return {
       id: "semantic",
-      label: "semantic     ",
+      label: doctorLabel("semantic"),
       level: "ok",
-      detail: `openai-compat · ${resolved.baseUrl} · model ${resolved.model} · api key configured`,
+      detail: t("doctorReport.details.semanticOpenaiOk", {
+        baseUrl: resolved.baseUrl,
+        model: resolved.model,
+      }),
     };
   }
   try {
@@ -358,39 +387,39 @@ async function checkOllama(projectRoot: string): Promise<Check> {
     if (!status.binaryFound) {
       return {
         id: "semantic",
-        label: "semantic     ",
+        label: doctorLabel("semantic"),
         level: "warn",
-        detail:
-          "ollama binary not on PATH — semantic_search will fail; install from https://ollama.com",
+        detail: t("doctorReport.details.semanticOllamaMissing"),
       };
     }
     if (!status.daemonRunning) {
       return {
         id: "semantic",
-        label: "semantic     ",
+        label: doctorLabel("semantic"),
         level: "warn",
-        detail:
-          "ollama daemon not running — `ollama serve` (or call /semantic in TUI to auto-start)",
+        detail: t("doctorReport.details.semanticOllamaStopped"),
       };
     }
     if (!status.modelPulled) {
       return {
         id: "semantic",
-        label: "semantic     ",
+        label: doctorLabel("semantic"),
         level: "warn",
-        detail: `model ${status.modelName} not pulled — \`ollama pull ${status.modelName}\``,
+        detail: t("doctorReport.details.semanticOllamaModelMissing", {
+          model: status.modelName,
+        }),
       };
     }
     return {
       id: "semantic",
-      label: "semantic     ",
+      label: doctorLabel("semantic"),
       level: "ok",
-      detail: `ollama daemon up · model ${status.modelName} ready`,
+      detail: t("doctorReport.details.semanticOllamaReady", { model: status.modelName }),
     };
   } catch (err) {
     return {
       id: "semantic",
-      label: "semantic     ",
+      label: doctorLabel("semantic"),
       level: "warn",
       detail: t("doctorErrors.probeFailed", { message: (err as Error).message }),
     };
@@ -432,16 +461,19 @@ async function checkProject(projectRoot: string): Promise<Check> {
   if (found.length === 0) {
     return {
       id: "project",
-      label: "project      ",
+      label: doctorLabel("project"),
       level: "warn",
-      detail: `${projectRoot} has none of: ${markers.slice(0, 3).join(", ")} … — \`carboncode code\` will still run, but @-mentions and project memory have nothing to anchor`,
+      detail: t("doctorReport.details.projectMissing", {
+        path: projectRoot,
+        markers: markers.slice(0, 3).join(", "),
+      }),
     };
   }
   return {
     id: "project",
-    label: "project      ",
+    label: doctorLabel("project"),
     level: "ok",
-    detail: `${projectRoot} (${found.join(", ")})`,
+    detail: t("doctorReport.details.projectOk", { path: projectRoot, markers: found.join(", ") }),
   };
 }
 

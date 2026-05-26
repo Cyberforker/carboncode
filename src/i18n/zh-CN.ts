@@ -1320,6 +1320,51 @@ export const zhCN: TranslationSchema = {
     parseFailed: "无法解析 settings.json — {message}",
     probeFailed: "探测失败 — {message}",
   },
+  doctorReport: {
+    labels: {
+      apiKey: "API 密钥",
+      config: "配置",
+      proxy: "HTTP 代理",
+      apiReach: "API 连通",
+      tokenizer: "分词器",
+      sessions: "会话",
+      hooks: "钩子",
+      semantic: "语义索引",
+      project: "项目",
+    },
+    details: {
+      proxyDirect: "未设置 HTTPS_PROXY / HTTP_PROXY / ALL_PROXY — 直连",
+      proxyRouting: "请求将通过代理 {url}",
+      apiKeyEnv: "通过环境变量 DEEPSEEK_API_KEY 设置（{tail}）",
+      apiKeyConfig: "来自 {path}（{tail}）",
+      apiKeyMissing:
+        "未设置 — 运行 `carboncode setup` 保存，或设置环境变量 DEEPSEEK_API_KEY。可在 https://platform.deepseek.com/api_keys 获取 key",
+      configMissing: "配置文件缺失 — 当前使用默认设置。运行 `carboncode setup` 会写入配置。",
+      apiReachSkipped: "已跳过 — 没有可用于测试的 API key",
+      apiReachNull: "/user/balance 返回空结果 — 可能是认证失败或网络被阻断",
+      apiReachUnavailable: "账号当前不可用（{summary}）— 请充值，或在 DeepSeek 控制台检查账号状态",
+      apiReachOk: "/user/balance 正常",
+      apiReachOkWithBalance: "/user/balance 正常 — {summary}",
+      tokenizerMissing: "未找到 data/deepseek-tokenizer.json.gz — token 统计将退回到字符数估算",
+      sessionsZero: "0 个已保存会话",
+      sessionsSummary: "{count} 个已保存 · {size} · 最早 {days} 天前",
+      sessionsStale: "{detail} · {stale} 个已闲置 ≥90 天（运行 `carboncode prune-sessions` 清理）",
+      hooksSummary: "{global} 个全局，{project} 个项目",
+      semanticNoIndex: "未启用（没有构建语义索引；运行 `carboncode index` 可启用）",
+      semanticMismatch:
+        "索引使用 {indexProvider}/{indexModel}，但当前配置是 {configProvider}/{configModel} — 搜索前请重建索引",
+      semanticOpenaiOk: "openai-compat · {baseUrl} · 模型 {model} · API key 已配置",
+      semanticOllamaMissing:
+        "PATH 中找不到 ollama — semantic_search 将不可用；请从 https://ollama.com 安装",
+      semanticOllamaStopped:
+        "ollama 服务未运行 — 执行 `ollama serve`，或在 TUI 中调用 /semantic 自动启动",
+      semanticOllamaModelMissing: "模型 {model} 尚未拉取 — 执行 `ollama pull {model}`",
+      semanticOllamaReady: "ollama 服务运行中 · 模型 {model} 已就绪",
+      projectMissing:
+        "{path} 中没有 {markers} 等项目标记 — `carboncode code` 仍可运行，但 @ 引用和项目记忆缺少锚点",
+      projectOk: "{path}（{markers}）",
+    },
+  },
   webErrors: {
     status:
       "web_search {status} — try: 搜索后端返回错误；请改写查询，或使用 /search-engine mojeek|searxng 切换引擎",

@@ -621,6 +621,46 @@ export interface TranslationSchema {
     parseFailed: string;
     probeFailed: string;
   };
+  doctorReport: {
+    labels: {
+      apiKey: string;
+      config: string;
+      proxy: string;
+      apiReach: string;
+      tokenizer: string;
+      sessions: string;
+      hooks: string;
+      semantic: string;
+      project: string;
+    };
+    details: {
+      proxyDirect: string;
+      proxyRouting: string;
+      apiKeyEnv: string;
+      apiKeyConfig: string;
+      apiKeyMissing: string;
+      configMissing: string;
+      apiReachSkipped: string;
+      apiReachNull: string;
+      apiReachUnavailable: string;
+      apiReachOk: string;
+      apiReachOkWithBalance: string;
+      tokenizerMissing: string;
+      sessionsZero: string;
+      sessionsSummary: string;
+      sessionsStale: string;
+      hooksSummary: string;
+      semanticNoIndex: string;
+      semanticMismatch: string;
+      semanticOpenaiOk: string;
+      semanticOllamaMissing: string;
+      semanticOllamaStopped: string;
+      semanticOllamaModelMissing: string;
+      semanticOllamaReady: string;
+      projectMissing: string;
+      projectOk: string;
+    };
+  };
   webErrors: {
     status: string;
     rateLimit429: string;
