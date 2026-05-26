@@ -6,12 +6,12 @@ use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 use parking_lot::Mutex;
 use serde::Serialize;
-use tauri::{AppHandle, Emitter, State};
 #[cfg(not(debug_assertions))]
 use tauri::Manager;
+use tauri::{AppHandle, Emitter, State};
 use which::which_all;
 
 #[derive(Default)]
@@ -40,12 +40,17 @@ struct ExitEvent {
     code: Option<i32>,
 }
 
+fn cli_override() -> Option<(&'static str, String)> {
+    env::var("CARBONCODE_CLI")
+        .map(|value| ("CARBONCODE_CLI", value))
+        .or_else(|_| env::var("REASONIX_CLI").map(|value| ("REASONIX_CLI", value)))
+        .ok()
+}
+
 fn resolve_cli(app: &AppHandle) -> Result<(String, Vec<String>)> {
-    if let Ok(custom) = env::var("REASONIX_CLI") {
+    if let Some((env_name, custom)) = cli_override() {
         let mut parts = custom.split_whitespace().map(String::from);
-        let program = parts
-            .next()
-            .ok_or_else(|| anyhow!("REASONIX_CLI is empty"))?;
+        let program = parts.next().ok_or_else(|| anyhow!("{env_name} is empty"))?;
         return Ok((program, parts.collect()));
     }
 
@@ -69,7 +74,10 @@ fn resolve_cli(app: &AppHandle) -> Result<(String, Vec<String>)> {
         if is_real_node && cli_path.exists() {
             return Ok((
                 node_path.to_string_lossy().into_owned(),
-                vec![cli_path.to_string_lossy().into_owned(), "desktop".to_string()],
+                vec![
+                    cli_path.to_string_lossy().into_owned(),
+                    "desktop".to_string(),
+                ],
             ));
         }
     }
@@ -122,7 +130,11 @@ fn find_real_node() -> Result<PathBuf> {
                     "{} ({} bytes{})",
                     p.display(),
                     size,
-                    if is_ms_store_shim { ", MS Store shim" } else { "" },
+                    if is_ms_store_shim {
+                        ", MS Store shim"
+                    } else {
+                        ""
+                    },
                 ));
             }
         }
@@ -259,7 +271,9 @@ fn kill_process_tree(pid: u32) {
 #[tauri::command]
 pub fn rpc_kill(state: State<'_, RpcState>) -> Result<(), String> {
     let handle_opt = state.inner.lock().take();
-    let Some(handle) = handle_opt else { return Ok(()) };
+    let Some(handle) = handle_opt else {
+        return Ok(());
+    };
 
     drop(handle.stdin);
 
