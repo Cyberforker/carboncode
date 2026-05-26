@@ -3,20 +3,30 @@
 import { spawnSync } from "node:child_process";
 import { totalmem } from "node:os";
 import { getHeapStatistics } from "node:v8";
-import { RX_HEAP_REEXEC_ENV, decideHeapTargetMb } from "./heap-limit.js";
+import {
+  HEAP_REEXEC_ENV,
+  LEGACY_HEAP_REEXEC_ENV,
+  decideHeapTargetMb,
+  isHeapReexecEnvSet,
+} from "./heap-limit.js";
 
 const target = decideHeapTargetMb({
   currentLimitMb: Math.floor(getHeapStatistics().heap_size_limit / 1024 / 1024),
   totalMemMb: Math.floor(totalmem() / 1024 / 1024),
   nodeOptions: process.env.NODE_OPTIONS ?? "",
   execArgv: process.execArgv,
-  alreadyReexec: process.env[RX_HEAP_REEXEC_ENV] === "1",
+  alreadyReexec: isHeapReexecEnvSet(),
 });
 
 if (target !== null) {
   const existing = process.env.NODE_OPTIONS ?? "";
   const nextOptions = `${existing} --max-old-space-size=${target}`.trim();
-  const childEnv = { ...process.env, NODE_OPTIONS: nextOptions, [RX_HEAP_REEXEC_ENV]: "1" };
+  const childEnv = {
+    ...process.env,
+    NODE_OPTIONS: nextOptions,
+    [HEAP_REEXEC_ENV]: "1",
+    [LEGACY_HEAP_REEXEC_ENV]: "1",
+  };
   const result = spawnSync(process.execPath, process.argv.slice(1), {
     env: childEnv,
     stdio: "inherit",

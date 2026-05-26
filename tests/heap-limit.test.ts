@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   HEAP_HEADROOM_MB,
+  HEAP_REEXEC_ENV,
+  LEGACY_HEAP_REEXEC_ENV,
   TARGET_HEAP_MB_CEILING,
   TARGET_HEAP_MB_FLOOR,
   decideHeapTargetMb,
+  isHeapReexecEnvSet,
 } from "../src/cli/heap-limit.js";
 
 describe("decideHeapTargetMb (issue #1011)", () => {
@@ -73,7 +76,7 @@ describe("decideHeapTargetMb (issue #1011)", () => {
     ).toBeNull();
   });
 
-  it("returns null after a successful re-exec (REASONIX_HEAP_REEXEC=1 set)", () => {
+  it("returns null after a successful re-exec", () => {
     expect(
       decideHeapTargetMb({
         ...base,
@@ -82,6 +85,14 @@ describe("decideHeapTargetMb (issue #1011)", () => {
         alreadyReexec: true,
       }),
     ).toBeNull();
+  });
+
+  it("recognizes Carbon and legacy heap re-exec env markers", () => {
+    expect(isHeapReexecEnvSet({ [HEAP_REEXEC_ENV]: "1" })).toBe(true);
+    expect(isHeapReexecEnvSet({ [LEGACY_HEAP_REEXEC_ENV]: "1" })).toBe(true);
+    expect(isHeapReexecEnvSet({ [HEAP_REEXEC_ENV]: "0", [LEGACY_HEAP_REEXEC_ENV]: "0" })).toBe(
+      false,
+    );
   });
 
   it("does NOT re-exec when current limit is already at the target", () => {

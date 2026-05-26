@@ -8,7 +8,12 @@ export const TARGET_HEAP_MB_FLOOR = 2048;
 export const HEAP_HEADROOM_MB = 64;
 
 /** Set on the spawned child so we don't re-exec recursively if Node ignores our flag. */
-export const RX_HEAP_REEXEC_ENV = "REASONIX_HEAP_REEXEC";
+export const HEAP_REEXEC_ENV = "CARBONCODE_HEAP_REEXEC";
+export const LEGACY_HEAP_REEXEC_ENV = "REASONIX_HEAP_REEXEC";
+
+export function isHeapReexecEnvSet(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env[HEAP_REEXEC_ENV] === "1" || env[LEGACY_HEAP_REEXEC_ENV] === "1";
+}
 
 export interface HeapCheckInputs {
   currentLimitMb: number;
