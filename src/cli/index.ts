@@ -12,6 +12,7 @@ import { applyMemoryStack } from "../memory/user.js";
 import { installProxyIfConfigured } from "../net/proxy.js";
 import { escalationContract } from "../prompt-fragments.js";
 import { startCpuProfile, stopAndSaveCpuProfile } from "./cpu-prof.js";
+import { resolveDashboardHost, resolveDashboardToken } from "./dashboard-options.js";
 import { resolveBareCommandMode, resolveContinueFlag, resolveDefaults } from "./resolve.js";
 import { markPhase } from "./startup-profile.js";
 
@@ -88,35 +89,6 @@ function resolveDashboardPort(
     fromCfg <= 65535
     ? fromCfg
     : undefined;
-}
-
-/** Resolution order: flag → REASONIX_DASHBOARD_HOST env → config.dashboard.host → undefined (server defaults to 127.0.0.1). */
-function resolveDashboardHost(
-  flagValue: string | undefined,
-  noConfig: boolean,
-): string | undefined {
-  const fromFlag = flagValue?.trim();
-  if (fromFlag) return fromFlag;
-  const fromEnv = process.env.REASONIX_DASHBOARD_HOST?.trim();
-  if (fromEnv) return fromEnv;
-  if (noConfig) return undefined;
-  const fromCfg = readConfig().dashboard?.host;
-  return typeof fromCfg === "string" && fromCfg.trim() ? fromCfg.trim() : undefined;
-}
-
-/** Resolution order: REASONIX_DASHBOARD_TOKEN env → config.dashboard.token → undefined (server mints a fresh per-boot token). Min 16 chars; shorter values are dropped with a warning to avoid trivially-guessable tokens. */
-function resolveDashboardToken(noConfig: boolean): string | undefined {
-  const fromEnv = process.env.REASONIX_DASHBOARD_TOKEN?.trim();
-  const fromCfg = noConfig ? undefined : readConfig().dashboard?.token?.trim();
-  const candidate = fromEnv || fromCfg;
-  if (!candidate) return undefined;
-  if (candidate.length < 16) {
-    process.stderr.write(
-      `▲ ignoring dashboard token (${candidate.length} chars; min 16) — using ephemeral per-boot token instead\n`,
-    );
-    return undefined;
-  }
-  return candidate;
 }
 
 const program = new Command();
