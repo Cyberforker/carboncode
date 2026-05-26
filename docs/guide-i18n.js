@@ -101,7 +101,7 @@
 
     "mem.title": "Memory",
     "mem.body1":
-      "Memory is user-private knowledge pinned into the immutable prefix — so the agent reads it on every turn without re-priming. Two scopes: <em>global</em> (cross-project facts about you) and <em>project</em> (per-workspace context). Distinct from a committable <code>CARBON.md</code>, which lives in the repo.",
+      "Memory is user-private knowledge pinned into the immutable prefix — so the agent reads it on every turn without re-priming. Two scopes: <em>global</em> (cross-project facts about you) and <em>project</em> (per-workspace context). Distinct from committable <code>AGENTS.md</code> / <code>CARBON.md</code> project rules, which live in the repo.",
     "mem.h.layout": "Layout",
     "mem.idx": "index — pinned into the prefix",
     "mem.proj": "sha1(absRoot)[0..16]",
@@ -272,7 +272,7 @@
 
     "mem.title": "Memory",
     "mem.body1":
-      "Memory 是用户私有的知识，钉进不可变前缀——所以 agent 每回合都自动读到，不用再重新 prime。两个 scope：<em>global</em>（关于你的、跨项目事实）与 <em>project</em>（按工作区的上下文）。和提交进仓库的 <code>CARBON.md</code> 不是一回事。",
+      "Memory 是用户私有的知识，钉进不可变前缀——所以 agent 每回合都自动读到，不用再重新 prime。两个 scope：<em>global</em>（关于你的、跨项目事实）与 <em>project</em>（按工作区的上下文）。和提交进仓库的 <code>AGENTS.md</code> / <code>CARBON.md</code> 项目规则不是一回事。",
     "mem.h.layout": "目录布局",
     "mem.idx": "索引——会被钉进前缀",
     "mem.proj": "sha1(absRoot)[0..16]",

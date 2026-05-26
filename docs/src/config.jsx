@@ -103,20 +103,20 @@ Only focus on the code touched by this diff — don't go off-topic.`,
     title: 'Memory',
     cn: { zh: '项目级与全局记忆', en: 'Project + global memory' },
     desc: {
-      zh: 'Carbon Code 把"应当记住"的内容拆成两层：仓库级的 CARBON.md（提交进 git，团队共享）与用户级的 ~/.carboncode/memory.md（个人偏好，不入库）。每次会话启动时自动注入到 prompt 头部。',
-      en: 'Carbon Code splits "what to remember" into two layers: repo-level `CARBON.md` (checked into git, shared with the team) and user-level `~/.carboncode/memory.md` (personal preferences, kept private). Both are injected at the top of the prompt on every session.',
+      zh: 'Carbon Code 把"应当记住"的内容拆成两层：仓库级的 AGENTS.md / CARBON.md（提交进 git，团队共享）与用户级的 ~/.carboncode/memory/（个人偏好，不入库）。每次会话启动时自动注入到 prompt 头部。',
+      en: 'Carbon Code splits "what to remember" into two layers: repo-level `AGENTS.md` / `CARBON.md` files (checked into git, shared with the team) and user-level `~/.carboncode/memory/` entries (personal preferences, kept private). Both are injected at the top of the prompt on every session.',
     },
     bullets: [
-      { zh: '<project>/CARBON.md · 项目约定 · git-tracked', en: '<project>/CARBON.md · project conventions · git-tracked' },
-      { zh: '~/.carboncode/memory.md · 用户偏好 · 私有', en: '~/.carboncode/memory.md · user preferences · private' },
+      { zh: '<project>/AGENTS.md 或 CARBON.md · 项目约定 · git-tracked', en: '<project>/AGENTS.md or CARBON.md · project conventions · git-tracked' },
+      { zh: '~/.carboncode/memory/ · 用户偏好 · 私有', en: '~/.carboncode/memory/ · user preferences · private' },
       { zh: '/memory edit 在 TUI 内直接编辑', en: '/memory edit opens it inside the TUI' },
       { zh: '注入位置位于 cache-stable 前缀 · 不影响命中', en: 'Injected inside the cache-stable prefix · cache hit unaffected' },
     ],
     files: [
       {
-        name: '<project>/CARBON.md',
+        name: '<project>/AGENTS.md',
         lang: 'md',
-        code: `# CARBON.md
+        code: `# AGENTS.md
 # Carbon Code loads this on every session start.
 
 ## Conventions
@@ -135,7 +135,7 @@ Only focus on the code touched by this diff — don't go off-topic.`,
 - Don't bump version numbers in package.json`,
       },
       {
-        name: '~/.carboncode/memory.md',
+        name: '~/.carboncode/memory/global/preferences.md',
         lang: 'md',
         code: `# Personal preferences
 
@@ -223,7 +223,7 @@ Only focus on the code touched by this diff — don't go off-topic.`,
 # Capabilities
 › /mcp list           # mounted MCP servers
 › /skill new fix-bug  # scaffold a new skill
-› /memory edit        # open CARBON.md
+› /memory edit        # open AGENTS.md / CARBON.md
 
 # Session + replay
 › /status             # model · cache hit · cost
