@@ -264,8 +264,18 @@ describe("config", () => {
     expect(searchEnabled(path)).toBe(false);
   });
 
+  it("searchEnabled normalizes CARBONCODE_SEARCH before checking opt-out values", () => {
+    process.env.CARBONCODE_SEARCH = " OFF ";
+    expect(searchEnabled(path)).toBe(false);
+  });
+
   it("searchEnabled keeps REASONIX_SEARCH as a legacy opt-out", () => {
     process.env.REASONIX_SEARCH = "off";
+    expect(searchEnabled(path)).toBe(false);
+  });
+
+  it("searchEnabled normalizes legacy REASONIX_SEARCH opt-out values", () => {
+    process.env.REASONIX_SEARCH = " False ";
     expect(searchEnabled(path)).toBe(false);
   });
 
