@@ -130,7 +130,7 @@ export async function loadMcpServers(
     } catch (err) {
       await mcp?.close().catch(() => undefined);
       process.stderr.write(
-        `${formatMcpLifecycleEvent({ state: "failed", name: label, reason: (err as Error).message })}\n  → ${t("mcpLifecycle.failedSetupConfigHint")}\n`,
+        `${formatMcpLifecycleEvent({ state: "failed", name: label, reason: (err as Error).message })}\n  ${t("mcpLifecycle.failedSetupConfigHint")}\n`,
       );
     }
   }

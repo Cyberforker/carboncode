@@ -1,5 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { stderrLifecycleSink } from "../src/cli/commands/mcp-runtime.js";
 import { formatMcpLifecycleEvent } from "../src/cli/ui/mcp-lifecycle.js";
+import { setLanguageRuntime } from "../src/i18n/index.js";
+
+afterEach(() => {
+  setLanguageRuntime("EN");
+  vi.restoreAllMocks();
+});
 
 describe("formatMcpLifecycleEvent", () => {
   it("renders the handshake state", () => {
@@ -60,5 +67,19 @@ describe("formatMcpLifecycleEvent", () => {
       formatMcpLifecycleEvent({ state: "failed", name: "x", reason: "boom" }),
     ];
     for (const s of samples) expect(s).not.toContain("\n");
+  });
+
+  it("does not duplicate the setup hint arrow for failed runtime notices", () => {
+    const writes: string[] = [];
+    vi.spyOn(process.stderr, "write").mockImplementation((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    });
+
+    stderrLifecycleSink({ kind: "failed", name: "fs", reason: "boom" });
+
+    const out = writes.join("");
+    expect(out).toContain("run `carboncode setup`");
+    expect(out).not.toContain("→ →");
   });
 });
