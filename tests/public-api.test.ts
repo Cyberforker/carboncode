@@ -346,6 +346,11 @@ const PUBLIC_API: readonly string[] = [
 ];
 
 describe("public API surface", () => {
+  it("brands the library entry point as Carbon Code", () => {
+    expect(INDEX).toContain("Carbon Code — DeepSeek-native coding agent framework");
+    expect(INDEX).not.toContain("Reasonix — DeepSeek-native agent framework");
+  });
+
   it("matches the recorded snapshot — update PUBLIC_API in this file when intentionally changing exports", () => {
     const actual = extractExportedNames(INDEX);
     expect(actual).toEqual([...PUBLIC_API]);
