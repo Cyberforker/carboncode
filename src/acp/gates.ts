@@ -1,4 +1,4 @@
-/** Bridges Reasonix's internal `PauseGate` requests onto ACP `session/request_permission` round-trips. */
+/** Bridges Carbon Code's internal `PauseGate` requests onto ACP `session/request_permission` round-trips. */
 
 import type {
   CheckpointVerdict,
