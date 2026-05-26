@@ -94,6 +94,14 @@ describe("project-memory", () => {
       expect(mem?.path.endsWith("CARBON.md")).toBe(true);
     });
 
+    it("skips non-file candidates and falls back to the next project memory file", () => {
+      mkdirSync(join(root, "AGENTS.md"));
+      writeFileSync(join(root, "CARBON.md"), "carbon file wins\n", "utf8");
+      const mem = readProjectMemory(root);
+      expect(mem?.content).toBe("carbon file wins");
+      expect(mem?.path.endsWith("CARBON.md")).toBe(true);
+    });
+
     it("falls back to legacy REASONIX.md when AGENTS.md and CARBON.md are absent", () => {
       writeFileSync(join(root, "REASONIX.md"), "legacy content\n", "utf8");
       const mem = readProjectMemory(root);
@@ -142,6 +150,12 @@ describe("project-memory", () => {
     it("writes to the existing AGENTS.md when present (don't fragment)", () => {
       writeFileSync(join(root, "AGENTS.md"), "x", "utf8");
       expect(resolveProjectMemoryWritePath(root).endsWith("AGENTS.md")).toBe(true);
+    });
+
+    it("does not choose a non-file AGENTS.md as the write target", () => {
+      mkdirSync(join(root, "AGENTS.md"));
+      writeFileSync(join(root, "CARBON.md"), "x", "utf8");
+      expect(resolveProjectMemoryWritePath(root).endsWith("CARBON.md")).toBe(true);
     });
 
     it("writes to the existing CARBON.md when present", () => {

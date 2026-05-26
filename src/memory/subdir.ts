@@ -1,8 +1,8 @@
 /** Module-scoped memory files. Walks from a file's dir up to rootDir, collecting project-rule files found along the way. */
 
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import { PROJECT_MEMORY_FILES, PROJECT_MEMORY_MAX_CHARS } from "./project.js";
+import { PROJECT_MEMORY_FILES, PROJECT_MEMORY_MAX_CHARS, isProjectMemoryFile } from "./project.js";
 
 /** PROJECT_MEMORY_FILES matches inside `absDir` AND its ancestors, walking up to (but not including) `rootDir`. Innermost-first. Returns absolute paths. */
 export function findDirMemory(absDir: string, rootDir: string): string[] {
@@ -17,7 +17,7 @@ export function findDirMemory(absDir: string, rootDir: string): string[] {
     if (!r || r.startsWith("..")) break;
     for (const name of PROJECT_MEMORY_FILES) {
       const path = join(cur, name);
-      if (existsSync(path)) {
+      if (isProjectMemoryFile(path)) {
         found.push(path);
         break;
       }
