@@ -76,9 +76,14 @@ function buildByteToChar(): string[] {
 
 let cached: LoadedTokenizer | null = null;
 
+export function resolveTokenizerPathEnv(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  return env.CARBONCODE_TOKENIZER_PATH ?? env.REASONIX_TOKENIZER_PATH;
+}
+
 /** Two ../data candidates needed: dist/index.js AND dist/cli/index.js resolve to different roots. */
 export function resolveDataPath(): string {
-  if (process.env.REASONIX_TOKENIZER_PATH) return process.env.REASONIX_TOKENIZER_PATH;
+  const envPath = resolveTokenizerPathEnv();
+  if (envPath) return envPath;
   const candidates: string[] = [];
   try {
     const here = dirname(fileURLToPath(import.meta.url));
