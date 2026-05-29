@@ -12,21 +12,31 @@ import { Spinner } from "../primitives/Spinner.js";
 import { useThemeTokens } from "../theme/context.js";
 import { CARD, FG, TONE } from "../theme/tokens.js";
 import { useElapsedSeconds, useSlowTick, useTick } from "../ticker.js";
+import { friendlyToolName } from "../tool-summary.js";
 import type { SubagentActivity } from "../useSubagent.js";
 
 export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
-/** "Thinking" row — soft pulse + italic label (model wait, not tool call). */
-export function ThinkingRow({ text }: { text: string }) {
+/**
+ * "Thinking" row — soft pulse + italic label (model wait, not tool call).
+ * `whimsical` cycles a Claude-style gerund word instead of a fixed phase label;
+ * the trailing shows elapsed + an esc-to-interrupt hint.
+ */
+export function ThinkingRow({ text, whimsical }: { text?: string; whimsical?: boolean }) {
   const elapsed = useElapsedSeconds();
-  const { fg, tone } = useThemeTokens();
+  // Subscribe to theme changes so the row re-renders on /theme switches.
+  useThemeTokens();
+  const gerunds = t("ui.activityGerunds").split("·");
+  // Rotate every ~2s; deterministic (no RNG) so it's stable across renders.
+  const gerund = gerunds[Math.floor(elapsed / 2) % gerunds.length] ?? text ?? "";
+  const label = whimsical || !text ? gerund : text;
   return (
     <Box marginY={1} paddingX={1} gap={1}>
       <Spinner kind="circle" color={TONE.accent} />
       <Text italic color={FG.sub}>
-        {text}
+        {label}
       </Text>
-      <Text color={FG.faint}>{`${elapsed}s`}</Text>
+      <Text color={FG.faint}>{`(${elapsed}${t("statusBar.escToInterrupt")})`}</Text>
     </Box>
   );
 }
@@ -296,7 +306,7 @@ export function OngoingToolRow({
         </Text>
         <Text>{"  "}</Text>
         <Text color={CARD.tool.color} bold>
-          {`▣ ${tool.name}`}
+          {`▣ ${friendlyToolName(tool.name)}`}
         </Text>
         <Text color={FG.faint}>{`  running · ${elapsed}s`}</Text>
       </Box>

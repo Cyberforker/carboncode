@@ -7,6 +7,7 @@ import React from "react";
 import stringWidth from "string-width";
 import { wrapToCells } from "../../frame/width.js";
 import { decodeHtmlEntities } from "./html-entities.js";
+import { GLYPH } from "./theme.js";
 import { FG, SURFACE, TONE } from "./theme/tokens.js";
 
 /** Left margin consumed by card outer marginLeft + body paddingLeft + safety. */
@@ -106,7 +107,13 @@ function ListItem({
   index: number;
   depth: number;
 }): React.ReactElement {
-  const marker = item.task ? (item.checked ? "✓" : "○") : ordered ? `${index}.` : "·";
+  const marker = item.task
+    ? item.checked
+      ? GLYPH.todoDone
+      : GLYPH.todoOpen
+    : ordered
+      ? `${index}.`
+      : "·";
   const markerColor = item.task ? (item.checked ? TONE.ok : FG.faint) : FG.meta;
   const dim = item.task && item.checked === true;
   const indent = " ".repeat(depth + 1);

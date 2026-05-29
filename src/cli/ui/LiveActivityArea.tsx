@@ -59,7 +59,7 @@ export const LiveActivityArea: React.FC<LiveActivityAreaProps> = React.memo(
         {noTakeoverOverlay && !ongoingTool && statusLine ? <ThinkingRow text={statusLine} /> : null}
         {undoBanner && !hideUndo ? <UndoBanner banner={undoBanner} /> : null}
         {noTakeoverOverlay && busy && !isStreaming && !ongoingTool && !statusLine ? (
-          <ThinkingRow text={activityLabel} />
+          <ThinkingRow text={activityLabel} whimsical />
         ) : null}
         {noTakeoverOverlay ? <PlanLiveRow /> : null}
         <ToastRail />

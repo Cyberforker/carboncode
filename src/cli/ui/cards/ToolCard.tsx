@@ -8,8 +8,13 @@ import { CardHeader, type MetaItem } from "../primitives/CardHeader.js";
 import { Spinner } from "../primitives/Spinner.js";
 import type { ToolCard as ToolCardData } from "../state/cards.js";
 import { useIsInflight } from "../state/inflight-context.js";
+import { GLYPH } from "../theme.js";
 import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
-import { formatStructuredErrorOutput, summarizeCommandOutput } from "../tool-summary.js";
+import {
+  formatStructuredErrorOutput,
+  friendlyToolName,
+  summarizeCommandOutput,
+} from "../tool-summary.js";
 
 const READ_TAIL = 2;
 const OTHER_TAIL = 5;
@@ -39,7 +44,13 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
   const { stdout } = useStdout();
   const cols = stdout?.columns ?? 80;
   const lineCells = Math.max(20, cols - 4);
+  // Result lines sit under a "  ⎿  " gutter (5 cells), so reserve room to avoid wrap.
+  const bodyCells = Math.max(16, cols - 6);
   const argsLabel = formatArgsSummary(card.args);
+  // Claude-style header: friendly verb + parenthesized primary arg, e.g. "Bash(npm test)".
+  const headerTitle = argsLabel
+    ? `${friendlyToolName(card.name)}(${argsLabel})`
+    : friendlyToolName(card.name);
 
   const subagentMarkdown = React.useMemo(
     () => unwrapSubagentMarkdown(card.name, card.output),
@@ -83,8 +94,7 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
       <CardHeader
         glyph={statusGlyph(status)}
         tone={headColor}
-        title={card.name}
-        subtitle={argsLabel || undefined}
+        title={headerTitle}
         meta={meta.length > 0 ? meta : undefined}
         right={
           status === "running" ? (
@@ -96,24 +106,27 @@ export function ToolCard({ card }: { card: ToolCardData }): React.ReactElement {
         (subagentMarkdown !== null ? (
           <Markdown text={subagentMarkdown} width={lineCells} />
         ) : (
-          <>
-            {hidden > 0 ? (
-              <Text color={FG.faint}>
-                {t(hidden === 1 ? "cardLabels.earlierLine" : "cardLabels.earlierLines", {
-                  count: hidden,
-                })}
-              </Text>
-            ) : null}
-            {visible.map((line, i) => (
-              <Text
-                key={`${card.id}:${hidden + i}`}
-                color={errColor}
-                dimColor={!card.exitCode || card.exitCode === 0}
-              >
-                {clipToCells(line, lineCells) || " "}
-              </Text>
-            ))}
-          </>
+          <Box flexDirection="row">
+            <Text color={FG.faint}>{`  ${GLYPH.vine}  `}</Text>
+            <Box flexDirection="column">
+              {hidden > 0 ? (
+                <Text color={FG.faint}>
+                  {t(hidden === 1 ? "cardLabels.earlierLine" : "cardLabels.earlierLines", {
+                    count: hidden,
+                  })}
+                </Text>
+              ) : null}
+              {visible.map((line, i) => (
+                <Text
+                  key={`${card.id}:${hidden + i}`}
+                  color={errColor}
+                  dimColor={!card.exitCode || card.exitCode === 0}
+                >
+                  {clipToCells(line, bodyCells) || " "}
+                </Text>
+              ))}
+            </Box>
+          </Box>
         ))}
     </Card>
   );
@@ -150,9 +163,9 @@ function toolStatus(card: ToolCardData, isInflight: boolean): ToolStatus {
 function statusGlyph(s: ToolStatus): string {
   switch (s) {
     case "running":
-      return "●";
     case "ok":
-      return "✓";
+      // Claude-style filled event marker; header color carries the success/active state.
+      return GLYPH.event;
     case "rejected":
       return "✗";
     case "error":

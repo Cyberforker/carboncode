@@ -3,6 +3,33 @@
 const MAX_SUMMARY_CHARS = 80;
 const TRAILING_ELLIPSIS = "…";
 
+/** Internal tool id → Claude-style friendly verb shown in the timeline header. */
+const TOOL_DISPLAY_NAMES: Record<string, string> = {
+  run_command: "Bash",
+  run_background: "Bash",
+  read_file: "Read",
+  write_file: "Write",
+  edit_file: "Edit",
+  search_files: "Search",
+  list_directory: "List",
+  directory_tree: "Tree",
+  move_file: "Move",
+  get_file_info: "Stat",
+  spawn_subagent: "Task",
+  web_fetch: "Fetch",
+  fetch_url: "Fetch",
+};
+
+// Friendly verb for a tool id (run_command→Bash): exact match, then `_`-suffix (MCP namespacing), else the raw id.
+export function friendlyToolName(name: string): string {
+  const exact = TOOL_DISPLAY_NAMES[name];
+  if (exact) return exact;
+  for (const id in TOOL_DISPLAY_NAMES) {
+    if (name.endsWith(`_${id}`)) return TOOL_DISPLAY_NAMES[id]!;
+  }
+  return name;
+}
+
 export interface ToolSummary {
   /** Single-line summary text. Empty string if the result was empty. */
   summary: string;

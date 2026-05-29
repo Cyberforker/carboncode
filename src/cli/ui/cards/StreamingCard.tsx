@@ -11,6 +11,7 @@ import { Card } from "../primitives/Card.js";
 import { CardHeader } from "../primitives/CardHeader.js";
 import { Spinner } from "../primitives/Spinner.js";
 import type { StreamingCard as StreamingCardData } from "../state/cards.js";
+import { GLYPH } from "../theme.js";
 import { FG, TONE, TONE_ACTIVE } from "../theme/tokens.js";
 import { useSlowTick } from "../ticker.js";
 import { useIncrementalWrap } from "./useIncrementalWrap.js";
@@ -76,7 +77,7 @@ export function StreamingCard({ card }: { card: StreamingCardData }): React.Reac
   if (card.done && !card.aborted) {
     return (
       <Card tone={TONE.ok}>
-        <CardHeader glyph="‹" tone={TONE.ok} title={t("cardTitles.reply")} />
+        <CardHeader glyph={GLYPH.event} tone={TONE.ok} title={t("cardTitles.reply")} />
         <Markdown text={card.text} />
       </Card>
     );
@@ -85,7 +86,7 @@ export function StreamingCard({ card }: { card: StreamingCardData }): React.Reac
   const visible = visualLines;
   const aborted = !!card.aborted;
   const headColor = aborted ? TONE.err : TONE_ACTIVE.brand;
-  const glyph = aborted ? "⊘" : "●";
+  const glyph = aborted ? "⊘" : GLYPH.event;
   const headLabel = aborted ? t("cardLabels.aborted") : t("cardLabels.writing");
 
   return (
