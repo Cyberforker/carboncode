@@ -23,6 +23,7 @@ import { Box, Text, useStdout } from "ink";
 import React from "react";
 import type { SplitDiffRow } from "../../code/diff-preview.js";
 import { COLOR } from "./theme.js";
+import { DIFF } from "./theme/tokens.js";
 
 export interface SplitDiffProps {
   rows: readonly SplitDiffRow[];
@@ -81,14 +82,14 @@ function Cell({
 
   if (side.kind === "del") {
     return (
-      <Text color="#fbc8c8" backgroundColor="#2a1212">
+      <Text color={DIFF.delFg} backgroundColor={DIFF.delBg}>
         {`${numStr} ${sign} ${padded}`}
       </Text>
     );
   }
   if (side.kind === "add") {
     return (
-      <Text color="#bef0c8" backgroundColor="#0c2718">
+      <Text color={DIFF.addFg} backgroundColor={DIFF.addBg}>
         {`${numStr} ${sign} ${padded}`}
       </Text>
     );

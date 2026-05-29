@@ -4,6 +4,7 @@ import { t } from "../../i18n/index.js";
 import type { PlanStep } from "../../tools/plan.js";
 import { SingleSelect } from "./Select.js";
 import { ApprovalCard } from "./cards/ApprovalCard.js";
+import { FG, TONE } from "./theme/tokens.js";
 
 export type ReviseChoice = "accept" | "reject";
 
@@ -36,13 +37,13 @@ function computeDiff(oldSteps: PlanStep[], newSteps: PlanStep[]): DiffRow[] {
 function riskDots(risk: PlanStep["risk"]): { dots: string; color: string } {
   switch (risk) {
     case "high":
-      return { dots: "●●●", color: "#f87171" };
+      return { dots: "●●●", color: TONE.err };
     case "med":
-      return { dots: "●● ", color: "#fbbf24" };
+      return { dots: "●● ", color: TONE.warn };
     case "low":
-      return { dots: "●  ", color: "#4ade80" };
+      return { dots: "●  ", color: TONE.ok };
     default:
-      return { dots: "   ", color: "#94a3b8" };
+      return { dots: "   ", color: FG.meta };
   }
 }
 
@@ -81,7 +82,7 @@ function PlanReviseConfirmInner({
           const risk = riskDots(row.step.risk);
           const prefix = row.kind === "removed" ? "\u2212" : row.kind === "added" ? "+" : " ";
           const prefixColor =
-            row.kind === "removed" ? "#f87171" : row.kind === "added" ? "#4ade80" : "#94a3b8";
+            row.kind === "removed" ? TONE.err : row.kind === "added" ? TONE.ok : FG.meta;
           const dim = row.kind === "kept";
           const strike = row.kind === "removed";
           return (

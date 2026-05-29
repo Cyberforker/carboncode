@@ -7,7 +7,7 @@ import { t } from "../../i18n/index.js";
 import type { SessionSummary } from "../../telemetry/stats.js";
 import { Bar, ChromeRule } from "./primitives.js";
 import { COLOR, GRADIENT } from "./theme.js";
-import { formatBalance, formatCost } from "./theme/tokens.js";
+import { FG, TONE, formatBalance, formatCost } from "./theme/tokens.js";
 
 const COLD_START_TURNS = 3;
 
@@ -237,7 +237,7 @@ function pickModePill(
 
 function BudgetRow({ spent, cap }: { spent: number; cap: number }) {
   const pct = Math.max(0, (spent / cap) * 100);
-  const color = pct >= 100 ? "#f87171" : pct >= 80 ? "#fbbf24" : "#94a3b8";
+  const color = pct >= 100 ? TONE.err : pct >= 80 ? TONE.warn : FG.meta;
   return (
     <Box>
       <Text dimColor>{t("statsPanel.budget")}</Text>

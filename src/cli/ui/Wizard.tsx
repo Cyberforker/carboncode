@@ -38,7 +38,7 @@ import type { LanguageCode } from "../../i18n/types.js";
 import { type CatalogEntry, MCP_CATALOG } from "../../mcp/catalog.js";
 import { MultiSelect, type SelectItem, SingleSelect } from "./Select.js";
 import { ThemeProvider, useTheme } from "./theme/context.js";
-import { type ThemeName, listThemeNames } from "./theme/tokens.js";
+import { TONE, type ThemeName, listThemeNames } from "./theme/tokens.js";
 
 export interface WizardProps {
   /** Called once the config has been saved. */
@@ -249,7 +249,7 @@ export function Wizard({
             </Box>
             {error ? (
               <Box marginTop={1}>
-                <Text color="red">{error}</Text>
+                <Text color={TONE.err}>{error}</Text>
               </Box>
             ) : null}
             <Box marginTop={1}>
@@ -284,8 +284,8 @@ export function Wizard({
     }
 
     return (
-      <Box flexDirection="column" borderStyle="round" borderColor="green" paddingX={1}>
-        <Text bold color="green">
+      <Box flexDirection="column" borderStyle="round" borderColor={TONE.ok} paddingX={1}>
+        <Text bold color={TONE.ok}>
           {t("wizard.savedTitle")}
         </Text>
         <Box marginTop={1}>
@@ -343,7 +343,7 @@ function ThemeStep({
         {THEME_NAMES.map((name, i) => (
           <Box key={name}>
             <Text color={i === index ? theme.tone.brand : undefined}>
-              {i === index ? "▸ " : "  "}
+              {i === index ? "❯ " : "  "}
             </Text>
             <Text bold={i === index} color={i === index ? theme.fg.strong : theme.fg.body}>
               {name}
@@ -404,8 +404,8 @@ function LanguageStep({
     hint: code === detectSystemLanguage() ? t("wizard.languageDetectedHint") : undefined,
   }));
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
-      <Text bold color="cyan">
+    <Box flexDirection="column" borderStyle="round" borderColor={TONE.brand} paddingX={1}>
+      <Text bold color={TONE.brand}>
         {t("wizard.languageTitle")}
       </Text>
       <Box marginTop={1}>
@@ -439,8 +439,8 @@ function ApiKeyStep({
   const [value, setValue] = useState("");
   const [checking, setChecking] = useState(false);
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
-      <Text bold color="cyan">
+    <Box flexDirection="column" borderStyle="round" borderColor={TONE.brand} paddingX={1}>
+      <Text bold color={TONE.brand}>
         {t("wizard.welcomeTitle")}
       </Text>
       <Box marginTop={1}>
@@ -452,7 +452,7 @@ function ApiKeyStep({
         <Text dimColor>{t("wizard.apiKeyPreview", { redacted: redactKey(initialValue) })}</Text>
       ) : null}
       <Box marginTop={1}>
-        <Text bold color="cyan">
+        <Text bold color={TONE.brand}>
           {t("wizard.apiKeyInputLabel")}
         </Text>
         <TextInput
@@ -487,11 +487,11 @@ function ApiKeyStep({
       </Box>
       {checking ? (
         <Box marginTop={1}>
-          <Text color="yellow">{t("wizard.apiKeyChecking")}</Text>
+          <Text color={TONE.warn}>{t("wizard.apiKeyChecking")}</Text>
         </Box>
       ) : error ? (
         <Box marginTop={1}>
-          <Text color="red">{error}</Text>
+          <Text color={TONE.err}>{error}</Text>
         </Box>
       ) : value ? (
         <Box marginTop={1}>
@@ -588,7 +588,7 @@ function McpArgsStep({
           </Box>
           {error ? (
             <Box marginTop={1}>
-              <Text color="red">{error}</Text>
+              <Text color={TONE.err}>{error}</Text>
             </Box>
           ) : null}
         </Box>
@@ -610,7 +610,7 @@ function McpArgsStep({
           <Text bold>{entry.userArgs}</Text>
         </Box>
         <Box marginTop={1}>
-          <Text bold color="cyan">
+          <Text bold color={TONE.brand}>
             {entry.userArgs}
             {" › "}
           </Text>
@@ -642,7 +642,7 @@ function McpArgsStep({
         </Box>
         {error ? (
           <Box marginTop={1}>
-            <Text color="red">{error}</Text>
+            <Text color={TONE.err}>{error}</Text>
           </Box>
         ) : null}
       </Box>
@@ -684,10 +684,10 @@ function StepFrame({
   children: React.ReactNode;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
+    <Box flexDirection="column" borderStyle="round" borderColor={TONE.brand} paddingX={1}>
       <Box>
         <Text dimColor>{t("wizard.stepCounter", { step, total })}</Text>
-        <Text bold color="cyan">
+        <Text bold color={TONE.brand}>
           {title}
         </Text>
       </Box>

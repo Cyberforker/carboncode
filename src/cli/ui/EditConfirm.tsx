@@ -8,6 +8,7 @@ import { SplitDiff } from "./SplitDiff.js";
 import { ApprovalCard } from "./cards/ApprovalCard.js";
 import { useKeystroke } from "./keystroke-context.js";
 import { useReserveRows, useTotalRows } from "./layout/viewport-budget.js";
+import { DIFF } from "./theme/tokens.js";
 
 export type EditReviewChoice = "apply" | "reject" | "apply-rest-of-turn" | "flip-to-auto";
 
@@ -196,11 +197,11 @@ export function EditConfirm({ block, blocks, onChoose }: EditConfirmProps) {
         ),
       )}
       <Box>
-        <Text color="#fbc8c8" backgroundColor="#2a1212">
+        <Text color={DIFF.delFg} backgroundColor={DIFF.delBg}>
           {t("editConfirm.oldLabel")}
         </Text>
         <Text>{"  "}</Text>
-        <Text color="#bef0c8" backgroundColor="#0c2718">
+        <Text color={DIFF.addFg} backgroundColor={DIFF.addBg}>
           {t("editConfirm.newLabel")}
         </Text>
         <Text dimColor>{t("editConfirm.sideBySide")}</Text>

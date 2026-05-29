@@ -2,15 +2,8 @@ import { Box, Text, Transform } from "ink";
 // biome-ignore lint/style/useImportType: tsconfig jsx=react needs React in value scope for JSX compilation
 import React from "react";
 import { type InlineSpan, type MdLine, markdownToLines } from "./markdown-lines.js";
-
-const FG_BODY = "#c9d1d9";
-const FG_FAINT = "#6e7681";
-const FG_STRONG = "#f0f6fc";
-const FG_META = "#8b949e";
-const TONE_BRAND = "#79c0ff";
-const TONE_OK = "#7ee787";
-const TONE_WARN = "#f0b07d";
-const SURFACE_ELEV = "#161b22";
+import { GLYPH } from "./theme.js";
+import { FG, SURFACE, TONE } from "./theme/tokens.js";
 
 export function MarkdownView({ text }: { text: string }): React.ReactElement {
   return <MarkdownLines lines={markdownToLines(text)} />;
@@ -35,11 +28,11 @@ function LineRow({ line }: { line: MdLine }): React.ReactElement | null {
     case "blank":
       return <Text> </Text>;
     case "hr":
-      return <Text color={FG_FAINT}>──────</Text>;
+      return <Text color={FG.meta}>──────</Text>;
     case "heading":
       return (
         <Box>
-          <Text bold color={FG_STRONG}>
+          <Text bold color={FG.strong}>
             {`${"#".repeat(line.level)} `}
           </Text>
           <Spans spans={line.spans} bold strongColor />
@@ -55,14 +48,13 @@ function LineRow({ line }: { line: MdLine }): React.ReactElement | null {
       const indent = " ".repeat(line.depth * 2);
       const marker =
         line.task === "done"
-          ? "✓"
+          ? GLYPH.todoDone
           : line.task === "todo"
-            ? "○"
+            ? GLYPH.todoOpen
             : line.ordered
               ? `${line.index}.`
               : "·";
-      const markerColor =
-        line.task === "done" ? TONE_OK : line.task === "todo" ? FG_FAINT : FG_META;
+      const markerColor = line.task === "done" ? TONE.ok : line.task === "todo" ? FG.meta : FG.sub;
       return (
         <Box>
           <Text color={markerColor}>{`${indent}${marker} `}</Text>
@@ -75,7 +67,7 @@ function LineRow({ line }: { line: MdLine }): React.ReactElement | null {
     case "blockquote":
       return (
         <Box>
-          <Text color={TONE_BRAND}>{"▎ "}</Text>
+          <Text color={TONE.brand}>{"▎ "}</Text>
           <Spans spans={line.spans} italic />
         </Box>
       );
@@ -90,10 +82,10 @@ function CodeBlock({ lang, text }: { lang: string; text: string }): React.ReactE
   const lines = text.split("\n");
   return (
     <Box flexDirection="column">
-      {lang.length > 0 ? <Text color={FG_META}>{` ${lang}`}</Text> : null}
+      {lang.length > 0 ? <Text color={FG.sub}>{` ${lang}`}</Text> : null}
       {lines.map((ln, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: code lines are positional + stable per render
-        <Text key={`code-${i}`} backgroundColor={SURFACE_ELEV}>
+        <Text key={`code-${i}`} backgroundColor={SURFACE.bgElev}>
           {` ${ln} `}
         </Text>
       ))}
@@ -146,18 +138,18 @@ function SpanText({
 }): React.ReactElement {
   if (span.code) {
     return (
-      <Text color={FG_STRONG} backgroundColor={SURFACE_ELEV}>
+      <Text color={FG.strong} backgroundColor={SURFACE.bgElev}>
         {` ${span.text} `}
       </Text>
     );
   }
   const color = span.fileRef
-    ? TONE_BRAND
+    ? TONE.brand
     : span.link
-      ? TONE_BRAND
+      ? TONE.brand
       : strongColor
-        ? FG_STRONG
-        : FG_BODY;
+        ? FG.strong
+        : FG.body;
   const inner = (
     <Text
       color={color}
