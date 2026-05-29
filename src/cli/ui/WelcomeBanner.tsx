@@ -4,6 +4,7 @@ import { Box, Text } from "ink";
 // biome-ignore lint/style/useImportType: tsconfig jsx=react needs React in value scope for JSX compilation
 import React from "react";
 import { t } from "../../i18n/index.js";
+import { GLYPH } from "./theme.js";
 import { FG, TONE } from "./theme/tokens.js";
 
 export interface WelcomeBannerProps {
@@ -24,13 +25,20 @@ export function WelcomeBanner({
   const tagline = inCodeMode ? t("ui.taglineCode") : t("ui.taglineChat");
 
   return (
-    <Box flexDirection="column" marginY={1} paddingX={1}>
+    <Box
+      flexDirection="column"
+      marginY={1}
+      paddingX={1}
+      borderStyle="round"
+      borderColor={TONE.brand}
+    >
       <Box flexDirection="row" gap={1}>
         <Text color={TONE.brand} bold>
-          {"Carbon Code"}
+          {`${GLYPH.brandMark} Carbon Code`}
         </Text>
         <Text color={FG.meta}>{tagline}</Text>
       </Box>
+      <Text color={FG.faint}>{t("welcomeBanner.help")}</Text>
       {inCodeMode && workspaceRoot ? (
         <Box flexDirection="row" gap={1}>
           <Text color={FG.meta}>{t("welcomeBanner.workspace")}</Text>

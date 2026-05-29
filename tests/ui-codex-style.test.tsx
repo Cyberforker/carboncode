@@ -65,7 +65,7 @@ describe("Codex-style terminal surface", () => {
     expect(out).not.toContain("░");
   });
 
-  it("keeps the empty state task-first, not a branded product card", () => {
+  it("shows a Claude-style welcome box with a /help tip, still task-first", () => {
     setLanguageRuntime("zh-CN");
     const { lastFrame, unmount } = render(
       <WelcomeBanner inCodeMode workspaceRoot="/repo" dashboardUrl={null} />,
@@ -75,10 +75,12 @@ describe("Codex-style terminal surface", () => {
 
     expect(out).toContain("Carbon Code");
     expect(out).toContain("/repo");
+    expect(out).toContain("/help");
+    // Rounded welcome box.
+    expect(out).toContain("╭");
+    // ...but no marketing/product-card noise.
     expect(out).not.toContain("DeepSeek");
     expect(out).not.toContain("🐋");
-    expect(out).not.toContain("/help");
-    expect(out).not.toContain("╭");
   });
 
   it("keeps dashboard URLs out of the default welcome timeline", () => {
@@ -99,7 +101,7 @@ describe("Codex-style terminal surface", () => {
     expect(out).not.toContain("网页");
   });
 
-  it("renders the composer as a quiet prompt without a persistent shortcut button row", () => {
+  it("renders the composer as a Claude-style bordered prompt without a persistent shortcut button row", () => {
     setLanguageRuntime("zh-CN");
     const { lastFrame, unmount } = render(
       <PromptInput value="" onChange={() => {}} onSubmit={() => {}} />,
@@ -107,9 +109,11 @@ describe("Codex-style terminal surface", () => {
     const out = lastFrame() ?? "";
     unmount();
 
-    expect(out).toContain("›");
+    expect(out).toContain(">");
     expect(out).toContain("输入任务");
-    expect(out).not.toContain("╭");
+    // Claude-style rounded input box.
+    expect(out).toContain("╭");
+    // ...but still no persistent shortcut button row.
     expect(out).not.toContain("^U");
     expect(out).not.toContain("^P/^N");
     expect(out).not.toContain("^C");
@@ -267,7 +271,7 @@ describe("Codex-style terminal surface", () => {
     const out = lastFrame() ?? "";
     unmount();
 
-    expect(out).toContain("read_file");
+    expect(out).toContain("Read"); // friendly tool name (was raw "read_file")
     expect(out).toContain("package.json");
     expect(out).not.toContain("@carboncode/cli");
     expect(out).not.toContain('"version"');

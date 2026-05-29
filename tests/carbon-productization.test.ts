@@ -139,7 +139,7 @@ describe("Carbon broad Reasonix import", () => {
 
     expect(bootSplash).toContain("Carbon Code");
     expect(bootSplash).not.toContain("REASONIX");
-    expect(welcomeBanner).toContain('{"Carbon Code"}');
+    expect(welcomeBanner).toContain("Carbon Code");
     expect(welcomeBanner).not.toContain("REASONIX");
     expect(externalEditor).toContain("CARBON_INPUT.md");
     expect(externalEditor).not.toContain("REASONIX_INPUT.md");

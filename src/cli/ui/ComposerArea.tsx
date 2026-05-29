@@ -19,7 +19,7 @@ import { ModeStatusBar } from "./layout/LiveRows.js";
 import { StatusRow } from "./layout/StatusRow.js";
 import { formatLoopStatus } from "./loop.js";
 import { useChatScrollState } from "./state/chat-scroll-provider.js";
-import { FG } from "./theme/tokens.js";
+import { FG, TONE } from "./theme/tokens.js";
 
 import type { StatusBarConfig } from "./layout/StatusRow.js";
 
@@ -176,7 +176,7 @@ function LoopStatusRow({
   const nextFireMs = Math.max(0, loop.nextFireAt - Date.now());
   return (
     <Box>
-      <Text color="cyan">
+      <Text color={TONE.brand}>
         {`loop: ${formatLoopStatus(loop.prompt, nextFireMs, loop.iter)} — /loop stop or type to cancel`}
       </Text>
     </Box>

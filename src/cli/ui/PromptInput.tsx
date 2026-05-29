@@ -181,10 +181,11 @@ export function PromptInput({
 
   const { stdout } = useStdout();
   const cols = stdout?.columns ?? 80;
-  const promptPrefix = "› ";
+  const promptPrefix = "> ";
   const continuationIndent = "  ";
   const prefixCells = promptPrefix.length;
-  const visibleCells = Math.max(8, cols - prefixCells - 3);
+  // Reserve for prompt prefix, cursor margin, and the rounded border (2 cells) + padding.
+  const visibleCells = Math.max(8, cols - prefixCells - 5);
 
   // Hint avoids literal `/` and `@` glyphs — they render in the same row as
   // a just-cleared buffer and read as residual typed input on dim-poor terminals.
@@ -193,7 +194,10 @@ export function PromptInput({
     : (placeholder ?? t("composer.placeholder"));
 
   const lines = value.length > 0 ? value.split("\n") : [""];
-  const accentColor = disabled ? FG.faint : TONE.brand;
+  // `!cmd` runs a raw shell command (bang.ts). Mirror Claude's bash mode by
+  // recoloring the box + prompt to a distinct amber while the buffer leads with `!`.
+  const bashMode = !disabled && value.startsWith("!");
+  const accentColor = disabled ? FG.faint : bashMode ? TONE.warn : TONE.brand;
   const cursorVisible = true;
   const { line: cursorLine, col: cursorCol } = lineAndColumn(value, cursor);
 
@@ -201,7 +205,7 @@ export function PromptInput({
   const showHugeBufferHints = lines.length > 20;
 
   return (
-    <Box flexDirection="column" paddingX={1}>
+    <Box flexDirection="column" paddingX={1} borderStyle="round" borderColor={accentColor}>
       {(() => {
         const rows: React.ReactNode[] = [];
         let firstRowEmitted = false;
@@ -395,7 +399,7 @@ function PasteChipRow({
   visibleCells,
   accentColor,
 }: PasteChipRowProps): React.ReactElement {
-  const promptPrefix = "› ";
+  const promptPrefix = "> ";
   const continuationIndent = "  ";
   const lead = isFirst ? promptPrefix : continuationIndent;
   const leadColor = isFirst ? accentColor : FG.faint;
