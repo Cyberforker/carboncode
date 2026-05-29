@@ -86,7 +86,7 @@ describe("startup update check", () => {
       stdoutIsTTY: true,
     });
 
-    expect(hint).toContain("有新版本可用：0.1.1 -> 0.1.2");
+    expect(hint).toContain("有新版本：0.1.1 → 0.1.2");
     expect(hint).toContain("npm install -g @carboncode/cli");
   });
 

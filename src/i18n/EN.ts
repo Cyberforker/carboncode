@@ -59,6 +59,8 @@ export const EN: TranslationSchema = {
     activityWaitingForModel: "waiting for model…",
     activityThinking: "thinking…",
     activityProcessing: "processing…",
+    activityGerunds:
+      "Pondering…·Cogitating…·Puzzling…·Mulling…·Noodling…·Ruminating…·Scheming…·Brewing…·Tinkering…·Untangling…",
     undo: "Undo",
     undoHint: "press u within 5s to undo",
     applied: "applied",
@@ -1408,6 +1410,7 @@ export const EN: TranslationSchema = {
     budget: "  budget  ",
   },
   welcomeBanner: {
+    help: "/help for commands \u00b7 type a task to start",
     workspace: "\u25b8 workspace",
     relaunchHint: "  (relaunch with --dir <path> to switch)",
     dashboard: "\u25b8 web",
@@ -1425,7 +1428,7 @@ export const EN: TranslationSchema = {
     ephemeral: "(ephemeral)",
     semanticOn: " \u00b7 semantic_search on",
     updateAvailable:
-      "\u25b8 Update available: {current} -> {latest}\n  Run `npm install -g @carboncode/cli` to update.",
+      "\u2b22 Update available: {current} \u2192 {latest}\n  Run `npm install -g @carboncode/cli` to update.",
   },
   doctorErrors: {
     unreadable: "{path} unreadable \u2014 {message}",

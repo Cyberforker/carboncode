@@ -56,6 +56,8 @@ export interface TranslationSchema {
     activityWaitingForModel: string;
     activityThinking: string;
     activityProcessing: string;
+    /** "·"-separated whimsical gerunds cycled in the working spinner (Claude-style). */
+    activityGerunds: string;
     undo: string;
     undoHint: string;
     applied: string;
@@ -609,6 +611,7 @@ export interface TranslationSchema {
     budget: string;
   };
   welcomeBanner: {
+    help: string;
     workspace: string;
     relaunchHint: string;
     dashboard: string;

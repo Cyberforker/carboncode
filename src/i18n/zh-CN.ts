@@ -60,6 +60,8 @@ export const zhCN: TranslationSchema = {
     activityWaitingForModel: "等待模型…",
     activityThinking: "思考中…",
     activityProcessing: "处理中…",
+    activityGerunds:
+      "思忖中…·盘算中…·推敲中…·琢磨中…·梳理中…·斟酌中…·运筹中…·构思中…·捣鼓中…·拆解中…",
     undo: "撤消",
     undoHint: "在 5 秒内按 u 撤消",
     applied: "已应用",
@@ -1336,6 +1338,7 @@ export const zhCN: TranslationSchema = {
     budget: "  预算  ",
   },
   welcomeBanner: {
+    help: "/help 查看命令 · 输入任务开始",
     workspace: "▸ 工作区",
     relaunchHint: "（重启时用 --dir <path> 切换）",
     dashboard: "▸ 网页",
@@ -1353,7 +1356,7 @@ export const zhCN: TranslationSchema = {
     ephemeral: "（临时）",
     semanticOn: " · 语义搜索已开启",
     updateAvailable:
-      "▸ 有新版本可用：{current} -> {latest}\n  运行 `npm install -g @carboncode/cli` 更新。",
+      "⬢ 有新版本：{current} → {latest}\n  运行 `npm install -g @carboncode/cli` 升级。",
   },
   doctorErrors: {
     unreadable: "{path} 无法读取 — {message}",
