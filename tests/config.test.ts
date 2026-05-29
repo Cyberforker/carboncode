@@ -473,7 +473,7 @@ describe("config", () => {
     expect(resolveThemePreference("auto", "github-light")).toBe("github-light");
     expect(resolveThemePreference(undefined, "tokyo-night")).toBe("tokyo-night");
     expect(resolveThemePreference("github-dark", "github-light")).toBe("github-dark");
-    expect(resolveThemePreference("auto", "unknown")).toBe("github-light");
+    expect(resolveThemePreference("auto", "unknown")).toBe("github-dark");
   });
 
   it("loadThemeEnv prefers Carbon Code theme env over the legacy Reasonix env", () => {

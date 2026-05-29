@@ -2,6 +2,7 @@ import React from "react";
 import { useThemeTokens } from "./theme/context.js";
 import {
   CARD,
+  DIFF,
   FG as TOKEN_FG,
   SURFACE as TOKEN_SURFACE,
   TONE,
@@ -91,6 +92,7 @@ function currentTheme(): ThemeTokens {
     toneActive: TONE_ACTIVE,
     surface: TOKEN_SURFACE,
     card: CARD,
+    diff: DIFF,
   };
 }
 
@@ -118,9 +120,20 @@ export const GRADIENT = proxyThemeValue(() => gradientFromTheme(currentTheme()))
 export const COLOR = proxyThemeValue(() => colorFromTheme(currentTheme()));
 
 export const GLYPH = {
+  /** Carbon brand mark — a hexagon (carbon/graphene ring). Swap here to rebrand. */
+  brandMark: "⬢",
   brand: "●",
   user: "●",
   assistant: "●",
+  /** Claude-style event marker prefixing each assistant text block and tool call. */
+  event: "⏺",
+  /** Tree corner glyph prefixing an indented tool-result line. */
+  vine: "⎿",
+  /** Selection cursor for option lists / pickers. */
+  cursor: "❯",
+  /** Todo checkbox glyphs. */
+  todoOpen: "☐",
+  todoDone: "☒",
   toolOk: "✓",
   toolErr: "✗",
   warn: "⚠",

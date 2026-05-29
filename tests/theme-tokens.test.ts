@@ -17,19 +17,20 @@ describe("theme tokens", () => {
     expect(resolveThemeName("unknown")).toBe(DEFAULT_THEME_NAME);
   });
 
-  it("uses a Codex-like light terminal palette by default", () => {
-    expect(DEFAULT_THEME_NAME).toBe("github-light");
-    expect(THEMES.default).toBe(THEMES["github-light"]);
+  it("uses a dark terminal palette with a warm Carbon brand by default", () => {
+    expect(DEFAULT_THEME_NAME).toBe("github-dark");
+    expect(THEMES.default).toBe(THEMES["github-dark"]);
 
     const theme = THEMES.default;
-    expect(theme.fg.strong).toBe("#0d0d0d");
-    expect(theme.fg.body).toBe("#111111");
-    expect(theme.tone.brand).toBe("#0096a6");
-    expect(theme.tone.accent).toBe("#c000c0");
-    expect(theme.tone.ok).toBe("#238636");
-    expect(theme.tone.warn).toBe("#8a7a00");
-    expect(theme.surface.bgInput).toBe("#f2f2f2");
-    expect(theme.surface.bgElev).toBe("#e7e7e7");
+    expect(theme.fg.strong).toBe("#f8fafc");
+    expect(theme.fg.body).toBe("#e5e7eb");
+    // Brand is Claude-style warm terracotta orange across themes.
+    expect(theme.tone.brand).toBe("#d97757");
+    expect(theme.tone.accent).toBe("#a78bfa");
+    expect(theme.tone.ok).toBe("#22c55e");
+    expect(theme.tone.warn).toBe("#eab308");
+    expect(theme.surface.bgInput).toBe("#111113");
+    expect(theme.surface.bgElev).toBe("#18181b");
   });
 
   it("lists all registered themes", () => {

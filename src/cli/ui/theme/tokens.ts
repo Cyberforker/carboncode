@@ -31,6 +31,13 @@ export interface ThemeTokens {
     bgCode: string;
     bgElev: string;
   };
+  /** Diff add/del foreground + background washes, tuned per theme (light vs dark). */
+  diff: {
+    addFg: string;
+    addBg: string;
+    delFg: string;
+    delBg: string;
+  };
   card: Record<
     | "user"
     | "reasoning"
@@ -90,7 +97,7 @@ const githubDark = defineTheme({
     faint: "#52525b",
   },
   tone: {
-    brand: "#f8fafc",
+    brand: "#d97757",
     accent: "#a78bfa",
     violet: "#c084fc",
     ok: "#22c55e",
@@ -99,7 +106,7 @@ const githubDark = defineTheme({
     info: "#60a5fa",
   },
   toneActive: {
-    brand: "#ffffff",
+    brand: "#e89a82",
     accent: "#c4b5fd",
     violet: "#d8b4fe",
     ok: "#4ade80",
@@ -113,6 +120,12 @@ const githubDark = defineTheme({
     bgCode: "#050507",
     bgElev: "#18181b",
   },
+  diff: {
+    addFg: "#bef0c8",
+    addBg: "#0c2718",
+    delFg: "#fbc8c8",
+    delBg: "#2a1212",
+  },
 });
 
 const dark = defineTheme({
@@ -124,7 +137,7 @@ const dark = defineTheme({
     faint: "#4d5666",
   },
   tone: {
-    brand: "#7dd3fc",
+    brand: "#d97757",
     accent: "#c084fc",
     violet: "#a78bfa",
     ok: "#86efac",
@@ -133,7 +146,7 @@ const dark = defineTheme({
     info: "#60a5fa",
   },
   toneActive: {
-    brand: "#bae6fd",
+    brand: "#e89a82",
     accent: "#e9d5ff",
     violet: "#ddd6fe",
     ok: "#bbf7d0",
@@ -147,6 +160,12 @@ const dark = defineTheme({
     bgCode: "#080c16",
     bgElev: "#151d2f",
   },
+  diff: {
+    addFg: "#bef0c8",
+    addBg: "#0c2718",
+    delFg: "#fbc8c8",
+    delBg: "#2a1212",
+  },
 });
 
 const codexLightBase: ThemeBase = {
@@ -158,7 +177,7 @@ const codexLightBase: ThemeBase = {
     faint: "#c7c7c7",
   },
   tone: {
-    brand: "#0096a6",
+    brand: "#c2410c",
     accent: "#c000c0",
     violet: "#7a5cff",
     ok: "#238636",
@@ -167,7 +186,7 @@ const codexLightBase: ThemeBase = {
     info: "#0096a6",
   },
   toneActive: {
-    brand: "#00a3b5",
+    brand: "#ea580c",
     accent: "#d000d0",
     violet: "#8a6dff",
     ok: "#2ea043",
@@ -180,6 +199,12 @@ const codexLightBase: ThemeBase = {
     bgInput: "#f2f2f2",
     bgCode: "#f5f5f5",
     bgElev: "#e7e7e7",
+  },
+  diff: {
+    addFg: "#0a5a1a",
+    addBg: "#d6f5dd",
+    delFg: "#8a1a1a",
+    delBg: "#fbdcdc",
   },
 };
 
@@ -194,7 +219,7 @@ const tokyoNight = defineTheme({
     faint: "#414868",
   },
   tone: {
-    brand: "#7aa2f7",
+    brand: "#d97757",
     accent: "#bb9af7",
     violet: "#9d7cd8",
     ok: "#9ece6a",
@@ -203,7 +228,7 @@ const tokyoNight = defineTheme({
     info: "#2ac3de",
   },
   toneActive: {
-    brand: "#a9c7ff",
+    brand: "#e89a82",
     accent: "#d7b9ff",
     violet: "#c6a0f6",
     ok: "#b9f27c",
@@ -216,6 +241,12 @@ const tokyoNight = defineTheme({
     bgInput: "#1f2335",
     bgCode: "#16161e",
     bgElev: "#24283b",
+  },
+  diff: {
+    addFg: "#bef0c8",
+    addBg: "#0c2718",
+    delFg: "#fbc8c8",
+    delBg: "#2a1212",
   },
 });
 
@@ -230,7 +261,7 @@ const highContrast = defineTheme({
     faint: "#8a8a8a",
   },
   tone: {
-    brand: "#00e5ff",
+    brand: "#ff8c42",
     accent: "#ff4dff",
     violet: "#b388ff",
     ok: "#00ff66",
@@ -239,7 +270,7 @@ const highContrast = defineTheme({
     info: "#4da3ff",
   },
   toneActive: {
-    brand: "#80f2ff",
+    brand: "#ffab70",
     accent: "#ff99ff",
     violet: "#d0b3ff",
     ok: "#80ffb3",
@@ -253,10 +284,16 @@ const highContrast = defineTheme({
     bgCode: "#050505",
     bgElev: "#141414",
   },
+  diff: {
+    addFg: "#aaffaa",
+    addBg: "#06330f",
+    delFg: "#ffb3b3",
+    delBg: "#3a0d0d",
+  },
 });
 
 export const THEMES = {
-  default: githubLight,
+  default: githubDark,
   dark,
   light,
   "tokyo-night": tokyoNight,
@@ -265,7 +302,7 @@ export const THEMES = {
   "high-contrast": highContrast,
 } as const satisfies Record<ThemeName, ThemeTokens>;
 
-export const DEFAULT_THEME_NAME: ThemeName = "github-light";
+export const DEFAULT_THEME_NAME: ThemeName = "github-dark";
 
 export function isThemeName(value: string): value is ThemeName {
   return Object.prototype.hasOwnProperty.call(THEMES, value);
@@ -324,6 +361,7 @@ export const TONE = proxyTokens((theme) => theme.tone);
 export const TONE_ACTIVE = proxyTokens((theme) => theme.toneActive);
 export const SURFACE = proxyTokens((theme) => theme.surface);
 export const CARD = proxyTokens((theme) => theme.card);
+export const DIFF = proxyTokens((theme) => theme.diff);
 
 export type CardTone = keyof ThemeTokens["card"];
 
