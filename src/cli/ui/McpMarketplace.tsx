@@ -385,7 +385,7 @@ export function McpMarketplace({ onClose, postInfo, reloadMcp, pickerPorts }: Mc
             const pop = e.popularity !== undefined ? ` · ${e.popularity.toLocaleString()}` : "";
             return (
               <Box key={e.name}>
-                <Text color={active ? COLOR.brand : undefined}>{active ? "▸ " : "  "}</Text>
+                <Text color={active ? COLOR.brand : undefined}>{active ? "❯ " : "  "}</Text>
                 <Text bold={active}>{e.name.padEnd(38).slice(0, 38)}</Text>
                 <Text dimColor>{` ${tag}${pop}${installedBadge}`}</Text>
               </Box>

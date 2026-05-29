@@ -4,7 +4,7 @@ import { Box, Text } from "ink";
 import React, { useState } from "react";
 import { useKeystroke } from "./keystroke-context.js";
 import type { KeyEvent } from "./stdin-reader.js";
-import { type UiColor, useColor } from "./theme.js";
+import { GLYPH, type UiColor, useColor } from "./theme.js";
 
 export interface SelectItem<V extends string = string> {
   value: V;
@@ -74,7 +74,7 @@ export function SingleSelect<V extends string>({
           key={item.value}
           item={item}
           active={i === index}
-          marker={i === index ? "▸" : " "}
+          marker={i === index ? GLYPH.cursor : " "}
           color={color}
           inlineHint={inlineHints}
           vividHint={vividHints}
@@ -153,7 +153,7 @@ export function MultiSelect<V extends string>({
             key={item.value}
             item={item}
             active={i === index}
-            marker={`${i === index ? "▸" : " "} ${marker}`}
+            marker={`${i === index ? GLYPH.cursor : " "} ${marker}`}
             color={color}
             inlineHint={inlineHints}
           />

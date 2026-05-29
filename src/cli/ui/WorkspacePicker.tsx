@@ -163,7 +163,7 @@ function WorkspaceRow({
   );
   return (
     <Box>
-      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ▸ " : "    "}</Text>
+      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ❯ " : "    "}</Text>
       <Text bold={focused} color={focused ? FG.strong : FG.sub}>
         {label.padEnd(16)}
       </Text>

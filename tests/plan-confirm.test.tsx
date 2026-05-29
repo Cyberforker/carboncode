@@ -140,7 +140,7 @@ describe("PlanConfirm — issue #336 plan body must be visible", () => {
     expect(expanded).toContain("line 24");
     expect(expanded).not.toContain("line 25");
     expect(
-      blankLinesBetween(expanded, "PgUp/PgDn scroll details · Home/End jump", "▸ accept"),
+      blankLinesBetween(expanded, "PgUp/PgDn scroll details · Home/End jump", "❯ accept"),
     ).toBeLessThanOrEqual(1);
     unmount();
   });
@@ -158,7 +158,7 @@ describe("PlanConfirm — issue #336 plan body must be visible", () => {
     expect(scrolled).toContain("showing lines");
     expect(scrolled).not.toContain("showing lines 1-");
     expect(
-      blankLinesBetween(scrolled, "PgUp/PgDn scroll details · Home/End jump", "▸ accept"),
+      blankLinesBetween(scrolled, "PgUp/PgDn scroll details · Home/End jump", "❯ accept"),
     ).toBeLessThanOrEqual(1);
     unmount();
   });

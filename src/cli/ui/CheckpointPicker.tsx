@@ -139,7 +139,7 @@ function CheckpointRow({
   const time = fmtAgo(info.createdAt);
   return (
     <Box>
-      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ▸ " : "    "}</Text>
+      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ❯ " : "    "}</Text>
       <Text color={FG.meta}>{info.id.slice(0, 7).padEnd(8)}</Text>
       <Text bold={focused} color={focused ? FG.strong : FG.sub}>
         {info.name}

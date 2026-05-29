@@ -116,7 +116,7 @@ function CopyLine({
   isCursor: boolean;
   inSelection: boolean;
 }): React.ReactElement {
-  const marker = isCursor ? "▸ " : "  ";
+  const marker = isCursor ? "❯ " : "  ";
   const room = Math.max(1, cols - 2);
   const display = line.kind === "blank" ? "" : clipToCells(line.text, room);
   if (line.kind === "header") {

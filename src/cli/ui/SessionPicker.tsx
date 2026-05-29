@@ -299,7 +299,7 @@ function SessionRow({
   const time = relativeTime(info.mtime);
   return (
     <Box>
-      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ▸ " : "    "}</Text>
+      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ❯ " : "    "}</Text>
       <Text bold={focused} color={focused ? FG.strong : FG.sub}>
         {info.name.padEnd(12)}
       </Text>

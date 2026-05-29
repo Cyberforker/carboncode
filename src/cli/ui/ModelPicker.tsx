@@ -162,7 +162,7 @@ function PresetRow({
   const desc = PRESET_DESCRIPTIONS[name];
   return (
     <Box>
-      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ▸ " : "    "}</Text>
+      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ❯ " : "    "}</Text>
       <Text bold={focused} color={focused ? FG.strong : FG.sub}>
         {name.padEnd(8)}
       </Text>
@@ -185,7 +185,7 @@ function ModelRow({
   const badge = modelBadgeFor(id);
   return (
     <Box>
-      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ▸ " : "    "}</Text>
+      <Text color={focused ? TONE.brand : FG.faint}>{focused ? "  ❯ " : "    "}</Text>
       <Text bold={focused} color={focused ? FG.strong : FG.sub}>
         {id.padEnd(24)}
       </Text>

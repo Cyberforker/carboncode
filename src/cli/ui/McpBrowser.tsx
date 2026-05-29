@@ -89,7 +89,7 @@ function ServerRow({ server, active }: { server: McpServerSummary; active: boole
   return (
     <Box flexDirection="column" marginBottom={active ? 1 : 0}>
       <Box>
-        <Text color={active ? COLOR.brand : undefined}>{active ? "▸  " : "   "}</Text>
+        <Text color={active ? COLOR.brand : undefined}>{active ? "❯  " : "   "}</Text>
         <Text bold={active} color={active ? "#e6edf3" : undefined}>
           {label.padEnd(14)}
         </Text>

@@ -122,7 +122,7 @@ function ReviseRow({
   const marker = row.done ? "[✓]" : row.skipped ? "[s]" : focused ? "[ ]" : "[ ]";
   const markerColor = row.done ? TONE.ok : row.skipped ? FG.faint : focused ? TONE.brand : FG.faint;
   const titleColor = row.done ? FG.sub : row.skipped ? FG.faint : focused ? FG.strong : FG.sub;
-  const focusGlyph = focused ? <Text color={TONE.brand}>{"▸ "}</Text> : <Text>{"  "}</Text>;
+  const focusGlyph = focused ? <Text color={TONE.brand}>{"❯ "}</Text> : <Text>{"  "}</Text>;
   return (
     <Box>
       {focusGlyph}
