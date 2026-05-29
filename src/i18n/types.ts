@@ -628,6 +628,9 @@ export interface TranslationSchema {
     ephemeral: string;
     semanticOn: string;
     updateAvailable: string;
+    updateInstalling: string;
+    updateInstalled: string;
+    updateFailed: string;
   };
   doctorErrors: {
     unreadable: string;

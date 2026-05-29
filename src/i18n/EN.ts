@@ -1428,7 +1428,10 @@ export const EN: TranslationSchema = {
     ephemeral: "(ephemeral)",
     semanticOn: " \u00b7 semantic_search on",
     updateAvailable:
-      "\u2b22 Update available: {current} \u2192 {latest}\n  Run `npm install -g @carboncode/cli` to update.",
+      "\u2b22 Update available: {current} \u2192 {latest}\n  Run `carboncode update` to install.",
+    updateInstalling: "\u2b22 Updating {current} \u2192 {latest} in the background\u2026",
+    updateInstalled: "\u2713 Updated to {latest} \u00b7 restart carboncode to apply",
+    updateFailed: "\u2b22 Auto-update to {latest} failed \u00b7 run `carboncode update` to retry",
   },
   doctorErrors: {
     unreadable: "{path} unreadable \u2014 {message}",

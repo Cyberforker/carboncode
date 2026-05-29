@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getStartupUpdateHint, shouldRunStartupUpdateCheck } from "../src/cli/startup-update.js";
+import {
+  getStartupUpdateHint,
+  isAutoUpdateEnabled,
+  runStartupUpdate,
+  shouldRunStartupUpdateCheck,
+} from "../src/cli/startup-update.js";
 import { setLanguageRuntime } from "../src/i18n/index.js";
 
 describe("startup update check", () => {
@@ -87,7 +92,7 @@ describe("startup update check", () => {
     });
 
     expect(hint).toContain("有新版本：0.1.1 → 0.1.2");
-    expect(hint).toContain("npm install -g @carboncode/cli");
+    expect(hint).toContain("carboncode update");
   });
 
   it("stays quiet when latest is missing or not newer", async () => {
@@ -108,5 +113,115 @@ describe("startup update check", () => {
     await expect(
       getStartupUpdateHint({ ...common, fetchLatest: async () => "0.1.0" }),
     ).resolves.toBeNull();
+  });
+
+  it("isAutoUpdateEnabled defaults on and opts out via config or env (REASONIX fallback)", () => {
+    expect(isAutoUpdateEnabled({}, {})).toBe(true);
+    expect(isAutoUpdateEnabled({ autoUpdate: false }, {})).toBe(false);
+    expect(isAutoUpdateEnabled({}, { CARBONCODE_DISABLE_AUTOUPDATE: "1" })).toBe(false);
+    expect(isAutoUpdateEnabled({}, { REASONIX_DISABLE_AUTOUPDATE: "1" })).toBe(false);
+    expect(isAutoUpdateEnabled({}, { CARBONCODE_DISABLE_AUTOUPDATE: "0" })).toBe(true);
+  });
+
+  const commonNpm = {
+    config: {},
+    current: "0.1.1",
+    env: {},
+    installSource: "npm" as const,
+    stdoutIsTTY: true,
+  };
+
+  it("auto-installs in the background and tells the user to restart", async () => {
+    setLanguageRuntime("zh-CN");
+    const msgs: string[] = [];
+    let ranArgv: string[] | null = null;
+    await runStartupUpdate({
+      ...commonNpm,
+      autoUpdate: true,
+      npmPrefix: null,
+      fetchLatest: async () => "0.1.2",
+      recentlyAttempted: () => false,
+      markAttempt: () => {},
+      spawnInstall: async (argv) => {
+        ranArgv = argv;
+        return 0;
+      },
+      notify: (m) => msgs.push(m),
+    });
+    expect(ranArgv).toEqual(["npm", "install", "-g", "@carboncode/cli@latest"]);
+    expect(msgs[0]).toContain("正在后台更新 0.1.1 → 0.1.2");
+    expect(msgs[1]).toContain("已更新至 0.1.2");
+    expect(msgs[1]).toContain("重启");
+  });
+
+  it("falls back to a retry hint when the background install fails", async () => {
+    const msgs: string[] = [];
+    await runStartupUpdate({
+      ...commonNpm,
+      autoUpdate: true,
+      npmPrefix: null,
+      fetchLatest: async () => "0.1.2",
+      recentlyAttempted: () => false,
+      markAttempt: () => {},
+      spawnInstall: async () => 1,
+      notify: (m) => msgs.push(m),
+    });
+    expect(msgs[1]).toContain("carboncode update");
+  });
+
+  it("does not re-install when an attempt for the same version is recent", async () => {
+    const msgs: string[] = [];
+    let spawned = false;
+    await runStartupUpdate({
+      ...commonNpm,
+      autoUpdate: true,
+      npmPrefix: null,
+      fetchLatest: async () => "0.1.2",
+      recentlyAttempted: (v) => v === "0.1.2",
+      markAttempt: () => {},
+      spawnInstall: async () => {
+        spawned = true;
+        return 0;
+      },
+      notify: (m) => msgs.push(m),
+    });
+    expect(spawned).toBe(false);
+    expect(msgs).toHaveLength(0);
+  });
+
+  it("only notifies (no install) when auto-update is disabled", async () => {
+    const msgs: string[] = [];
+    let spawned = false;
+    await runStartupUpdate({
+      ...commonNpm,
+      autoUpdate: false,
+      fetchLatest: async () => "0.1.2",
+      spawnInstall: async () => {
+        spawned = true;
+        return 0;
+      },
+      notify: (m) => msgs.push(m),
+    });
+    expect(spawned).toBe(false);
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0]).toContain("Update available");
+  });
+
+  it("does nothing when not newer or the gate fails", async () => {
+    const msgs: string[] = [];
+    await runStartupUpdate({
+      ...commonNpm,
+      autoUpdate: true,
+      fetchLatest: async () => "0.1.1",
+      notify: (m) => msgs.push(m),
+    });
+    await runStartupUpdate({
+      ...commonNpm,
+      stdoutIsTTY: false,
+      autoUpdate: true,
+      fetchLatest: async () => "0.1.2",
+      notify: (m) => msgs.push(m),
+    });
+    expect(msgs).toHaveLength(0);
   });
 });

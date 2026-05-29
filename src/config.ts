@@ -120,6 +120,8 @@ export interface ReasonixConfig {
   banner?: boolean;
   /** When false, skip the non-blocking npm latest check shown at startup. Default true. */
   updateCheck?: boolean;
+  /** When false, only notify about a new version instead of auto-installing it in the background. Default true. */
+  autoUpdate?: boolean;
   reasoningEffort?: ReasoningEffort;
   /** Default workspace root for the desktop client. CLI uses cwd. */
   workspaceDir?: string;

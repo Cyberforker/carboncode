@@ -282,8 +282,8 @@ export interface AppProps {
   onSwitchSession?: (name: string | undefined) => void;
   /** One-time startup info rows injected by chatCommand. */
   startupInfoHints?: string[];
-  /** Non-blocking startup update check; returns a compact hint or null. */
-  startupUpdateCheck?: () => Promise<string | null>;
+  /** Non-blocking startup update: auto-installs in the background and streams notices via `notify`. */
+  startupUpdateCheck?: (notify: (message: string) => void) => Promise<void>;
   /** Pre-created QQ channel (started before TUI mounts). */
   qqChannel?: QQChannel;
   /** Ref filled by App on mount so QQ messages flow into the TUI input queue. */
@@ -1570,8 +1570,8 @@ function AppInner({
     if (!startupUpdateCheck || startupUpdateCheckStarted.current) return;
     startupUpdateCheckStarted.current = true;
     let cancelled = false;
-    void startupUpdateCheck().then((hint) => {
-      if (!cancelled && hint) log.pushInfo(hint);
+    void startupUpdateCheck((message) => {
+      if (!cancelled) log.pushInfo(message);
     });
     return () => {
       cancelled = true;

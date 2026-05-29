@@ -1355,8 +1355,10 @@ export const zhCN: TranslationSchema = {
       '▸ carboncode code：根目录 {rootDir}，会话 "{session}" · {tools} 个原生工具{semantic}',
     ephemeral: "（临时）",
     semanticOn: " · 语义搜索已开启",
-    updateAvailable:
-      "⬢ 有新版本：{current} → {latest}\n  运行 `npm install -g @carboncode/cli` 升级。",
+    updateAvailable: "⬢ 有新版本：{current} → {latest}\n  运行 `carboncode update` 升级。",
+    updateInstalling: "⬢ 正在后台更新 {current} → {latest}…",
+    updateInstalled: "✓ 已更新至 {latest} · 重启 carboncode 生效",
+    updateFailed: "⬢ 自动更新到 {latest} 失败 · 运行 carboncode update 重试",
   },
   doctorErrors: {
     unreadable: "{path} 无法读取 — {message}",

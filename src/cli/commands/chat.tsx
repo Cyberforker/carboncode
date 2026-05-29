@@ -117,8 +117,8 @@ interface RootProps extends ChatOptions {
   mcpRuntime: McpRuntime;
   /** One-time startup info rows shown after App mounts. */
   startupInfoHints: string[];
-  /** Non-blocking startup update hint; App invokes it after first paint. */
-  startupUpdateCheck?: () => Promise<string | null>;
+  /** Non-blocking startup update; App invokes it after first paint (auto-installs + streams notices). */
+  startupUpdateCheck?: (notify: (message: string) => void) => Promise<void>;
   /** Pre-created QQ channel (started before TUI mounts). */
   qqChannel?: QQChannel;
   /** App fills this ref on mount so QQ messages flow into the TUI input queue. */
