@@ -1,7 +1,8 @@
 import { render } from "ink-testing-library";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { SlashSuggestions } from "../src/cli/ui/SlashSuggestions.js";
+import { SlashSuggestions, truncateCells } from "../src/cli/ui/SlashSuggestions.js";
+import { stringCells } from "../src/cli/ui/prompt-viewport.js";
 import {
   SLASH_COMMANDS,
   SLASH_GROUP_ORDER,
@@ -76,6 +77,26 @@ function visibleGroupOrder(frame: string): string[] {
     )
     .filter(Boolean);
 }
+
+describe("truncateCells — display-cell aware (CJK = 2 cells)", () => {
+  it("keeps ASCII behavior identical (slice at maxCells-1 + ellipsis)", () => {
+    expect(truncateCells("hello world", 8)).toBe("hello w…");
+    expect(truncateCells("short", 20)).toBe("short");
+  });
+
+  it("never exceeds the cell budget for Chinese text and keeps the ellipsis", () => {
+    const zh = "状态栏密度预设最小默认完整还有更多文字"; // each glyph = 2 cells
+    const out = truncateCells(zh, 10);
+    expect(stringCells(out)).toBeLessThanOrEqual(10);
+    expect(out.endsWith("…")).toBe(true);
+    // old code-unit impl would have returned ~9 glyphs ≈ 18 cells — assert we're tighter.
+    expect(stringCells(out)).toBeLessThan(stringCells(zh));
+  });
+
+  it("returns the value untouched when it already fits in cells", () => {
+    expect(truncateCells("中文", 10)).toBe("中文"); // 4 cells ≤ 10
+  });
+});
 
 describe("SlashSuggestions", () => {
   it("renders visible bare-slash groups in the shared order", () => {

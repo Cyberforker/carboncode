@@ -1,6 +1,7 @@
 import { Box, Text, useStdout } from "ink";
 import React from "react";
 import { t } from "../../i18n/index.js";
+import { charCells, stringCells } from "./prompt-viewport.js";
 import type { SlashCommandSpec, SlashGroup } from "./slash.js";
 import { GLYPH, useColor } from "./theme.js";
 
@@ -212,11 +213,21 @@ function SuggestionRow({
 
 function padOrTrim(value: string, cells: number): string {
   const trimmed = truncateCells(value, cells);
-  return trimmed.padEnd(cells);
+  // Pad by display cells, not code units, so a CJK-bearing column still aligns.
+  return trimmed + " ".repeat(Math.max(0, cells - stringCells(trimmed)));
 }
 
-function truncateCells(value: string, maxCells: number): string {
-  if (value.length <= maxCells) return value;
-  if (maxCells <= 1) return value.slice(0, Math.max(0, maxCells));
-  return `${value.slice(0, maxCells - 1)}…`;
+// Truncate to a DISPLAY-cell budget (CJK glyphs are 2 cells). Named "cells" but the
+// old impl measured code units, so Chinese summaries over-ran / lost their ellipsis.
+export function truncateCells(value: string, maxCells: number): string {
+  if (stringCells(value) <= maxCells) return value;
+  if (maxCells <= 1) return "…";
+  let cells = 0;
+  let i = 0;
+  for (; i < value.length; i++) {
+    const w = charCells(value[i]!);
+    if (cells + w > maxCells - 1) break; // leave 1 cell for the ellipsis
+    cells += w;
+  }
+  return `${value.slice(0, i)}…`;
 }

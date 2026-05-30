@@ -11,11 +11,19 @@ function shortModel(model: string | undefined): string {
   return model;
 }
 
+function fit(value: string, width: number): string {
+  // ASCII columns (scope/name/model/tools) — truncate then pad to a fixed width so
+  // rows stay aligned regardless of tool-list length.
+  const v = value.length > width ? `${value.slice(0, width - 1)}…` : value;
+  return v.padEnd(width);
+}
+
 function agentRow(s: Skill): string {
-  const scope = `(${s.scope})`.padEnd(11);
-  const name = s.name.padEnd(20);
-  const model = shortModel(s.model).padEnd(8);
-  const tools = (s.allowedTools?.length ? s.allowedTools.join(",") : "inherits").padEnd(16);
+  const scope = fit(`(${s.scope})`, 11);
+  const name = fit(s.name, 20);
+  const model = fit(shortModel(s.model), 8);
+  const tools = fit(s.allowedTools?.length ? s.allowedTools.join(",") : "inherits", 16);
+  // desc is the last (ragged) column — the chat renderer wraps it; keep it readable.
   const desc = s.description.length > 60 ? `${s.description.slice(0, 59)}…` : s.description;
   return `  ${scope} ${name} ${model} ${tools} ${desc}`;
 }

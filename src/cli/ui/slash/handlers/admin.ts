@@ -238,7 +238,9 @@ const config: SlashHandler = () => {
   const labelW = Math.max(...rows.map((r) => r[0].length));
   const valueW = Math.max(...rows.map((r) => r[1].length));
   const body = rows
-    .map(([label, value, cmd]) => `  ${label.padEnd(labelW)}  ${value.padEnd(valueW)}  ${cmd}`)
+    .map(([label, value, cmd]) =>
+      `  ${label.padEnd(labelW)}  ${value.padEnd(valueW)}  ${cmd}`.trimEnd(),
+    )
     .join("\n");
   return {
     info: `${t("handlers.admin.configTitle")}\n\n${body}\n\n${t("handlers.admin.configFooter", { path: defaultConfigPath() })}`,
