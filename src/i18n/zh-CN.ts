@@ -91,7 +91,7 @@ export const zhCN: TranslationSchema = {
         {
           rows: [
             { key: "y / n", text: "接受或放弃待处理的编辑" },
-            { key: "Shift+Tab", text: "切换 预览 ↔ 自动（持久化；自动模式立即应用）" },
+            { key: "Shift+Tab", text: "循环 预览 → 自动 → 计划（持久化；自动模式立即应用）" },
             { key: "u", text: "撤销上次自动应用的批处理（5 秒横幅内）" },
           ],
         },
@@ -135,7 +135,7 @@ export const zhCN: TranslationSchema = {
             { key: "Ctrl+W", text: "删除光标前的一个词" },
             { key: "Ctrl+U", text: "清空整个输入缓冲区" },
             { key: "Tab", text: "补全 @-mention · 进入文件夹 · 接受 slash 命令" },
-            { key: "Shift+Tab", text: "编辑门控：切换 预览 ↔ 自动 模式" },
+            { key: "Shift+Tab", text: "编辑门控：循环 预览 → 自动 → 计划" },
             { key: "Esc", text: "关闭弹出选择器 · 中止当前模型回合" },
             { key: "Ctrl+C", text: "中止当前模型回合（不是复制 — 见剪贴板段）" },
             { key: "PgUp / PgDn", text: "整页滚动聊天记录" },
@@ -173,7 +173,7 @@ export const zhCN: TranslationSchema = {
           title: "编辑门控（仅 code 模式）",
           rows: [
             { key: "y / n", text: "在预览模态中接受或放弃待处理的编辑" },
-            { key: "Shift+Tab", text: "切换 预览 ↔ 自动（持久化）" },
+            { key: "Shift+Tab", text: "循环 预览 → 自动 → 计划（持久化）" },
             { key: "u", text: "撤销上次自动应用的批处理（5 秒横幅内）" },
           ],
         },
@@ -393,7 +393,7 @@ export const zhCN: TranslationSchema = {
     },
     mode: {
       description:
-        "编辑门控：review（排队）· auto（应用+撤消）· yolo（应用+自动 shell）。Shift+Tab 循环。",
+        "编辑门控：review（排队）· auto（应用+撤消）· yolo（应用+自动 shell）。Shift+Tab 循环 review→auto→plan。",
       argsHint: "[review|auto|yolo]",
     },
     jobs: { description: "列出 run_background 启动的后台作业" },

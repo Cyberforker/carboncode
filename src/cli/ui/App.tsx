@@ -1684,9 +1684,9 @@ function AppInner({
       );
       return;
     }
-    // Edit-mode cycle: Shift+Tab flips review —auto. Available any
-    // time a modal isn't up —including mid-turn —so the user can
-    // switch gears without abandoning the in-flight request. Prefer
+    // Mode cycle: Shift+Tab cycles review → auto → plan (Claude-style).
+    // Available any time a modal isn't up —including mid-turn —so the user
+    // can switch gears without abandoning the in-flight request. Prefer
     // this to typing `/mode <x>`; one keystroke, no command parsing.
     if (
       codeMode &&
@@ -1706,18 +1706,22 @@ function AppInner({
       !stagedChoiceCustom &&
       !pendingRevision
     ) {
-      // Three-stop cycle: review —auto —yolo —review. yolo also
-      // disables shell confirmations so true zero-prompt iteration takes two Shift+Tabs from default.
-      const cur = editModeRef.current;
-      const next: EditMode = cur === "review" ? "auto" : cur === "auto" ? "yolo" : "review";
-      setEditMode(next);
-      const message =
-        next === "yolo"
-          ? t("app.editModeYolo")
-          : next === "auto"
-            ? t("app.editModeAuto")
-            : t("app.editModeReview");
-      log.pushInfo(message);
+      // Claude-style 3-stop cycle: review → auto-accept → plan → review.
+      // Plan is a first-class stop; yolo is no longer in the cycle (set it
+      // deliberately via `/mode yolo`). Leaving plan lands back in review,
+      // matching Claude's "plan → normal".
+      if (planModeRef.current) {
+        togglePlanMode(false);
+        setEditMode("review");
+        log.pushInfo(t("app.editModeReview"));
+      } else if (editModeRef.current === "review") {
+        setEditMode("auto");
+        log.pushInfo(t("app.editModeAuto"));
+      } else {
+        // auto (or off-cycle yolo) → plan
+        togglePlanMode(true);
+        log.pushInfo(t("handlers.edits.planOn"));
+      }
       return;
     }
     // Undo banner keybind: `u` rolls back the last auto-apply. Gated

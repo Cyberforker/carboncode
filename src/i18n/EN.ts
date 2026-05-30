@@ -93,7 +93,7 @@ export const EN: TranslationSchema = {
             { key: "y / n", text: "accept or drop pending edits" },
             {
               key: "Shift+Tab",
-              text: "switch review ↔ AUTO (persisted; AUTO applies instantly)",
+              text: "cycle review → auto → plan (persisted; AUTO applies instantly)",
             },
             { key: "u", text: "undo the last auto-applied batch (within the 5s banner)" },
           ],
@@ -138,7 +138,7 @@ export const EN: TranslationSchema = {
             { key: "Ctrl+W", text: "delete the word before the cursor" },
             { key: "Ctrl+U", text: "clear the entire prompt buffer" },
             { key: "Tab", text: "complete @-mention · drill folder · accept slash command" },
-            { key: "Shift+Tab", text: "edit-gate: toggle review ↔ AUTO mode" },
+            { key: "Shift+Tab", text: "edit-gate: cycle review → auto → plan" },
             { key: "Esc", text: "dismiss picker · abort the running model turn" },
             { key: "Ctrl+C", text: "abort the running model turn (NOT copy — see clipboard)" },
             { key: "PgUp / PgDn", text: "scroll chat history a page at a time" },
@@ -176,7 +176,7 @@ export const EN: TranslationSchema = {
           title: "edit-gate (code mode)",
           rows: [
             { key: "y / n", text: "accept or drop pending edits in the review modal" },
-            { key: "Shift+Tab", text: "toggle review ↔ AUTO (persisted across sessions)" },
+            { key: "Shift+Tab", text: "cycle review → auto → plan (persisted across sessions)" },
             { key: "u", text: "undo the last auto-applied batch (within the 5s banner)" },
           ],
         },
@@ -403,7 +403,7 @@ export const EN: TranslationSchema = {
     },
     mode: {
       description:
-        "edit-gate: review (queue) · auto (apply+undo) · yolo (apply+auto-shell). Shift+Tab cycles.",
+        "edit-gate: review (queue) · auto (apply+undo) · yolo (apply+auto-shell). Shift+Tab cycles review→auto→plan.",
       argsHint: "[review|auto|yolo]",
     },
     jobs: { description: "list background jobs started by run_background" },
