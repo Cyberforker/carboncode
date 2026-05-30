@@ -24,7 +24,12 @@ const doctor: SlashHandler = (_args, _loop, ctx) => {
   void (async () => {
     const checks = await runDoctorChecks(root);
     ctx.postDoctor!(
-      checks.map((c) => ({ label: c.label.trim(), level: c.level, detail: c.detail })),
+      checks.map((c) => ({
+        label: c.label.trim(),
+        level: c.level,
+        detail: c.detail,
+        remediation: c.remediation,
+      })),
     );
   })();
   return { info: t("handlers.admin.doctorRunning") };

@@ -1371,6 +1371,16 @@ export const zhCN: TranslationSchema = {
     updateInstalled: "✓ 已更新至 {latest} · 重启 carboncode 生效",
     updateFailed: "⬢ 自动更新到 {latest} 失败 · 运行 carboncode update 重试",
   },
+  doctorRemediation: {
+    apiKey: "运行 `carboncode setup`，或 export DEEPSEEK_API_KEY=sk-…",
+    config: "修复或删除 ~/.carboncode/config.json 后重试",
+    apiReach: "检查网络与 DEEPSEEK_BASE_URL；若余额不足，到 platform.deepseek.com 充值",
+    tokenizer: "重新安装以恢复分词器：npm i -g @carboncode/cli",
+    sessions: "运行 `carboncode prune-sessions` 清理陈旧会话",
+    semantic: "用 `carboncode index` 重建索引；若用 Ollama，确认其已启动且模型已拉取",
+    hooks: "修复 hooks 配置文件的 JSON 语法",
+    project: "在项目根目录启动，或 `git init` / 添加 package.json",
+  },
   doctorErrors: {
     unreadable: "{path} 无法读取 — {message}",
     cannotList: "无法列出 — {message}",

@@ -32,6 +32,33 @@ export interface DoctorCheck {
   label: string;
   level: DoctorLevel;
   detail: string;
+  /** Actionable "how to fix" hint, set for warn/fail checks (see remediationFor). */
+  remediation?: string;
+}
+
+// Map a warn/fail check id to a concrete next step. ok checks get none.
+function remediationFor(c: DoctorCheck): string | undefined {
+  if (c.level === "ok") return undefined;
+  switch (c.id) {
+    case "apiKey":
+      return t("doctorRemediation.apiKey");
+    case "config":
+      return t("doctorRemediation.config");
+    case "apiReach":
+      return t("doctorRemediation.apiReach");
+    case "tokenizer":
+      return t("doctorRemediation.tokenizer");
+    case "sessions":
+      return t("doctorRemediation.sessions");
+    case "semantic":
+      return t("doctorRemediation.semantic");
+    case "hooks":
+      return t("doctorRemediation.hooks");
+    case "project":
+      return t("doctorRemediation.project");
+    default:
+      return undefined;
+  }
 }
 
 export interface DoctorOptions {
@@ -52,7 +79,7 @@ type DoctorLabelKey =
   | "project";
 
 export async function runDoctorChecks(projectRoot: string): Promise<DoctorCheck[]> {
-  return Promise.all([
+  const checks = await Promise.all([
     checkApiKey(),
     checkConfig(),
     checkProxy(),
@@ -63,6 +90,10 @@ export async function runDoctorChecks(projectRoot: string): Promise<DoctorCheck[
     checkOllama(projectRoot),
     checkProject(projectRoot),
   ]);
+  return checks.map((c) => {
+    const remediation = remediationFor(c);
+    return remediation ? { ...c, remediation } : c;
+  });
 }
 
 function checkProxy(): Check {
@@ -485,7 +516,12 @@ export function formatDoctorJson(checks: DoctorCheck[], version: string): string
   return JSON.stringify({
     version,
     summary: { ok, warn, fail },
-    checks: checks.map((c) => ({ id: c.id, status: c.level, message: c.detail })),
+    checks: checks.map((c) => ({
+      id: c.id,
+      status: c.level,
+      message: c.detail,
+      ...(c.remediation ? { remediation: c.remediation } : {}),
+    })),
   });
 }
 
@@ -518,6 +554,7 @@ export async function doctorCommand(opts: DoctorOptions = {}): Promise<void> {
 
   for (const c of checks) {
     console.log(`  ${badge(c.level)}  ${c.label}  ${c.detail}`);
+    if (c.remediation) console.log(`     ${color(`→ ${c.remediation}`, "2")}`);
   }
 
   console.log("");

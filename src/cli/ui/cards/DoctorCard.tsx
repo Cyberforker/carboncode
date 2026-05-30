@@ -47,13 +47,16 @@ export function DoctorCard({ card }: { card: DoctorCardData }): React.ReactEleme
         meta={[summary]}
       />
       {card.checks.map((c) => (
-        <Box key={c.label} flexDirection="row" gap={1}>
-          <Text color={levelColor[c.level]}>{LEVEL_GLYPH[c.level]}</Text>
-          <Text bold color={fg.body}>
-            {c.label.padEnd(labelWidth + 1)}
-          </Text>
-          <Text color={fg.sub}>{c.detail}</Text>
-          <Text color={levelColor[c.level]}>{levelTag(c.level)}</Text>
+        <Box key={c.label} flexDirection="column">
+          <Box flexDirection="row" gap={1}>
+            <Text color={levelColor[c.level]}>{LEVEL_GLYPH[c.level]}</Text>
+            <Text bold color={fg.body}>
+              {c.label.padEnd(labelWidth + 1)}
+            </Text>
+            <Text color={fg.sub}>{c.detail}</Text>
+            <Text color={levelColor[c.level]}>{levelTag(c.level)}</Text>
+          </Box>
+          {c.remediation ? <Text color={fg.faint}>{`     → ${c.remediation}`}</Text> : null}
         </Box>
       ))}
     </Card>

@@ -234,6 +234,7 @@ export interface DoctorCheckEntry {
   readonly label: string;
   readonly level: "ok" | "warn" | "fail";
   readonly detail: string;
+  readonly remediation?: string;
 }
 
 export interface DoctorCard extends CardBase {

@@ -1444,6 +1444,18 @@ export const EN: TranslationSchema = {
     updateInstalled: "\u2713 Updated to {latest} \u00b7 restart carboncode to apply",
     updateFailed: "\u2b22 Auto-update to {latest} failed \u00b7 run `carboncode update` to retry",
   },
+  doctorRemediation: {
+    apiKey: "run `carboncode setup`, or export DEEPSEEK_API_KEY=sk-…",
+    config: "fix or delete ~/.carboncode/config.json, then retry",
+    apiReach:
+      "check your network + DEEPSEEK_BASE_URL; if the balance is low, top up at platform.deepseek.com",
+    tokenizer: "reinstall to restore the tokenizer: npm i -g @carboncode/cli",
+    sessions: "run `carboncode prune-sessions` to clear stale sessions",
+    semantic:
+      "rebuild with `carboncode index`; if using Ollama, make sure it's running and the model is pulled",
+    hooks: "fix the JSON syntax in your hooks config file",
+    project: "launch from your project root, or run `git init` / add a package.json",
+  },
   doctorErrors: {
     unreadable: "{path} unreadable \u2014 {message}",
     cannotList: "cannot list \u2014 {message}",

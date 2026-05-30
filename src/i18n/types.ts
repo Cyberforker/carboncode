@@ -638,6 +638,16 @@ export interface TranslationSchema {
     updateInstalled: string;
     updateFailed: string;
   };
+  doctorRemediation: {
+    apiKey: string;
+    config: string;
+    apiReach: string;
+    tokenizer: string;
+    sessions: string;
+    semantic: string;
+    hooks: string;
+    project: string;
+  };
   doctorErrors: {
     unreadable: string;
     cannotList: string;
