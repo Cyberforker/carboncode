@@ -1,4 +1,11 @@
-import { OUTPUT_STYLES, isOutputStyle, loadOutputStyle, saveOutputStyle } from "@/config.js";
+import {
+  OUTPUT_STYLES,
+  type StatusBarPreset,
+  isOutputStyle,
+  loadOutputStyle,
+  saveOutputStyle,
+  saveStatusBarPreset,
+} from "@/config.js";
 import {
   HOOK_EVENTS,
   type HookEvent,
@@ -211,6 +218,17 @@ const review: SlashHandler = (args) => ({
   resubmit: reviewPrompt(args.join(" ").trim()),
 });
 
+const STATUS_BAR_PRESETS: readonly StatusBarPreset[] = ["minimal", "default", "full"];
+
+const statusline: SlashHandler = (args) => {
+  const arg = (args[0] ?? "").toLowerCase();
+  if (!STATUS_BAR_PRESETS.includes(arg as StatusBarPreset)) {
+    return { info: t("handlers.admin.statuslineUsage", { list: STATUS_BAR_PRESETS.join(" | ") }) };
+  }
+  saveStatusBarPreset(arg as StatusBarPreset);
+  return { info: t("handlers.admin.statuslineSet", { preset: arg }) };
+};
+
 export const handlers: Record<string, SlashHandler> = {
   hook: hooks,
   hooks,
@@ -220,4 +238,5 @@ export const handlers: Record<string, SlashHandler> = {
   "terminal-setup": terminalSetup,
   "output-style": outputStyle,
   review,
+  statusline,
 };

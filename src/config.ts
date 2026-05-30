@@ -838,6 +838,45 @@ export function saveOutputStyle(style: OutputStyle, path: string = defaultConfig
   writeConfig(cfg, path);
 }
 
+export type StatusBarPreset = "minimal" | "default" | "full";
+const STATUS_BAR_FULL: NonNullable<ReasonixConfig["statusBar"]> = {
+  showMode: true,
+  showPreset: true,
+  showSessionInfo: true,
+  showBalance: true,
+  showSessionCost: true,
+  showTurnCost: true,
+  showCacheHit: true,
+  showCtxUsage: true,
+  showVersion: true,
+  showFeedbackHint: true,
+};
+const STATUS_BAR_MINIMAL: NonNullable<ReasonixConfig["statusBar"]> = {
+  showMode: false,
+  showPreset: false,
+  showSessionInfo: false,
+  showBalance: false,
+  showSessionCost: false,
+  showTurnCost: false,
+  showCacheHit: false,
+  showCtxUsage: true,
+  showVersion: true,
+  showFeedbackHint: false,
+};
+
+export function saveStatusBarPreset(
+  preset: StatusBarPreset,
+  path: string = defaultConfigPath(),
+): void {
+  const cfg = readConfig(path);
+  if (preset === "default") {
+    cfg.statusBar = undefined;
+  } else {
+    cfg.statusBar = preset === "full" ? STATUS_BAR_FULL : STATUS_BAR_MINIMAL;
+  }
+  writeConfig(cfg, path);
+}
+
 export function loadTheme(path: string = defaultConfigPath()): ThemeName | "auto" | undefined {
   const value = readConfig(path).theme;
   if (value === "auto") return "auto";

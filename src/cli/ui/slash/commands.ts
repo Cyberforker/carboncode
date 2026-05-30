@@ -143,6 +143,13 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     argsHint: "[default|explanatory|learning]",
   },
   {
+    cmd: "statusline",
+    group: "info",
+    summary: "status-bar density preset: minimal / default / full (applies next launch)",
+    argsHint: "[minimal|default|full]",
+    argCompleter: ["minimal", "default", "full"],
+  },
+  {
     cmd: "keys",
     group: "info",
     summary: "keyboard + mouse + copy/paste reference",
