@@ -328,6 +328,7 @@ export const EN: TranslationSchema = {
     "terminal-setup": { description: "detect your terminal and suggest shell-integration tweaks" },
     "output-style": { description: "reply verbosity: default / explanatory / learning" },
     statusline: { description: "status-bar density preset: minimal / default / full" },
+    config: { description: "show every current setting + the command to change each" },
     context: { description: "show context-window breakdown (system / tools / log / input)" },
     retry: { description: "truncate & resend your last message (fresh sample)" },
     compact: {
@@ -843,6 +844,8 @@ export const EN: TranslationSchema = {
       outputStyleSet: "✓ output style → {style} · applies on the next session (/new or restart)",
       statuslineUsage: "usage: /statusline {list}",
       statuslineSet: "✓ status bar → {preset} · applies on the next launch (restart)",
+      configTitle: "⚙ Carbon Code · settings",
+      configFooter: "type the command shown to change a setting · config: {path}",
       hooksReloadUnavailable:
         "/hooks reload is not available in this context (no reload callback wired).",
       hooksReloaded: "▸ reloaded hooks · {count} active",

@@ -69,6 +69,11 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
   },
 
   {
+    cmd: "config",
+    group: "setup",
+    summary: "show every current setting + the command to change each",
+  },
+  {
     cmd: "preset",
     group: "setup",
     argsHint: "<auto|flash|pro>",

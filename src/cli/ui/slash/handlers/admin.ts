@@ -1,8 +1,11 @@
 import {
   OUTPUT_STYLES,
   type StatusBarPreset,
+  defaultConfigPath,
   isOutputStyle,
+  loadLanguage,
   loadOutputStyle,
+  readConfig,
   saveOutputStyle,
   saveStatusBarPreset,
 } from "@/config.js";
@@ -218,6 +221,28 @@ const review: SlashHandler = (args) => ({
   resubmit: reviewPrompt(args.join(" ").trim()),
 });
 
+const config: SlashHandler = () => {
+  const cfg = readConfig();
+  // label · current value · command to change it (blank = read-only status)
+  const rows: Array<[string, string, string]> = [
+    ["theme", cfg.theme ?? "auto", "/theme"],
+    ["language", loadLanguage() ?? "auto", "/language"],
+    ["preset", cfg.preset ?? "default", "/preset · /model"],
+    ["output style", loadOutputStyle(), "/output-style"],
+    ["status bar", cfg.statusBar ? "custom" : "default", "/statusline"],
+    ["reasoning", cfg.reasoningEffort ?? "default", "/pro"],
+    ["auto-update", cfg.autoUpdate === false ? "off" : "on", ""],
+  ];
+  const labelW = Math.max(...rows.map((r) => r[0].length));
+  const valueW = Math.max(...rows.map((r) => r[1].length));
+  const body = rows
+    .map(([label, value, cmd]) => `  ${label.padEnd(labelW)}  ${value.padEnd(valueW)}  ${cmd}`)
+    .join("\n");
+  return {
+    info: `${t("handlers.admin.configTitle")}\n\n${body}\n\n${t("handlers.admin.configFooter", { path: defaultConfigPath() })}`,
+  };
+};
+
 const STATUS_BAR_PRESETS: readonly StatusBarPreset[] = ["minimal", "default", "full"];
 
 const statusline: SlashHandler = (args) => {
@@ -239,4 +264,5 @@ export const handlers: Record<string, SlashHandler> = {
   "output-style": outputStyle,
   review,
   statusline,
+  config,
 };

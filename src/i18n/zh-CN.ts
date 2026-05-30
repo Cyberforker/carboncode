@@ -320,6 +320,7 @@ export const zhCN: TranslationSchema = {
     "terminal-setup": { description: "检测终端并给出 shell 集成建议" },
     "output-style": { description: "回复风格：default / explanatory / learning" },
     statusline: { description: "状态栏密度预设：minimal / default / full" },
+    config: { description: "查看所有当前设置及对应的修改命令" },
     context: { description: "显示上下文窗口分解（系统 / 工具 / 日志 / 输入）" },
     retry: { description: "截断并重发您的最后一条消息（重新采样）" },
     compact: {
@@ -813,6 +814,8 @@ export const zhCN: TranslationSchema = {
       outputStyleSet: "✓ 输出风格 → {style} · 下个会话（/new 或重启）后生效",
       statuslineUsage: "用法：/statusline {list}",
       statuslineSet: "✓ 状态栏 → {preset} · 下次启动（重启）后生效",
+      configTitle: "⚙ Carbon Code · 设置",
+      configFooter: "输入所示命令即可修改对应设置 · 配置文件：{path}",
       hooksReloadUnavailable: "/hooks reload 在此上下文中不可用（无重载回调）。",
       hooksReloaded: "▸ 已重载 hooks · {count} 个活跃",
       hooksUsage:
