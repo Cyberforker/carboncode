@@ -148,6 +148,12 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
   },
 
   { cmd: "resume", group: "session", summary: "resume a past session — pick from recent" },
+  {
+    cmd: "export",
+    group: "session",
+    summary: "export this session to a Markdown (or JSON) file",
+    argsHint: "[json]",
+  },
   { cmd: "sessions", group: "session", summary: "list saved sessions (current marked with ▸)" },
   {
     cmd: "title",

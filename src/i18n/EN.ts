@@ -346,6 +346,10 @@ export const EN: TranslationSchema = {
       argsHint: "[N]",
     },
     resume: { description: "resume a past session — pick from recent" },
+    export: {
+      description: "export this session to a Markdown (or JSON) file",
+      argsHint: "[json]",
+    },
     sessions: { description: "list saved sessions (current marked with ▸)" },
     title: { description: "ask the model to rename this session from the conversation" },
     qq: {
@@ -649,6 +653,9 @@ export const EN: TranslationSchema = {
     atUrl: "▸ @url: {parts}",
     atUrlFailed: "@url expansion failed",
     sessionTitleNoSession: "▸ no persisted session is active, so there is nothing to rename.",
+    sessionExported: "✓ session exported → {path}",
+    sessionExportEmpty: "▸ this session is empty — nothing to export.",
+    sessionExportFailed: "▸ export failed: {reason}",
     sessionTitleNoContent: "▸ not enough conversation content to name this session yet.",
     sessionTitleNoTitle: "▸ the model did not return a usable session title.",
     sessionTitleUpdated: '▸ session title updated: "{title}"',

@@ -337,6 +337,10 @@ export const zhCN: TranslationSchema = {
       argsHint: "[N]",
     },
     resume: { description: "恢复历史会话 — 从最近会话中挑选" },
+    export: {
+      description: "导出当前会话为 Markdown（或 JSON）文件",
+      argsHint: "[json]",
+    },
     sessions: { description: "列出已保存的会话（当前标记为 ▸）" },
     title: { description: "让模型根据当前对话重命名此会话" },
     qq: {
@@ -635,6 +639,9 @@ export const zhCN: TranslationSchema = {
     atUrl: "▸ @url：{parts}",
     atUrlFailed: "@url 展开失败",
     sessionTitleNoSession: "▸ 当前没有启用持久化会话，无法重命名。",
+    sessionExported: "✓ 会话已导出 → {path}",
+    sessionExportEmpty: "▸ 当前会话为空，无可导出内容。",
+    sessionExportFailed: "▸ 导出失败：{reason}",
     sessionTitleNoContent: "▸ 当前对话内容还不够，暂时无法命名会话。",
     sessionTitleNoTitle: "▸ 模型没有返回可用的会话标题。",
     sessionTitleUpdated: '▸ 会话标题已更新："{title}"',

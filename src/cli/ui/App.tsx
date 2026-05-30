@@ -1,5 +1,5 @@
-import { type WriteStream, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { type WriteStream, statSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { Box, Text, useStdin, useStdout } from "ink";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -97,6 +97,7 @@ import { registerSkillTools } from "../../tools/skills.js";
 import { formatSubagentResult, spawnSubagent } from "../../tools/subagent.js";
 import { webFetch } from "../../tools/web.js";
 import { openTranscriptFile } from "../../transcript/log.js";
+import { sessionToMarkdown } from "../../transcript/markdown-export.js";
 import { listKnownWorkspaces, rememberWorkspace } from "../../workspaces.js";
 import { openInExternalEditor } from "../edit/external-editor.js";
 import { dumpStartupProfile, markPhase } from "../startup-profile.js";
@@ -2881,6 +2882,34 @@ function AppInner({
           const sessions = listSessionsForWorkspace(currentRootDir);
           setSessionsPickerList(sessions);
           setPendingSessionsPicker(true);
+          pushHistory(text);
+          return;
+        }
+        if (result.exportSession) {
+          const msgs = session ? loadSessionMessages(session) : [];
+          if (msgs.length === 0) {
+            log.pushInfo(t("app.sessionExportEmpty"));
+            pushHistory(text);
+            return;
+          }
+          const fmt = result.exportSession.format;
+          const meta = session ? loadSessionMeta(session) : {};
+          const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+          const path = join(currentRootDir, `carboncode-session-${stamp}.${fmt}`);
+          const body =
+            fmt === "json"
+              ? JSON.stringify(msgs, null, 2)
+              : sessionToMarkdown(msgs, { name: session, ...meta });
+          try {
+            writeFileSync(path, body);
+            log.pushInfo(t("app.sessionExported", { path }));
+          } catch (e) {
+            log.pushInfo(
+              t("app.sessionExportFailed", {
+                reason: e instanceof Error ? e.message : String(e),
+              }),
+            );
+          }
           pushHistory(text);
           return;
         }

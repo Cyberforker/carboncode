@@ -200,6 +200,9 @@ export interface TranslationSchema {
     atUrl: string;
     atUrlFailed: string;
     sessionTitleNoSession: string;
+    sessionExported: string;
+    sessionExportEmpty: string;
+    sessionExportFailed: string;
     sessionTitleNoContent: string;
     sessionTitleNoTitle: string;
     sessionTitleUpdated: string;

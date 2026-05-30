@@ -3,6 +3,10 @@ import type { SlashHandler } from "../dispatch.js";
 
 const sessions: SlashHandler = () => ({ openSessionsPicker: true });
 
+const exportHandler: SlashHandler = (args) => ({
+  exportSession: { format: args[0]?.toLowerCase() === "json" ? "json" : "md" },
+});
+
 const title: SlashHandler = (_args, _loop, ctx) => {
   if (!ctx.generateSessionTitle || !ctx.postInfo) {
     return { info: t("handlers.sessions.titleUnavailable") };
@@ -23,5 +27,6 @@ export const handlers: Record<string, SlashHandler> = {
   sessions,
   // /resume is Claude Code's name for the same recent-session picker (restores on pick).
   resume: sessions,
+  export: exportHandler,
   title,
 };

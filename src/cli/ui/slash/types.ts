@@ -10,6 +10,8 @@ export interface SlashResult {
   info?: string;
   /** Open the SessionPicker modal mid-chat — used by `/sessions` slash. */
   openSessionsPicker?: boolean;
+  /** Write the current session to a file — used by `/export` (md default, json optional). */
+  exportSession?: { format: "md" | "json" };
   /** Open the WorkspacePicker modal mid-chat — bare `/cwd` in code mode. */
   openWorkspacePicker?: boolean;
   /** Open the CheckpointPicker modal — bare `/restore` (no name argument). */
