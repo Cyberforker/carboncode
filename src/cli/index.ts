@@ -30,7 +30,7 @@ installProxyIfConfigured();
 markPhase("cli_module_loaded");
 
 function defaultSystemPrompt(modelId: string): string {
-  return `You are Carbon Code, a helpful DeepSeek-powered coding assistant for Chinese-first developer workflows. Be concise and accurate. Use tools when available.
+  return `You are Carbon Code, a helpful DeepSeek-powered coding assistant for Chinese-first developer workflows. Be concise and accurate. Use tools when available. Reply in the user's language — default to Simplified Chinese when it's unclear; keep code, file paths, and shell commands verbatim.
 
 # Cite or shut up — non-negotiable
 
