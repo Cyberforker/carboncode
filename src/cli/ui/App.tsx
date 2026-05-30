@@ -38,6 +38,7 @@ import {
   loadReasoningEffort,
   loadTheme,
   loadThemeEnv,
+  loadVimMode,
   markEditModeHintShown,
   markMouseClipboardHintShown,
   mouseClipboardHintShown,
@@ -576,6 +577,8 @@ function AppInner({
   } = useEditGate(!!codeMode);
   const { preset, setPreset, proArmed, setProArmed, turnOnPro, setTurnOnPro } =
     usePresetMode(model);
+  // Vim editing layer for the composer — persisted in config, toggled live by /vim.
+  const [vimEnabled, setVimEnabled] = useState<boolean>(() => loadVimMode());
   // Refs that mirror state for stable read-callbacks handed to the
   // embedded dashboard server. The server's `getXxx()` closures are
   // captured once at startDashboard time; without ref-mirrors the
@@ -2782,6 +2785,8 @@ function AppInner({
           setPlanMode: codeMode ? togglePlanMode : undefined,
           editMode: codeMode ? editMode : undefined,
           setEditMode: codeMode ? setEditMode : undefined,
+          vimEnabled,
+          setVimEnabled,
           touchedFiles: codeMode
             ? () => {
                 // Union of (files in completed/undone edit batches) +
@@ -3373,6 +3378,7 @@ function AppInner({
       editMode,
       editModeRef,
       setEditMode,
+      vimEnabled,
       pendingEdits,
       syncPendingCount,
       reloadHooks,
@@ -4498,6 +4504,7 @@ function AppInner({
                     onHistoryNext={handleHistoryNext}
                     onOpenExternalEditor={handleOpenExternalEditor}
                     onCursorChange={setComposerCursor}
+                    vimEnabled={vimEnabled}
                     slashMatches={slashMatches}
                     slashSelected={slashSelected}
                     slashGroupMode={slashGroupMode}

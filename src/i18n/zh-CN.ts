@@ -325,6 +325,7 @@ export const zhCN: TranslationSchema = {
     "output-style": { description: "回复风格：default / explanatory / learning" },
     statusline: { description: "状态栏密度预设：minimal / default / full" },
     config: { description: "查看所有当前设置及对应的修改命令" },
+    vim: { description: "切换输入框的 vim 编辑模式（NORMAL/INSERT）" },
     context: { description: "显示上下文窗口分解（系统 / 工具 / 日志 / 输入）" },
     retry: { description: "截断并重发您的最后一条消息（重新采样）" },
     compact: {
@@ -820,6 +821,8 @@ export const zhCN: TranslationSchema = {
       statuslineSet: "✓ 状态栏 → {preset} · 下次启动（重启）后生效",
       configTitle: "⚙ Carbon Code · 设置",
       configFooter: "输入所示命令即可修改对应设置 · 配置文件：{path}",
+      vimOn: "✓ vim 模式已开 — 输入框进入 NORMAL · Esc 退出插入 · i/a 插入 · hjkl·w·b·dd·cw·x·p",
+      vimOff: "✓ vim 模式已关 — 标准输入框编辑（readline 风格）",
       hooksReloadUnavailable: "/hooks reload 在此上下文中不可用（无重载回调）。",
       hooksReloaded: "▸ 已重载 hooks · {count} 个活跃",
       hooksUsage:

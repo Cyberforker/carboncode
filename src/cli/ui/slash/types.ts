@@ -79,6 +79,9 @@ export interface SlashContext {
   planMode?: boolean;
   editMode?: EditMode;
   setEditMode?: (mode: EditMode) => void;
+  /** Composer vim layer — current state + live toggle for /vim. */
+  vimEnabled?: boolean;
+  setVimEnabled?: (enabled: boolean) => void;
   touchedFiles?: () => string[];
   /** stop_job is async; handlers return synchronously and let the registry resolve in the background. */
   jobs?: JobRegistry;

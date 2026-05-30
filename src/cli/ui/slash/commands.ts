@@ -74,6 +74,13 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     summary: "show every current setting + the command to change each",
   },
   {
+    cmd: "vim",
+    group: "setup",
+    argsHint: "[on|off]",
+    summary: "toggle vim editing in the composer (NORMAL/INSERT · hjkl · dd · cw · p)",
+    argCompleter: ["on", "off"],
+  },
+  {
     cmd: "preset",
     group: "setup",
     argsHint: "<auto|flash|pro>",

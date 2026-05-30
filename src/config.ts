@@ -116,6 +116,8 @@ export interface ReasonixConfig {
   editMode?: EditMode;
   editModeHintShown?: boolean;
   mouseClipboardHintShown?: boolean;
+  /** When true, the composer starts in vim NORMAL mode and exposes vim editing. Default false. */
+  vimMode?: boolean;
   /** When false, skip the boot splash animation and show the main UI immediately. Default true. */
   banner?: boolean;
   /** When false, skip the non-blocking npm latest check shown at startup. Default true. */
@@ -874,6 +876,16 @@ export function saveStatusBarPreset(
   } else {
     cfg.statusBar = preset === "full" ? STATUS_BAR_FULL : STATUS_BAR_MINIMAL;
   }
+  writeConfig(cfg, path);
+}
+
+export function loadVimMode(path: string = defaultConfigPath()): boolean {
+  return readConfig(path).vimMode === true;
+}
+
+export function saveVimMode(enabled: boolean, path: string = defaultConfigPath()): void {
+  const cfg = readConfig(path);
+  cfg.vimMode = enabled;
   writeConfig(cfg, path);
 }
 

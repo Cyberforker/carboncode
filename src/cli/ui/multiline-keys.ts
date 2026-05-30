@@ -255,12 +255,19 @@ export function lineAndColumn(value: string, cursor: number): { line: number; co
   return { line, col };
 }
 
-function startOfLine(value: string, cursor: number): number {
+export function startOfLine(value: string, cursor: number): number {
   return value.lastIndexOf("\n", cursor - 1) + 1;
 }
 
+/** First non-blank column of the cursor's line (vim `^`). */
+export function firstNonBlank(value: string, cursor: number): number {
+  let i = startOfLine(value, cursor);
+  while (i < value.length && value[i] !== "\n" && /\s/.test(value[i] ?? "")) i++;
+  return i;
+}
+
 /** Skips trailing whitespace first so Ctrl+W after a space still removes the previous word. */
-function previousWordStart(value: string, cursor: number): number {
+export function previousWordStart(value: string, cursor: number): number {
   let i = cursor;
   while (i > 0 && /\s/.test(value[i - 1] ?? "")) i--;
   while (i > 0 && !/\s/.test(value[i - 1] ?? "")) i--;
@@ -268,7 +275,7 @@ function previousWordStart(value: string, cursor: number): number {
 }
 
 /** Symmetric to previousWordStart: skip leading whitespace, then run to next word boundary. */
-function nextWordEnd(value: string, cursor: number): number {
+export function nextWordEnd(value: string, cursor: number): number {
   let i = cursor;
   const n = value.length;
   while (i < n && /\s/.test(value[i] ?? "")) i++;
@@ -276,12 +283,21 @@ function nextWordEnd(value: string, cursor: number): number {
   return i;
 }
 
-function endOfLine(value: string, cursor: number): number {
+/** Start of the next word (vim `w`): run past the current word, then past whitespace. */
+export function nextWordStart(value: string, cursor: number): number {
+  let i = cursor;
+  const n = value.length;
+  while (i < n && !/\s/.test(value[i] ?? "")) i++;
+  while (i < n && /\s/.test(value[i] ?? "")) i++;
+  return i;
+}
+
+export function endOfLine(value: string, cursor: number): number {
   const nl = value.indexOf("\n", cursor);
   return nl === -1 ? value.length : nl;
 }
 
-function moveCursorUp(value: string, cursor: number): number {
+export function moveCursorUp(value: string, cursor: number): number {
   const curStart = startOfLine(value, cursor);
   if (curStart === 0) return cursor; // already on the first line
   const col = cursor - curStart;
@@ -291,7 +307,7 @@ function moveCursorUp(value: string, cursor: number): number {
   return prevStart + Math.min(col, prevLen);
 }
 
-function moveCursorDown(value: string, cursor: number): number {
+export function moveCursorDown(value: string, cursor: number): number {
   const nextNl = value.indexOf("\n", cursor);
   if (nextNl === -1) return cursor; // already on the last line
   const curStart = startOfLine(value, cursor);

@@ -16,6 +16,13 @@ import {
 } from "./paste-sentinels.js";
 import { type Segment, buildViewport, stringCells } from "./prompt-viewport.js";
 import { FG, SURFACE, TONE } from "./theme/tokens.js";
+import {
+  INITIAL_VIM_STATE,
+  type VimMode,
+  type VimState,
+  normalCursorOnExit,
+  vimNormal,
+} from "./vim-keys.js";
 
 /** Raw-stdin keystroke bus → multiline reducer; one logical line per Box row, viewport-clipped. */
 
@@ -50,6 +57,8 @@ export interface PromptInputProps {
   /** Ctrl+X — parent spawns $EDITOR with the current buffer and re-injects on exit. */
   onOpenExternalEditor?: () => void;
   onCursorChange?: (cursor: number) => void;
+  /** When true, the composer runs the vim NORMAL/INSERT layer (toggled by /vim). */
+  vimEnabled?: boolean;
 }
 
 export function PromptInput({
@@ -62,6 +71,7 @@ export function PromptInput({
   onHistoryNext,
   onOpenExternalEditor,
   onCursorChange,
+  vimEnabled = false,
 }: PromptInputProps) {
   // Cap at 24 — collapseLinesForDisplay hides content past ~20 logical lines.
   // Quantize spec.max to 4-row buckets so per-keystroke line-count changes
@@ -76,6 +86,25 @@ export function PromptInput({
   useEffect(() => {
     onCursorChange?.(cursor);
   }, [cursor, onCursorChange]);
+
+  // ── vim layer ──────────────────────────────────────────────────────
+  // `vimMode` drives the badge + accent; refs carry the live value across the
+  // several keystrokes that can fire in one stdin chunk before re-render.
+  const [vimMode, setVimMode] = useState<VimMode>(vimEnabled ? "normal" : "insert");
+  const vimModeRef = useRef<VimMode>(vimMode);
+  vimModeRef.current = vimMode;
+  const vimStateRef = useRef<VimState>(INITIAL_VIM_STATE);
+  const undoRef = useRef<Array<{ value: string; cursor: number }>>([]);
+
+  // Live /vim toggle: entering vim drops to NORMAL, leaving forces INSERT.
+  // Reset pending + undo so a toggle never replays edits from the other mode.
+  useEffect(() => {
+    const target: VimMode = vimEnabled ? "normal" : "insert";
+    vimModeRef.current = target;
+    setVimMode(target);
+    vimStateRef.current = INITIAL_VIM_STATE;
+    undoRef.current = [];
+  }, [vimEnabled]);
 
   // Paste registry — keyed by sentinel id, holds original content.
   const pastesRef = useRef<Map<number, PasteEntry>>(new Map());
@@ -146,6 +175,63 @@ export function PromptInput({
       home: ev.home,
       end: ev.end,
     };
+
+    // ── vim layer ────────────────────────────────────────────────────
+    if (vimEnabled) {
+      // Esc: leave INSERT for NORMAL (vim nudges the cursor back one). In NORMAL,
+      // let Esc fall through so the App can close suggestions / pickers.
+      if (ev.escape) {
+        if (vimModeRef.current === "insert") {
+          const back = normalCursorOnExit(lastLocalValueRef.current, cursorRef.current);
+          cursorRef.current = back;
+          setCursor(back);
+          vimModeRef.current = "normal";
+          setVimMode("normal");
+          vimStateRef.current = INITIAL_VIM_STATE;
+        }
+        return;
+      }
+      // NORMAL mode owns plain keys (motions/operators); control chords, Enter,
+      // Tab, and PgUp/PgDn fall through to the standard reducer so /history,
+      // submit, $EDITOR, clear-buffer, and interrupt keep working.
+      const passesThrough =
+        key.ctrl || key.meta || key.return || key.tab || key.pageUp || key.pageDown;
+      if (vimModeRef.current === "normal" && !passesThrough) {
+        const r = vimNormal(lastLocalValueRef.current, cursorRef.current, key, vimStateRef.current);
+        vimStateRef.current = r.state;
+        if (r.undo) {
+          const prev = undoRef.current.pop();
+          if (prev) {
+            lastLocalValueRef.current = prev.value;
+            cursorRef.current = prev.cursor;
+            onChange(prev.value);
+            setCursor(prev.cursor);
+          }
+          return;
+        }
+        // One undo checkpoint per command that mutates the buffer or starts an
+        // insert session — so `u` reverts a whole insert as one step.
+        if (r.next !== null || r.mode === "insert") {
+          undoRef.current.push({ value: lastLocalValueRef.current, cursor: cursorRef.current });
+          if (undoRef.current.length > 100) undoRef.current.shift();
+        }
+        if (r.next !== null) {
+          lastLocalValueRef.current = r.next;
+          onChange(r.next);
+        }
+        if (r.cursor !== null) {
+          cursorRef.current = r.cursor;
+          setCursor(r.cursor);
+        }
+        if (r.mode && r.mode !== vimModeRef.current) {
+          vimModeRef.current = r.mode;
+          setVimMode(r.mode);
+        }
+        return;
+      }
+      // INSERT mode, and NORMAL-mode pass-through keys, fall through below.
+    }
+
     const action = processMultilineKey(lastLocalValueRef.current, cursorRef.current, key);
     if (action.pasteRequest) {
       registerPaste(action.pasteRequest.content);
@@ -327,6 +413,15 @@ export function PromptInput({
       {disabled ? (
         <Box marginTop={1}>
           <Text color={FG.faint}>{"  esc to stop"}</Text>
+        </Box>
+      ) : null}
+      {vimEnabled && !disabled ? (
+        <Box>
+          <Text color={vimMode === "normal" ? TONE.brand : FG.faint} bold={vimMode === "normal"}>
+            {vimMode === "normal"
+              ? "  -- NORMAL --  esc·hjkl·dd·i"
+              : "  -- INSERT --  esc → normal"}
+          </Text>
         </Box>
       ) : null}
     </Box>

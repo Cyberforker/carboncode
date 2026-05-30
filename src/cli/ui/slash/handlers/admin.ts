@@ -5,9 +5,11 @@ import {
   isOutputStyle,
   loadLanguage,
   loadOutputStyle,
+  loadVimMode,
   readConfig,
   saveOutputStyle,
   saveStatusBarPreset,
+  saveVimMode,
 } from "@/config.js";
 import {
   HOOK_EVENTS,
@@ -243,6 +245,15 @@ const config: SlashHandler = () => {
   };
 };
 
+const vim: SlashHandler = (args, _loop, ctx) => {
+  const arg = (args[0] ?? "").toLowerCase();
+  const current = ctx.vimEnabled ?? loadVimMode();
+  const next = arg === "on" ? true : arg === "off" ? false : !current;
+  saveVimMode(next);
+  ctx.setVimEnabled?.(next);
+  return { info: t(next ? "handlers.admin.vimOn" : "handlers.admin.vimOff") };
+};
+
 const STATUS_BAR_PRESETS: readonly StatusBarPreset[] = ["minimal", "default", "full"];
 
 const statusline: SlashHandler = (args) => {
@@ -265,4 +276,5 @@ export const handlers: Record<string, SlashHandler> = {
   review,
   statusline,
   config,
+  vim,
 };

@@ -333,6 +333,7 @@ export const EN: TranslationSchema = {
     "output-style": { description: "reply verbosity: default / explanatory / learning" },
     statusline: { description: "status-bar density preset: minimal / default / full" },
     config: { description: "show every current setting + the command to change each" },
+    vim: { description: "toggle vim editing in the composer (NORMAL/INSERT)" },
     context: { description: "show context-window breakdown (system / tools / log / input)" },
     retry: { description: "truncate & resend your last message (fresh sample)" },
     compact: {
@@ -850,6 +851,9 @@ export const EN: TranslationSchema = {
       statuslineSet: "✓ status bar → {preset} · applies on the next launch (restart)",
       configTitle: "⚙ Carbon Code · settings",
       configFooter: "type the command shown to change a setting · config: {path}",
+      vimOn:
+        "✓ vim mode on — composer starts in NORMAL · Esc to leave insert · i/a to insert · hjkl·w·b·dd·cw·x·p",
+      vimOff: "✓ vim mode off — standard composer editing (readline-style)",
       hooksReloadUnavailable:
         "/hooks reload is not available in this context (no reload callback wired).",
       hooksReloaded: "▸ reloaded hooks · {count} active",

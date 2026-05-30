@@ -44,6 +44,8 @@ export interface ComposerAreaProps {
   onHistoryNext: () => void;
   onOpenExternalEditor: () => void;
   onCursorChange: (cursor: number) => void;
+  /** Vim editing layer for the composer (toggled by /vim). */
+  vimEnabled: boolean;
 
   // ── slash / @-mention / arg picker — derived from sub-component props
   slashMatches: SlashSuggestionsProps["matches"] | null;
@@ -97,6 +99,7 @@ export const ComposerArea: React.FC<ComposerAreaProps> = React.memo(
     onHistoryNext,
     onOpenExternalEditor,
     onCursorChange,
+    vimEnabled,
     slashMatches,
     slashSelected,
     slashGroupMode,
@@ -141,6 +144,7 @@ export const ComposerArea: React.FC<ComposerAreaProps> = React.memo(
           onHistoryNext={onHistoryNext}
           onOpenExternalEditor={onOpenExternalEditor}
           onCursorChange={onCursorChange}
+          vimEnabled={vimEnabled}
         />
         {activeLoop ? <LoopStatusRow loop={activeLoop} /> : null}
         {jobs ? (
