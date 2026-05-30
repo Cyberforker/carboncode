@@ -16,6 +16,7 @@ import {
 import { runDoctorChecks } from "../../../commands/doctor.js";
 import { renderDashboard } from "../../../commands/stats.js";
 import { MANUAL_UPDATE_COMMANDS, planUpdate } from "../../../commands/update.js";
+import { detectTerminal } from "../../../terminal-info.js";
 import type { SlashHandler } from "../dispatch.js";
 
 const doctor: SlashHandler = (_args, _loop, ctx) => {
@@ -152,10 +153,27 @@ const stats: SlashHandler = () => {
   return { info: renderDashboard(agg, path) };
 };
 
+const terminalSetup: SlashHandler = () => {
+  const info = detectTerminal(process.env, process.stdout.isTTY === true, process.platform);
+  const yes = t("terminalSetup.yes");
+  const no = t("terminalSetup.no");
+  return {
+    info: t("terminalSetup.report", {
+      program: info.program,
+      term: info.term || "—",
+      color: info.trueColor ? yes : no,
+      tty: info.isTTY ? yes : no,
+      platform: info.platform,
+      advice: t(`terminalSetup.advice.${info.adviceKey}`),
+    }),
+  };
+};
+
 export const handlers: Record<string, SlashHandler> = {
   hook: hooks,
   hooks,
   update,
   stats,
   doctor,
+  "terminal-setup": terminalSetup,
 };

@@ -317,6 +317,7 @@ export const zhCN: TranslationSchema = {
     doctor: {
       description: "健康检查（api / config / api-reach / index / hooks / project）",
     },
+    "terminal-setup": { description: "检测终端并给出 shell 集成建议" },
     context: { description: "显示上下文窗口分解（系统 / 工具 / 日志 / 输入）" },
     retry: { description: "截断并重发您的最后一条消息（重新采样）" },
     compact: {
@@ -1380,6 +1381,23 @@ export const zhCN: TranslationSchema = {
     semantic: "用 `carboncode index` 重建索引；若用 Ollama，确认其已启动且模型已拉取",
     hooks: "修复 hooks 配置文件的 JSON 语法",
     project: "在项目根目录启动，或 `git init` / 添加 package.json",
+  },
+  terminalSetup: {
+    report:
+      "⬢ 终端检测\n  终端：{program}（{term}）\n  真彩色：{color} · TTY：{tty} · 系统：{platform}\n\n建议：{advice}",
+    yes: "是",
+    no: "否",
+    advice: {
+      iterm:
+        "iTerm2 — 若 Shift+Enter 不换行，在 Preferences → Profiles → Keys 将 ⇧↩ 绑定为 Send Escape Sequence `\\n`。粘贴与真彩色已支持。",
+      vscode: "VS Code 集成终端 — Shift+Enter 换行与粘贴均已支持，无需额外配置。",
+      appleTerminal:
+        "Terminal.app — 可用；如需更顺手的 Shift+Enter 与真彩色，推荐改用 iTerm2 或 WezTerm。",
+      wezterm: "WezTerm — 开箱即用：Shift+Enter 换行、粘贴、真彩色均已支持。",
+      windowsTerminal: "Windows Terminal — 已支持；若 npm 报脚本策略错误，改用 npm.cmd。",
+      generic:
+        "未识别的终端 — 多数现代终端开箱即用。若 Shift+Enter 不换行，改用 Esc 后回车，或在终端设置中为换行绑定按键。",
+    },
   },
   doctorErrors: {
     unreadable: "{path} 无法读取 — {message}",

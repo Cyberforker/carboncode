@@ -325,6 +325,7 @@ export const EN: TranslationSchema = {
       argsHint: "[text]",
     },
     doctor: { description: "health check (api / config / api-reach / index / hooks / project)" },
+    "terminal-setup": { description: "detect your terminal and suggest shell-integration tweaks" },
     context: { description: "show context-window breakdown (system / tools / log / input)" },
     retry: { description: "truncate & resend your last message (fresh sample)" },
     compact: {
@@ -1455,6 +1456,24 @@ export const EN: TranslationSchema = {
       "rebuild with `carboncode index`; if using Ollama, make sure it's running and the model is pulled",
     hooks: "fix the JSON syntax in your hooks config file",
     project: "launch from your project root, or run `git init` / add a package.json",
+  },
+  terminalSetup: {
+    report:
+      "⬢ terminal check\n  terminal: {program} ({term})\n  truecolor: {color} · TTY: {tty} · OS: {platform}\n\nsuggestion: {advice}",
+    yes: "yes",
+    no: "no",
+    advice: {
+      iterm:
+        "iTerm2 — if Shift+Enter doesn't add a newline, bind ⇧↩ to Send Escape Sequence `\\n` in Preferences → Profiles → Keys. Paste + truecolor already work.",
+      vscode: "VS Code integrated terminal — Shift+Enter and paste already work, no setup needed.",
+      appleTerminal:
+        "Terminal.app — works, but iTerm2 or WezTerm give smoother Shift+Enter and truecolor.",
+      wezterm: "WezTerm — works out of the box: Shift+Enter, paste, and truecolor.",
+      windowsTerminal:
+        "Windows Terminal — supported; if npm hits a script-policy error, use npm.cmd.",
+      generic:
+        "Unrecognized terminal — most modern terminals work out of the box. If Shift+Enter doesn't add a newline, use Esc then Enter, or bind a newline key in your terminal settings.",
+    },
   },
   doctorErrors: {
     unreadable: "{path} unreadable \u2014 {message}",

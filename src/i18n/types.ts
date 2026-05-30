@@ -648,6 +648,19 @@ export interface TranslationSchema {
     hooks: string;
     project: string;
   };
+  terminalSetup: {
+    report: string;
+    yes: string;
+    no: string;
+    advice: {
+      iterm: string;
+      vscode: string;
+      appleTerminal: string;
+      wezterm: string;
+      windowsTerminal: string;
+      generic: string;
+    };
+  };
   doctorErrors: {
     unreadable: string;
     cannotList: string;

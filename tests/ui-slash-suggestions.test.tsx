@@ -45,11 +45,15 @@ function visibleCommandOrder(
   frame: string,
   commands: readonly SlashCommandSpec[] = SLASH_COMMANDS,
 ): string[] {
-  const names = new Set(commands.map((spec) => `/${spec.cmd}`));
+  const names = commands.map((spec) => `/${spec.cmd}`);
   return frame
     .split(/\r?\n/)
-    .map((line) => /^\s*(?:▸\s*)?(\/\w+)\b/.exec(line)?.[1] ?? "")
-    .filter((token) => names.has(token));
+    .map((line) => {
+      const tok = /^\s*(?:▸\s*)?(\/[\w-]+)/.exec(line)?.[1];
+      // Long names render truncated ("/terminal-set…"); map the prefix back to the full name.
+      return tok ? (names.find((n) => n === tok || n.startsWith(tok)) ?? "") : "";
+    })
+    .filter(Boolean);
 }
 
 function firstVisibleCommand(
@@ -84,7 +88,7 @@ describe("SlashSuggestions", () => {
     );
   });
 
-  it("renders the bare slash release command surface as 44 total commands", () => {
+  it("renders the bare slash release command surface as 45 total commands", () => {
     const matches = suggestSlashCommands("", true);
     const names = matches.map((spec) => spec.cmd);
     const { lastFrame, unmount } = render(
@@ -93,13 +97,14 @@ describe("SlashSuggestions", () => {
     const frame = lastFrame() ?? "";
     unmount();
 
-    expect(matches).toHaveLength(44);
+    expect(matches).toHaveLength(45);
     expect(names).toContain("resume");
     expect(names).toContain("export");
+    expect(names).toContain("terminal-setup");
     expect(names).toContain("language");
     expect(names).toContain("btw");
     expect(countAdvancedCommands(true)).toBe(11);
-    expect(frame).toContain("44 commands");
+    expect(frame).toContain("45 commands");
     expect(frame).toContain("+ 11 advanced");
   });
 
@@ -150,7 +155,7 @@ describe("SlashSuggestions", () => {
 
   it("renders each visible command as one row instead of wrapping selected text into extra blocks", () => {
     const frame = renderSuggestions(7);
-    const visibleRows = frame.split(/\r?\n/).filter((line) => /^\s*(?:▸\s*)?\/\w+\b/.test(line));
+    const visibleRows = frame.split(/\r?\n/).filter((line) => /^\s*(?:▸\s*)?\/[\w-]+\b/.test(line));
     const visibleCommands = visibleCommandOrder(frame);
 
     expect(visibleRows).toHaveLength(visibleCommands.length);

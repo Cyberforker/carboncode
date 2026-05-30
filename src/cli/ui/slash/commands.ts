@@ -132,6 +132,11 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     summary: "health check (api / config / api-reach / index / hooks / project)",
   },
   {
+    cmd: "terminal-setup",
+    group: "info",
+    summary: "detect your terminal and suggest shell-integration tweaks",
+  },
+  {
     cmd: "keys",
     group: "info",
     summary: "keyboard + mouse + copy/paste reference",

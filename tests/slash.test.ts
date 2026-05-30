@@ -555,7 +555,7 @@ describe("handleSlash", () => {
     // Case-insensitive.
     expect(suggestSlashCommands("HE").map((s) => s.cmd)).toEqual(["help"]);
     // Empty prefix returns the full non-advanced release list, including code commands.
-    expect(suggestSlashCommands("", true)).toHaveLength(44);
+    expect(suggestSlashCommands("", true)).toHaveLength(45);
     expect(suggestSlashCommands("", true).map((s) => s.cmd)).toContain("resume");
     expect(suggestSlashCommands("", true).map((s) => s.cmd)).toContain("export");
     expect(suggestSlashCommands("", true).map((s) => s.cmd)).toContain("logs");
