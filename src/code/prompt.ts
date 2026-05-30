@@ -1,7 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { applyMemoryStack } from "../memory/user.js";
-import { TUI_FORMATTING_RULES, escalationContract } from "../prompt-fragments.js";
+import {
+  TUI_FORMATTING_RULES,
+  escalationContract,
+  outputStyleFragment,
+} from "../prompt-fragments.js";
 
 const DEFAULT_CODE_MODEL = "deepseek-v4-flash";
 
@@ -289,11 +293,17 @@ export interface CodeSystemPromptOptions {
   systemAppendFile?: string;
   /** Model the loop will run on — interpolated into the escalation contract so the model can name itself correctly when asked (#582). */
   modelId?: string;
+  /** Reply verbosity style; appends a style fragment to the system prompt. Default "default" (concise). */
+  outputStyle?: "default" | "explanatory" | "learning";
 }
 
 export function codeSystemPrompt(rootDir: string, opts: CodeSystemPromptOptions = {}): string {
   const codeBase = codeSystemBase(opts.modelId ?? DEFAULT_CODE_MODEL);
-  const base = opts.hasSemanticSearch ? `${codeBase}${SEMANTIC_SEARCH_ROUTING}` : codeBase;
+  const styled =
+    opts.outputStyle && opts.outputStyle !== "default"
+      ? `${codeBase}${outputStyleFragment(opts.outputStyle)}`
+      : codeBase;
+  const base = opts.hasSemanticSearch ? `${styled}${SEMANTIC_SEARCH_ROUTING}` : styled;
   const withMemory = applyMemoryStack(base, rootDir);
   const gitignorePath = join(rootDir, ".gitignore");
   let result = withMemory;

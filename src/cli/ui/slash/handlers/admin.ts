@@ -1,3 +1,4 @@
+import { OUTPUT_STYLES, isOutputStyle, loadOutputStyle, saveOutputStyle } from "@/config.js";
 import {
   HOOK_EVENTS,
   type HookEvent,
@@ -169,6 +170,23 @@ const terminalSetup: SlashHandler = () => {
   };
 };
 
+const outputStyle: SlashHandler = (args) => {
+  const arg = (args[0] ?? "").toLowerCase();
+  if (!arg) {
+    return {
+      info: t("handlers.admin.outputStyleCurrent", {
+        current: loadOutputStyle(),
+        list: OUTPUT_STYLES.join(" · "),
+      }),
+    };
+  }
+  if (!isOutputStyle(arg)) {
+    return { info: t("handlers.admin.outputStyleUsage", { list: OUTPUT_STYLES.join(" | ") }) };
+  }
+  saveOutputStyle(arg);
+  return { info: t("handlers.admin.outputStyleSet", { style: arg }) };
+};
+
 export const handlers: Record<string, SlashHandler> = {
   hook: hooks,
   hooks,
@@ -176,4 +194,5 @@ export const handlers: Record<string, SlashHandler> = {
   stats,
   doctor,
   "terminal-setup": terminalSetup,
+  "output-style": outputStyle,
 };

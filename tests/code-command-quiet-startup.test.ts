@@ -24,6 +24,7 @@ vi.mock("../src/code/prompt.js", () => ({
 vi.mock("../src/config.js", () => ({
   loadApiKey: vi.fn(() => undefined),
   loadPreset: vi.fn(() => "auto"),
+  loadOutputStyle: vi.fn(() => "default"),
   readConfig: vi.fn(() => ({})),
 }));
 

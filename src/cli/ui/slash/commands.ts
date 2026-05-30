@@ -137,6 +137,12 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     summary: "detect your terminal and suggest shell-integration tweaks",
   },
   {
+    cmd: "output-style",
+    group: "info",
+    summary: "reply verbosity: default / explanatory / learning",
+    argsHint: "[default|explanatory|learning]",
+  },
+  {
     cmd: "keys",
     group: "info",
     summary: "keyboard + mouse + copy/paste reference",

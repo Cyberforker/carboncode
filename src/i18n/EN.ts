@@ -326,6 +326,7 @@ export const EN: TranslationSchema = {
     },
     doctor: { description: "health check (api / config / api-reach / index / hooks / project)" },
     "terminal-setup": { description: "detect your terminal and suggest shell-integration tweaks" },
+    "output-style": { description: "reply verbosity: default / explanatory / learning" },
     context: { description: "show context-window breakdown (system / tools / log / input)" },
     retry: { description: "truncate & resend your last message (fresh sample)" },
     compact: {
@@ -830,6 +831,10 @@ export const EN: TranslationSchema = {
     admin: {
       doctorNeedsTui: "/doctor needs a TUI context (postDoctor wired).",
       doctorRunning: "⚕ Doctor — running health checks…",
+      outputStyleCurrent:
+        "▸ output style: {current}  (options: {list})\n  /output-style <name> to change — applies on the next session / /new",
+      outputStyleUsage: "usage: /output-style {list}",
+      outputStyleSet: "✓ output style → {style} · applies on the next session (/new or restart)",
       hooksReloadUnavailable:
         "/hooks reload is not available in this context (no reload callback wired).",
       hooksReloaded: "▸ reloaded hooks · {count} active",

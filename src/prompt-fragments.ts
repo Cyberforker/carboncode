@@ -8,6 +8,18 @@ export const TUI_FORMATTING_RULES = `Formatting (rendered in a TUI with a real m
 - Do NOT draw decorative frames around content with \`┌──┐ │ └──┘\` characters. The renderer adds its own borders; extra ASCII art adds noise and shatters at narrow widths.
 - For flow charts and diagrams: a plain bullet list with \`→\` or \`↓\` between steps. Don't try to draw boxes-and-arrows in ASCII; it never survives word-wrap.`;
 
+// Output-style fragment appended to the system prompt. "default" is the concise house
+// style (empty); per-style strings are literal so the prefix-cache hash stays stable.
+export function outputStyleFragment(style: "default" | "explanatory" | "learning"): string {
+  if (style === "explanatory") {
+    return "\n\n# Output style: explanatory\n\nWhile you do the work, briefly explain your reasoning and the key choices — why this approach, what tradeoffs you weighed, what you ruled out. Keep it tight and woven into the normal flow; don't pad or lecture.";
+  }
+  if (style === "learning") {
+    return "\n\n# Output style: learning\n\nTeach as you work: surface the concepts a developer would want to understand behind your changes, and where a small piece is genuinely instructive, leave a `TODO(human)` marker inviting the user to try writing it themselves before you fill it in.";
+  }
+  return "";
+}
+
 /** Pro is the top tier — escalation is a no-op for it; flash + others get the full ladder. */
 export function escalationContract(modelId: string): string {
   if (modelId === "deepseek-v4-pro") {

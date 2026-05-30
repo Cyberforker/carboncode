@@ -122,6 +122,8 @@ export interface ReasonixConfig {
   updateCheck?: boolean;
   /** When false, only notify about a new version instead of auto-installing it in the background. Default true. */
   autoUpdate?: boolean;
+  /** Reply verbosity style injected into the system prompt (applies next session). Default "default". */
+  outputStyle?: OutputStyle;
   reasoningEffort?: ReasoningEffort;
   /** Default workspace root for the desktop client. CLI uses cwd. */
   workspaceDir?: string;
@@ -816,6 +818,24 @@ export function mouseClipboardHintShown(path: string = defaultConfigPath()): boo
 export function loadReasoningEffort(path: string = defaultConfigPath()): ReasoningEffort {
   const v = readConfig(path).reasoningEffort;
   return v === "high" ? "high" : "max";
+}
+
+export type OutputStyle = "default" | "explanatory" | "learning";
+export const OUTPUT_STYLES: readonly OutputStyle[] = ["default", "explanatory", "learning"];
+
+export function isOutputStyle(value: string): value is OutputStyle {
+  return (OUTPUT_STYLES as readonly string[]).includes(value);
+}
+
+export function loadOutputStyle(path: string = defaultConfigPath()): OutputStyle {
+  const value = readConfig(path).outputStyle;
+  return typeof value === "string" && isOutputStyle(value) ? value : "default";
+}
+
+export function saveOutputStyle(style: OutputStyle, path: string = defaultConfigPath()): void {
+  const cfg = readConfig(path);
+  cfg.outputStyle = style;
+  writeConfig(cfg, path);
 }
 
 export function loadTheme(path: string = defaultConfigPath()): ThemeName | "auto" | undefined {

@@ -318,6 +318,7 @@ export const zhCN: TranslationSchema = {
       description: "健康检查（api / config / api-reach / index / hooks / project）",
     },
     "terminal-setup": { description: "检测终端并给出 shell 集成建议" },
+    "output-style": { description: "回复风格：default / explanatory / learning" },
     context: { description: "显示上下文窗口分解（系统 / 工具 / 日志 / 输入）" },
     retry: { description: "截断并重发您的最后一条消息（重新采样）" },
     compact: {
@@ -800,6 +801,10 @@ export const zhCN: TranslationSchema = {
     admin: {
       doctorNeedsTui: "/doctor 需要 TUI 上下文（postDoctor 已连接）。",
       doctorRunning: "⚕ 健康检查 — 正在运行…",
+      outputStyleCurrent:
+        "▸ 输出风格：{current}（可选：{list}）\n  /output-style <名称> 切换 — 下个会话 / /new 后生效",
+      outputStyleUsage: "用法：/output-style {list}",
+      outputStyleSet: "✓ 输出风格 → {style} · 下个会话（/new 或重启）后生效",
       hooksReloadUnavailable: "/hooks reload 在此上下文中不可用（无重载回调）。",
       hooksReloaded: "▸ 已重载 hooks · {count} 个活跃",
       hooksUsage:
