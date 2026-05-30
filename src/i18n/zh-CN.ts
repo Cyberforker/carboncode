@@ -290,6 +290,10 @@ export const zhCN: TranslationSchema = {
       description: "显示 / 管理固定记忆（CARBON.md + ~/.carboncode/CARBON.md）",
       argsHint: "[list|show <name>|forget <name>|clear <scope> confirm]",
     },
+    agents: {
+      description: "列出 / 创建子代理（.carboncode/agents/ 下的自定义角色 + 内置）",
+      argsHint: "[list|show <name>|new <name>]",
+    },
     skill: {
       description: "列出 / 运行用户技能（项目 + 自定义 + 全局 + 内置）",
       argsHint: "[list|paths|show <name>|<name> [args]]",
@@ -1162,6 +1166,20 @@ export const zhCN: TranslationSchema = {
       pathsRemoved: "▸ 已移除自定义技能路径：{path}",
       pathsRemoveNotFound: "▸ 没有匹配的自定义技能路径：{target}",
       pathsRestartHint: "当前会话的系统提示词不会热更新；运行 /new 或启动新会话以刷新技能索引。",
+    },
+    agents: {
+      listHeader: "▸ 子代理 — 可委派的 {count} 个角色",
+      listAddHint:
+        "  添加自定义：把 .md 放进 .carboncode/agents/（项目）或 ~/.carboncode/agents/（全局）",
+      listInvokeHint:
+        "  调用：直接用自然语言，或 /skill <name> — 每个都作为隔离子代理运行（只返回最终答案）",
+      listNewHint: "  生成模板：/agents new <name> [--global]   ·   查看：/agents show <name>",
+      newUsage: "用法：/agents new <name> [--global]",
+      newCreated:
+        "▸ 已创建子代理：{name}\n  {path}\n  编辑后 /new（或重启）加载 — 用 run_skill 或 /skill {name} 调用",
+      newError: "▲ /agents new 失败：{reason}",
+      showUsage: "用法：/agents show <name>",
+      showNotFound: "未找到子代理：{name}  （尝试 /agents）",
     },
   },
   statusBar: {

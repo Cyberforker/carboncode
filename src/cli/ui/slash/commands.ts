@@ -207,6 +207,13 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     summary: "show / manage pinned memory (AGENTS.md/CARBON.md + ~/.carboncode/memory)",
   },
   {
+    cmd: "agents",
+    group: "extend",
+    argsHint: "[list|show <name>|new <name> [--global]]",
+    summary: "list / scaffold subagents (custom personas in .carboncode/agents/ + built-ins)",
+    aliases: ["agent"],
+  },
+  {
     cmd: "skill",
     group: "extend",
     argsHint:

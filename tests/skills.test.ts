@@ -158,6 +158,74 @@ describe("SkillStore", () => {
     expect(names).toContain("review");
   });
 
+  it("loads .carboncode/agents/*.md as subagent personas (runAs forced)", () => {
+    const agentsDir = join(projectRoot, ".carboncode", "agents");
+    mkdirSync(agentsDir, { recursive: true });
+    // No `runAs` in frontmatter — the agents/ location forces subagent.
+    writeFileSync(
+      join(agentsDir, "auditor.md"),
+      "---\nname: auditor\ndescription: audit the diff\nmodel: deepseek-v4-pro\nallowed-tools: read_file, search_content\n---\nYou are the auditor.\n",
+      "utf8",
+    );
+    const store = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true });
+    const agent = store.list().find((s) => s.name === "auditor");
+    expect(agent?.runAs).toBe("subagent");
+    expect(agent?.scope).toBe("project");
+    expect(agent?.model).toBe("deepseek-v4-pro");
+    expect(agent?.allowedTools).toEqual(["read_file", "search_content"]);
+    expect(store.read("auditor")?.runAs).toBe("subagent");
+  });
+
+  it("forces runAs subagent even when an agents/ file declares runAs: inline", () => {
+    const agentsDir = join(home, ".carboncode", "agents");
+    mkdirSync(agentsDir, { recursive: true });
+    writeFileSync(
+      join(agentsDir, "scribe.md"),
+      "---\ndescription: write notes\nrunAs: inline\n---\nbody\n",
+      "utf8",
+    );
+    const store = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true });
+    expect(store.list().find((s) => s.name === "scribe")?.runAs).toBe("subagent");
+  });
+
+  it("createAgent scaffolds a subagent file under .carboncode/agents that loads back", () => {
+    const store = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true });
+    const result = store.createAgent("reviewer", "project");
+    expect("path" in result && result.path).toContain(join(".carboncode", "agents", "reviewer.md"));
+    const loaded = store.read("reviewer");
+    expect(loaded?.runAs).toBe("subagent");
+    expect(loaded?.description).toContain("delegate");
+    // Refuses to overwrite.
+    expect(store.createAgent("reviewer", "project")).toHaveProperty("error");
+  });
+
+  it("listAgents/readAgent surface an agent even when a same-named skill shadows it", () => {
+    // Same name in skills/ (inline, higher priority in the general index) and agents/.
+    writeFlatSkill(projectRoot, "auditor", { description: "inline skill" }, "skill body");
+    const agentsDir = join(projectRoot, ".carboncode", "agents");
+    mkdirSync(agentsDir, { recursive: true });
+    writeFileSync(
+      join(agentsDir, "auditor.md"),
+      "---\ndescription: the agent\n---\nagent body\n",
+      "utf8",
+    );
+    const store = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true });
+    // General index: the inline skill shadows by priority (name collision is user error).
+    expect(store.list().find((s) => s.name === "auditor")?.runAs).toBe("inline");
+    // /agents must still find the agent, not the shadowing skill.
+    const listed = store.listAgents().find((s) => s.name === "auditor");
+    expect(listed?.runAs).toBe("subagent");
+    expect(listed?.body).toBe("agent body");
+    expect(store.readAgent("auditor")?.runAs).toBe("subagent");
+    expect(store.readAgent("auditor")?.body).toBe("agent body");
+  });
+
+  it("readAgent returns null for an inline-only skill name", () => {
+    writeFlatSkill(home, "notanagent", { description: "inline" }, "body");
+    const store = new SkillStore({ homeDir: home, projectRoot, disableBuiltins: true });
+    expect(store.readAgent("notanagent")).toBeNull();
+  });
+
   it("project scope wins on a name collision with global", () => {
     writeSkillDir(projectRoot, "global", "review", { description: "global one" }, "G", home);
     writeSkillDir(projectRoot, "project", "review", { description: "project one" }, "P", home);

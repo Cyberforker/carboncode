@@ -16,6 +16,8 @@ import { parseFrontmatter } from "./frontmatter.js";
 import { NEGATIVE_CLAIM_RULE, TUI_FORMATTING_RULES } from "./prompt-fragments.js";
 
 export const SKILLS_DIRNAME = "skills";
+/** Claude-parity custom-agent location — files here load as `runAs: subagent` regardless of frontmatter. An "agent" is a named subagent persona; inline playbooks belong in `skills/`. */
+export const AGENTS_DIRNAME = "agents";
 export const SKILL_FILE = "SKILL.md";
 export const CARBON_RUNTIME_DIRNAME = ".carboncode";
 export const LEGACY_REASONIX_RUNTIME_DIRNAME = ".reasonix";
@@ -54,6 +56,8 @@ export interface SkillRoot {
   scope: Exclude<SkillScope, "builtin">;
   status: SkillPathStatus;
   priority: number;
+  /** When set, files under this root load with this `runAs` regardless of their frontmatter (the `agents/` roots force `"subagent"`). */
+  forceRunAs?: SkillRunAs;
 }
 
 export interface SkillStoreOptions {
@@ -115,7 +119,11 @@ export class SkillStore {
 
   /** Project scope first so per-repo skill overrides custom/global entries with the same name. */
   roots(): SkillRoot[] {
-    const out: Array<{ dir: string; scope: Exclude<SkillScope, "builtin"> }> = [];
+    const out: Array<{
+      dir: string;
+      scope: Exclude<SkillScope, "builtin">;
+      forceRunAs?: SkillRunAs;
+    }> = [];
     if (this.projectRoot) {
       out.push({
         dir: join(this.projectRoot, CARBON_RUNTIME_DIRNAME, SKILLS_DIRNAME),
@@ -139,7 +147,56 @@ export class SkillStore {
       dir: join(this.homeDir, LEGACY_REASONIX_RUNTIME_DIRNAME, SKILLS_DIRNAME),
       scope: "global",
     });
+    // Claude-parity `agents/` roots, appended last so existing skill-root
+    // priorities stay stable. Files here load as subagent personas.
+    for (const dir of this.agentRoots()) out.push(dir);
     return out.map((root, priority) => ({ ...root, priority, status: skillPathStatus(root.dir) }));
+  }
+
+  /** `agents/` directories (project then global) whose files force `runAs: subagent`. */
+  private agentRoots(): Array<{
+    dir: string;
+    scope: Exclude<SkillScope, "builtin">;
+    forceRunAs: SkillRunAs;
+  }> {
+    const out: Array<{
+      dir: string;
+      scope: Exclude<SkillScope, "builtin">;
+      forceRunAs: SkillRunAs;
+    }> = [];
+    if (this.projectRoot) {
+      out.push({
+        dir: join(this.projectRoot, CARBON_RUNTIME_DIRNAME, AGENTS_DIRNAME),
+        scope: "project",
+        forceRunAs: "subagent",
+      });
+      out.push({
+        dir: join(this.projectRoot, ".agents", AGENTS_DIRNAME),
+        scope: "project",
+        forceRunAs: "subagent",
+      });
+      out.push({
+        dir: join(this.projectRoot, LEGACY_REASONIX_RUNTIME_DIRNAME, AGENTS_DIRNAME),
+        scope: "project",
+        forceRunAs: "subagent",
+      });
+    }
+    out.push({
+      dir: join(this.homeDir, CARBON_RUNTIME_DIRNAME, AGENTS_DIRNAME),
+      scope: "global",
+      forceRunAs: "subagent",
+    });
+    out.push({
+      dir: join(this.homeDir, ".agents", AGENTS_DIRNAME),
+      scope: "global",
+      forceRunAs: "subagent",
+    });
+    out.push({
+      dir: join(this.homeDir, LEGACY_REASONIX_RUNTIME_DIRNAME, AGENTS_DIRNAME),
+      scope: "global",
+      forceRunAs: "subagent",
+    });
+    return out;
   }
 
   customRoots(): SkillRoot[] {
@@ -149,7 +206,7 @@ export class SkillStore {
   /** Higher-priority root wins on collision (project > custom > global > builtin); sorted for stable prefix hash. */
   list(): Skill[] {
     const byName = new Map<string, Skill>();
-    for (const { dir, scope, status } of this.roots()) {
+    for (const { dir, scope, status, forceRunAs } of this.roots()) {
       if (status !== "ok") continue;
       let entries: import("node:fs").Dirent[];
       try {
@@ -158,7 +215,7 @@ export class SkillStore {
         continue;
       }
       for (const entry of entries) {
-        const skill = this.readEntry(dir, scope, entry);
+        const skill = this.readEntry(dir, scope, entry, forceRunAs);
         if (!skill) continue;
         if (!byName.has(skill.name)) byName.set(skill.name, skill);
       }
@@ -210,18 +267,89 @@ export class SkillStore {
     return { path: flat };
   }
 
-  /** Resolve one skill by name. Returns `null` if not found or malformed. */
-  read(name: string): Skill | null {
+  /** Scaffold a new agent (subagent persona) under `agents/`. Refuses to overwrite. */
+  createAgent(name: string, scope: "project" | "global"): { path: string } | { error: string } {
+    if (!isValidSkillName(name)) {
+      return { error: `invalid agent name: "${name}" — use letters, digits, _, -, .` };
+    }
+    if (scope === "project" && !this.projectRoot) {
+      return { error: "project scope requires a workspace — run from `carboncode code`" };
+    }
+    const root =
+      scope === "project"
+        ? join(this.projectRoot ?? "", CARBON_RUNTIME_DIRNAME, AGENTS_DIRNAME)
+        : join(this.homeDir, CARBON_RUNTIME_DIRNAME, AGENTS_DIRNAME);
+    const flat = join(root, `${name}.md`);
+    const nested = join(root, name, SKILL_FILE);
+    const existing = existsSync(nested) ? nested : existsSync(flat) ? flat : undefined;
+    if (existing) {
+      return { error: `agent "${name}" already exists at ${existing}` };
+    }
+    mkdirSync(dirname(flat), { recursive: true });
+    try {
+      writeFileSync(flat, agentStubBody(name), { encoding: "utf8", flag: "wx" });
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "EEXIST") {
+        return { error: `agent "${name}" already exists at ${flat}` };
+      }
+      throw err;
+    }
+    return { path: flat };
+  }
+
+  // Subagent personas for `/agents` — agent-root files first (authoritative, so a
+  // same-named skill can never hide an agent), then built-in + skill subagents.
+  listAgents(): Skill[] {
+    const byName = new Map<string, Skill>();
+    for (const { dir, scope, status, forceRunAs } of this.roots()) {
+      if (status !== "ok" || forceRunAs !== "subagent") continue;
+      let entries: import("node:fs").Dirent[];
+      try {
+        entries = readdirSync(dir, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      for (const entry of entries) {
+        const agent = this.readEntry(dir, scope, entry, forceRunAs);
+        if (agent && !byName.has(agent.name)) byName.set(agent.name, agent);
+      }
+    }
+    for (const s of this.list()) {
+      if (s.runAs === "subagent" && !byName.has(s.name)) byName.set(s.name, s);
+    }
+    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  /** Resolve one agent by name — checks `agents/` roots before falling back to a built-in/skill subagent. */
+  readAgent(name: string): Skill | null {
     if (!isValidSkillName(name)) return null;
-    for (const { dir, scope, status } of this.roots()) {
-      if (status !== "ok") continue;
+    for (const { dir, scope, status, forceRunAs } of this.roots()) {
+      if (status !== "ok" || forceRunAs !== "subagent") continue;
       const dirCandidate = join(dir, name, SKILL_FILE);
       if (existsSync(dirCandidate) && statSync(dirCandidate).isFile()) {
-        return this.parse(dirCandidate, name, scope);
+        return this.parse(dirCandidate, name, scope, forceRunAs);
       }
       const flatCandidate = join(dir, `${name}.md`);
       if (existsSync(flatCandidate) && statSync(flatCandidate).isFile()) {
-        return this.parse(flatCandidate, name, scope);
+        return this.parse(flatCandidate, name, scope, forceRunAs);
+      }
+    }
+    const found = this.read(name);
+    return found?.runAs === "subagent" ? found : null;
+  }
+
+  /** Resolve one skill by name. Returns `null` if not found or malformed. */
+  read(name: string): Skill | null {
+    if (!isValidSkillName(name)) return null;
+    for (const { dir, scope, status, forceRunAs } of this.roots()) {
+      if (status !== "ok") continue;
+      const dirCandidate = join(dir, name, SKILL_FILE);
+      if (existsSync(dirCandidate) && statSync(dirCandidate).isFile()) {
+        return this.parse(dirCandidate, name, scope, forceRunAs);
+      }
+      const flatCandidate = join(dir, `${name}.md`);
+      if (existsSync(flatCandidate) && statSync(flatCandidate).isFile()) {
+        return this.parse(flatCandidate, name, scope, forceRunAs);
       }
     }
     if (!this.disableBuiltins) {
@@ -232,22 +360,32 @@ export class SkillStore {
     return null;
   }
 
-  private readEntry(dir: string, scope: SkillScope, entry: import("node:fs").Dirent): Skill | null {
+  private readEntry(
+    dir: string,
+    scope: SkillScope,
+    entry: import("node:fs").Dirent,
+    forceRunAs?: SkillRunAs,
+  ): Skill | null {
     if (entry.isDirectory()) {
       if (!isValidSkillName(entry.name)) return null;
       const file = join(dir, entry.name, SKILL_FILE);
       if (!existsSync(file)) return null;
-      return this.parse(file, entry.name, scope);
+      return this.parse(file, entry.name, scope, forceRunAs);
     }
     if (entry.isFile() && entry.name.endsWith(".md")) {
       const stem = entry.name.slice(0, -3);
       if (!isValidSkillName(stem)) return null;
-      return this.parse(join(dir, entry.name), stem, scope);
+      return this.parse(join(dir, entry.name), stem, scope, forceRunAs);
     }
     return null;
   }
 
-  private parse(path: string, stem: string, scope: SkillScope): Skill | null {
+  private parse(
+    path: string,
+    stem: string,
+    scope: SkillScope,
+    forceRunAs?: SkillRunAs,
+  ): Skill | null {
     let raw: string;
     try {
       raw = readFileSync(path, "utf8");
@@ -263,7 +401,7 @@ export class SkillStore {
       scope,
       path,
       allowedTools: parseAllowedTools(data["allowed-tools"]),
-      runAs: parseRunAs(data.runAs),
+      runAs: forceRunAs ?? parseRunAs(data.runAs),
       model: data.model?.startsWith("deepseek-") ? data.model : undefined,
     };
   }
@@ -325,6 +463,27 @@ Tips:
 - Reference tools by name (run_command, edit_file, search_content, ...)
 - Add \`runAs: subagent\` to frontmatter to spawn an isolated subagent loop
 - Add \`allowed-tools: read_file, search_content\` to scope a subagent's tools
+`;
+}
+
+/** Stub for `/agents new` — an agent is a subagent persona, so `runAs` is implied by the `agents/` location. */
+function agentStubBody(name: string): string {
+  return `---
+name: ${name}
+description: When should the model delegate to this agent? (one line — this is what it matches on)
+# model: deepseek-v4-pro          # optional — defaults to the flash subagent model
+# allowed-tools: read_file, search_content, search_files   # optional — omit to inherit the parent's tools
+# (no runAs here — files under agents/ always run as an isolated subagent)
+---
+
+You are the "${name}" agent — a focused subagent the parent delegates to.
+
+Describe the persona and how to operate:
+- What is this agent's single job? Stay on it; treat anything else as scope creep.
+- Which tools to lean on, and any read-only / safety constraints.
+- What its final answer should look like (lead with the conclusion; cite file:line).
+
+The parent does not see your tool calls — only your final answer returns, so be concise and decisive.
 `;
 }
 

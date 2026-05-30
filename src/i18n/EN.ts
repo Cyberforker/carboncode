@@ -296,6 +296,10 @@ export const EN: TranslationSchema = {
       description: "show / manage pinned memory (CARBON.md + ~/.carboncode/CARBON.md)",
       argsHint: "[list|show <name>|forget <name>|clear <scope> confirm]",
     },
+    agents: {
+      description: "list / scaffold subagents (custom personas in .carboncode/agents/ + built-ins)",
+      argsHint: "[list|show <name>|new <name>]",
+    },
     skill: {
       description: "list / run user skills (project + custom + global + builtin)",
       argsHint: "[list|paths|show <name>|<name> [args]]",
@@ -1225,6 +1229,20 @@ export const EN: TranslationSchema = {
       pathsRemoveNotFound: "▸ no custom skills path matches: {target}",
       pathsRestartHint:
         "The current session's system prompt is unchanged; run /new or start a new session to refresh the skills index.",
+    },
+    agents: {
+      listHeader: "▸ agents — {count} subagent personas you can delegate to",
+      listAddHint:
+        "  add your own: drop a .md in .carboncode/agents/ (project) or ~/.carboncode/agents/ (global)",
+      listInvokeHint:
+        "  invoke: ask in plain language, or /skill <name> — each runs as an isolated subagent (only its answer returns)",
+      listNewHint: "  scaffold: /agents new <name> [--global]   ·   inspect: /agents show <name>",
+      newUsage: "usage: /agents new <name> [--global]",
+      newCreated:
+        "▸ created agent: {name}\n  {path}\n  edit it, then /new (or restart) to load — invoke via run_skill or /skill {name}",
+      newError: "▲ /agents new failed: {reason}",
+      showUsage: "usage: /agents show <name>",
+      showNotFound: "no agent named: {name}  (try /agents)",
     },
   },
   statusBar: {
