@@ -211,6 +211,12 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
   },
 
   {
+    cmd: "review",
+    group: "code",
+    argsHint: "[ref]",
+    summary: "review the current diff (or vs a git ref) for bugs + cleanups, with file:line",
+  },
+  {
     cmd: "init",
     group: "code",
     argsHint: "[force]",

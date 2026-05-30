@@ -360,6 +360,10 @@ export const zhCN: TranslationSchema = {
       argsHint: "<5s..6h> <prompt>  ·  stop  ·  （无参数 = 状态）",
     },
     exit: { description: "退出 TUI" },
+    review: {
+      description: "审查当前改动（或与某 git ref 对比），给出 bug 与可简化点（含 file:line）",
+      argsHint: "[ref]",
+    },
     init: {
       description:
         "扫描项目并合成基线 CARBON.md（模型写入；使用 /apply 审查）。`force` 覆盖已有文件。",
@@ -801,6 +805,7 @@ export const zhCN: TranslationSchema = {
     admin: {
       doctorNeedsTui: "/doctor 需要 TUI 上下文（postDoctor 已连接）。",
       doctorRunning: "⚕ 健康检查 — 正在运行…",
+      reviewRunning: "▸ 正在审查改动…",
       outputStyleCurrent:
         "▸ 输出风格：{current}（可选：{list}）\n  /output-style <名称> 切换 — 下个会话 / /new 后生效",
       outputStyleUsage: "用法：/output-style {list}",

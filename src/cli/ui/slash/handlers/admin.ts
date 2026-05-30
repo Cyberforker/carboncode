@@ -187,6 +187,30 @@ const outputStyle: SlashHandler = (args) => {
   return { info: t("handlers.admin.outputStyleSet", { style: arg }) };
 };
 
+function reviewPrompt(ref: string): string {
+  const target = ref
+    ? `the changes between \`${ref}\` and the working tree (run \`git diff ${ref}\`)`
+    : "the current uncommitted changes (run `git diff`, plus `git diff --staged` for staged work)";
+  return [
+    "# Task: code review",
+    "",
+    `Review ${target} for correctness bugs, regressions, and obvious simplification / reuse opportunities.`,
+    "",
+    "Rules:",
+    "1. Get the diff first. If there are no changes, say so and stop.",
+    "2. Each finding: `file:line` · severity (high / med / low) · one-line problem · concrete fix.",
+    "3. Ground every finding in the actual diff. Do NOT invent 'missing' / 'not handled' findings — if you suspect an absence, `search_content` first (cite-or-shut-up).",
+    "4. Group by file. End with a one-line verdict (ship / fix-first). Keep it concise.",
+    "",
+    "Reply in the user's language.",
+  ].join("\n");
+}
+
+const review: SlashHandler = (args) => ({
+  info: t("handlers.admin.reviewRunning"),
+  resubmit: reviewPrompt(args.join(" ").trim()),
+});
+
 export const handlers: Record<string, SlashHandler> = {
   hook: hooks,
   hooks,
@@ -195,4 +219,5 @@ export const handlers: Record<string, SlashHandler> = {
   doctor,
   "terminal-setup": terminalSetup,
   "output-style": outputStyle,
+  review,
 };

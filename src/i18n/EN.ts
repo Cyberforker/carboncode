@@ -370,6 +370,10 @@ export const EN: TranslationSchema = {
       argsHint: "<5s..6h> <prompt>  ·  stop  ·  (no args = status)",
     },
     exit: { description: "quit the TUI" },
+    review: {
+      description: "review the current diff (or vs a git ref) for bugs + cleanups, with file:line",
+      argsHint: "[ref]",
+    },
     init: {
       description:
         "scan the project and synthesize a baseline CARBON.md (model writes; review with /apply). `force` overwrites an existing file.",
@@ -831,6 +835,7 @@ export const EN: TranslationSchema = {
     admin: {
       doctorNeedsTui: "/doctor needs a TUI context (postDoctor wired).",
       doctorRunning: "⚕ Doctor — running health checks…",
+      reviewRunning: "▸ reviewing changes…",
       outputStyleCurrent:
         "▸ output style: {current}  (options: {list})\n  /output-style <name> to change — applies on the next session / /new",
       outputStyleUsage: "usage: /output-style {list}",
