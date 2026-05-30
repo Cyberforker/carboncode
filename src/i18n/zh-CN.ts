@@ -1164,6 +1164,7 @@ export const zhCN: TranslationSchema = {
     editsLabel: "编辑:",
     mcpLoading: "MCP",
     ctx: "上下文",
+    ctxCompactHint: "/compact",
   },
   editMode: {
     plan: "计划",

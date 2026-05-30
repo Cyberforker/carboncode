@@ -1227,6 +1227,7 @@ export const EN: TranslationSchema = {
     editsLabel: "edits:",
     mcpLoading: "MCP",
     ctx: "ctx",
+    ctxCompactHint: "/compact",
   },
   editMode: {
     plan: "PLAN MODE",

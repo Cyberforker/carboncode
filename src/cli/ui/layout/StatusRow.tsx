@@ -232,6 +232,9 @@ function CtxUsagePill({
       {showTokens && (
         <Text color={FG.faint}>{` · ${formatTokens(tokens)}/${formatTokens(cap)}`}</Text>
       )}
+      {ratio >= 0.8 && showTokens && (
+        <Text color={TONE.err} wrap="truncate">{` · ${t("statusBar.ctxCompactHint")}`}</Text>
+      )}
     </>
   );
 }

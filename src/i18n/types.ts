@@ -431,6 +431,7 @@ export interface TranslationSchema {
     mcpLoading: string;
     /** Word used in the context-usage pill (rendered as `ctx 72% · 144K/200K`). */
     ctx: string;
+    ctxCompactHint: string;
   };
   editMode: {
     plan: string;
