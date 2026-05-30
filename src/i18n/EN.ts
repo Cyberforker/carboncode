@@ -345,6 +345,7 @@ export const EN: TranslationSchema = {
       description: "load an archived plan as a read-only Time Travel snapshot (default: newest)",
       argsHint: "[N]",
     },
+    resume: { description: "resume a past session — pick from recent" },
     sessions: { description: "list saved sessions (current marked with ▸)" },
     title: { description: "ask the model to rename this session from the conversation" },
     qq: {

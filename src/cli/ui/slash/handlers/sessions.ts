@@ -21,5 +21,7 @@ const title: SlashHandler = (_args, _loop, ctx) => {
 
 export const handlers: Record<string, SlashHandler> = {
   sessions,
+  // /resume is Claude Code's name for the same recent-session picker (restores on pick).
+  resume: sessions,
   title,
 };

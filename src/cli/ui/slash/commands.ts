@@ -147,6 +147,7 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     summary: "open a GitHub issue with diagnostic info copied to clipboard",
   },
 
+  { cmd: "resume", group: "session", summary: "resume a past session — pick from recent" },
   { cmd: "sessions", group: "session", summary: "list saved sessions (current marked with ▸)" },
   {
     cmd: "title",

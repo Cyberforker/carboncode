@@ -336,6 +336,7 @@ export const zhCN: TranslationSchema = {
       description: "加载归档计划为只读的时间旅行快照（默认：最新）",
       argsHint: "[N]",
     },
+    resume: { description: "恢复历史会话 — 从最近会话中挑选" },
     sessions: { description: "列出已保存的会话（当前标记为 ▸）" },
     title: { description: "让模型根据当前对话重命名此会话" },
     qq: {
