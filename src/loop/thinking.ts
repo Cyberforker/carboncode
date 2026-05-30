@@ -13,6 +13,15 @@ export function thinkingModeForModel(model: string): "enabled" | "disabled" | un
   return undefined;
 }
 
+// Natural-language "think harder" trigger (Claude-style): when the user asks to think
+// deeply, the loop escalates that turn to the pro model (reasoning effort is already max).
+const DEEP_THINK_RE =
+  /\bultra[\s-]?think\b|\bthink\s+(?:hard(?:er)?|deeply|step\s+by\s+step|this\s+through|carefully)\b|\breason\s+carefully\b|深入思考|深度思考|仔细想想|好好想想|认真想想|深思熟虑/i;
+
+export function wantsDeepThinking(text: string): boolean {
+  return DEEP_THINK_RE.test(text);
+}
+
 /** Strip hallucinated tool-call envelopes — `tools: undefined` doesn't always force prose. */
 export function stripHallucinatedToolMarkup(s: string): string {
   let out = s;

@@ -238,6 +238,7 @@ export interface TranslationSchema {
     budgetExhausted: string;
     budget80Pct: string;
     proArmed: string;
+    deepThinkOn: string;
     abortedAtIter: string;
     toolUploadStatus: string;
     preflightTruncateStatus: string;

@@ -44,6 +44,7 @@ import {
   isThinkingModeModel,
   stripHallucinatedToolMarkup,
   thinkingModeForModel,
+  wantsDeepThinking,
 } from "./loop/thinking.js";
 import type { LoopEvent } from "./loop/types.js";
 import { AppendOnlyLog, type ImmutablePrefix, VolatileScratch } from "./memory/runtime.js";
@@ -611,6 +612,18 @@ export class CacheFirstLoop {
       this._proArmedForNextTurn = false;
       armedConsumed = true;
     }
+    // "think harder" — natural-language deep-think trigger (Claude-style). When the
+    // user asks to think deeply and we're on flash, escalate this turn to pro
+    // (reasoning effort is already max). One-shot, like /pro.
+    let deepThinkRequested = false;
+    if (
+      !this._escalateThisTurn &&
+      this.model !== ESCALATION_MODEL &&
+      wantsDeepThinking(userInput)
+    ) {
+      this._escalateThisTurn = true;
+      deepThinkRequested = true;
+    }
     // Fresh controller for this turn: the prior step's signal has
     // already fired (or stayed clean); either way we don't want its
     // state to bleed into the new turn.
@@ -632,6 +645,13 @@ export class CacheFirstLoop {
         turn: this._turn,
         role: "warning",
         content: t("loop.proArmed"),
+      };
+    }
+    if (deepThinkRequested) {
+      yield {
+        turn: this._turn,
+        role: "warning",
+        content: t("loop.deepThinkOn", { model: ESCALATION_MODEL }),
       };
     }
     // Persist the user message before the first API round-trip so a
