@@ -256,7 +256,11 @@ export function chainAllowed(
   isAllowed: (segmentCmd: string) => boolean,
 ): boolean {
   for (const seg of chain.segments) {
-    if (!isAllowed(seg.argv.join(" "))) return false;
+    // Redirect targets (`> ~/.ssh/keys`, `< secret.env`) are path arguments too —
+    // append them so the sensitive-path / allowlist gate sees them. Stripping them
+    // (argv only) let `echo x > ~/.ssh/authorized_keys` auto-run ungated.
+    const targets = seg.redirects.map((r) => r.target).filter((t) => t.length > 0);
+    if (!isAllowed([...seg.argv, ...targets].join(" "))) return false;
   }
   return true;
 }

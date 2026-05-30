@@ -96,6 +96,12 @@ export async function buildCodeToolset(opts: CodeToolsetOpts): Promise<CodeTools
   let primaryRoot = resolvePath(opts.rootDir);
   let additionalRoots: string[] = [];
 
+  // Lazy: constructing DeepSeekClient throws when DEEPSEEK_API_KEY is unset,
+  // which would kill `carboncode code` before the setup wizard can prompt for
+  // one. Defer to first subagent dispatch. Declared before applyRoots so the
+  // run-skill closure (re-created on every re-root) shares one lazy client.
+  let subagentClient: DeepSeekClient | null = null;
+
   const applyRoots = (): void => {
     registerFilesystemTools(tools, { rootDir: primaryRoot, additionalRoots });
     const cfg = readConfig();
@@ -109,6 +115,28 @@ export async function buildCodeToolset(opts: CodeToolsetOpts): Promise<CodeTools
       sensitivePaths: cfg.sensitivePaths,
     });
     registerMemoryTools(tools, { projectRoot: primaryRoot });
+    // Scaffold + skills are project-scoped too: re-root them so /cwd points
+    // create_skill / run_skill at the active project (not the launch dir).
+    registerScaffoldTools(tools, { projectRoot: primaryRoot });
+    registerSkillTools(tools, {
+      projectRoot: primaryRoot,
+      customSkillPaths: loadResolvedSkillPaths(primaryRoot),
+      onSkillInstalled: opts.onSkillInstalled,
+      subagentRunner: async (skill, task, signal) => {
+        if (!subagentClient) subagentClient = new DeepSeekClient({ baseUrl: loadBaseUrl() });
+        const result = await spawnSubagent({
+          client: subagentClient,
+          parentRegistry: tools,
+          parentSignal: signal,
+          system: skill.body,
+          task,
+          model: skill.model,
+          allowedTools: skill.allowedTools,
+          skillName: skill.name,
+        });
+        return formatSubagentResult(result);
+      },
+    });
   };
 
   const registerRooted = (root: string): void => {
@@ -147,41 +175,18 @@ export async function buildCodeToolset(opts: CodeToolsetOpts): Promise<CodeTools
     return result;
   };
 
+  // Root-dependent tools (filesystem / shell / memory / scaffold / skills) are
+  // registered by registerRooted → applyRoots. Root-independent tools register once.
   registerRooted(opts.rootDir);
   registerPlanTool(tools);
   registerChoiceTool(tools);
   registerTodoTool(tools);
-  registerScaffoldTools(tools, { projectRoot: opts.rootDir });
   if (searchEnabled()) {
     registerWebTools(tools, {
       webSearchEngine: webSearchEngine(),
       webSearchEndpoint: webSearchEndpoint(),
     });
   }
-  // Lazy: constructing DeepSeekClient throws when DEEPSEEK_API_KEY is unset,
-  // which would kill `carboncode code` before the setup wizard can prompt for
-  // one. Defer to first subagent dispatch — by then the user has either keyed
-  // in or we error per-call instead of at boot.
-  let subagentClient: DeepSeekClient | null = null;
-  registerSkillTools(tools, {
-    projectRoot: opts.rootDir,
-    customSkillPaths: loadResolvedSkillPaths(opts.rootDir),
-    onSkillInstalled: opts.onSkillInstalled,
-    subagentRunner: async (skill, task, signal) => {
-      if (!subagentClient) subagentClient = new DeepSeekClient({ baseUrl: loadBaseUrl() });
-      const result = await spawnSubagent({
-        client: subagentClient,
-        parentRegistry: tools,
-        parentSignal: signal,
-        system: skill.body,
-        task,
-        model: skill.model,
-        allowedTools: skill.allowedTools,
-        skillName: skill.name,
-      });
-      return formatSubagentResult(result);
-    },
-  });
 
   const semantic = await reBootstrapSemantic(opts.rootDir);
 

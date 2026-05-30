@@ -384,6 +384,22 @@ describe("isAllowed", () => {
       expect(isCommandAllowed("cat ~/.ssh/id_rsa | grep KEY", [], projectRoot)).toBe(false);
       expect(isCommandAllowed("cat src/index.ts && grep TODO src/", [], projectRoot)).toBe(true);
     });
+
+    // A redirect target is a path argument too — the gate must see it, not just argv.
+    // (Before the fix, chainAllowed checked argv only, so these auto-ran ungated.)
+    it("demotes a command whose REDIRECT target is sensitive", () => {
+      expect(isCommandAllowed("cat src/x > ~/.ssh/authorized_keys", [], projectRoot)).toBe(false);
+      expect(isCommandAllowed("cat < ~/.ssh/id_rsa", [], projectRoot)).toBe(false);
+      expect(isCommandAllowed("cat src/x >> secrets.env", [], projectRoot)).toBe(false);
+      expect(isCommandAllowed("grep KEY config 2> ~/.aws/credentials", [], projectRoot)).toBe(
+        false,
+      );
+    });
+
+    it("still allows a redirect to a non-sensitive in-project path", () => {
+      expect(isCommandAllowed("cat src/index.ts > out.txt", [], projectRoot)).toBe(true);
+      expect(isCommandAllowed("grep TODO src/ > notes.md", [], projectRoot)).toBe(true);
+    });
   });
 });
 
