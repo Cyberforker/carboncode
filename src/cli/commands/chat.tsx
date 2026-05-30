@@ -83,6 +83,10 @@ export interface ChatOptions {
     reBootstrapSemantic?: (rootDir: string) => Promise<{ enabled: boolean }>;
     /** Notify the launcher that the workspace root just changed — lets the rebuildSystem closure see the new dir. */
     onRootChange?: (newRoot: string) => void;
+    /** `/add-dir <path>` — register an extra allowed root for file + shell tools. Returns the full root list or an error. */
+    addDir?: (dir: string) => { roots: string[] } | { error: string };
+    /** Current workspace roots (primary first, then /add-dir roots). */
+    listRoots?: () => string[];
   };
   /** Skip the session picker — assume "Resume" (backwards-compatible auto-continue). */
   forceResume?: boolean;

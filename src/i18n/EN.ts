@@ -346,6 +346,10 @@ export const EN: TranslationSchema = {
         "switch the workspace root mid-session — re-points fs / shell / memory tools, reloads project hooks, refreshes the at-mention walker",
       argsHint: "[path]",
     },
+    "add-dir": {
+      description: "add an extra workspace root for file + shell tools (bare = list current roots)",
+      argsHint: "[path]",
+    },
     stop: { description: "abort the current model turn (typed alternative to Esc)" },
     feedback: { description: "open a GitHub issue with diagnostic info copied to clipboard" },
     keys: { description: "keyboard + mouse + copy/paste reference" },
@@ -938,6 +942,11 @@ export const EN: TranslationSchema = {
       restoreRemoved: "  · removed {count} file{s} (didn't exist at checkpoint time)",
       restoreSkipped: "  ✗ {count} file{s} skipped:",
       cwdCodeOnly: "/cwd is only available inside `carboncode code`.",
+      addDirCodeOnly: "/add-dir is only available inside `carboncode code`.",
+      addDirList: "▸ workspace roots (● primary · + added):\n{list}\n  /add-dir <path> to add one",
+      addDirAdded:
+        "✓ added workspace root → {dir}  ({count} roots total). File + shell tools can reach it now; it isn't semantically indexed, so use search_content / grep there.",
+      addDirError: "▲ /add-dir failed: {reason}",
       cwdUsage:
         "usage: /cwd <path>   (current root: {current}). Re-points filesystem / shell / memory tools to <path>.",
       cwdUsageNoCurrent: "usage: /cwd <path>   re-points the workspace root to <path>.",

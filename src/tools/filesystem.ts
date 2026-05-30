@@ -25,6 +25,8 @@ export { lineDiff } from "./fs/edit.js";
 export interface FilesystemToolsOptions {
   /** Absolute directory the tools may read/write. Paths outside this are refused. */
   rootDir: string;
+  /** Extra roots added via /add-dir — a path is in-sandbox if it's under rootDir OR any of these. */
+  additionalRoots?: readonly string[];
   /** false → register only read-side tools. Default true. */
   allowWriting?: boolean;
   /** Files at or under this size get full content; larger go to outline mode. Default 512 KiB. */
@@ -113,6 +115,11 @@ export function registerFilesystemTools(
   const maxListBytes = opts.maxListBytes ?? DEFAULT_MAX_LIST_BYTES;
 
   const normRoot = pathMod.resolve(rootDir);
+  // Sandbox = the primary root plus any /add-dir roots; a path is in-sandbox if
+  // it sits under ANY of them. With no added roots this is just [normRoot], so
+  // single-root behavior is byte-identical.
+  const allowedRoots = [normRoot, ...(opts.additionalRoots ?? []).map((r) => pathMod.resolve(r))];
+  const inSandbox = (abs: string): boolean => allowedRoots.some((root) => pathIsUnder(abs, root));
   /** Approved-this-session directory prefixes — `run_once` keeps the user from being asked twice for follow-up reads in the same dir. Wiped on process exit, not persisted. */
   const sessionApproved = new Set<string>();
   /** Subdir project-rule paths already injected this session. Reset per toolset, so each tab/session re-injects on first relevant read. */
@@ -195,7 +202,7 @@ export function registerFilesystemTools(
     }
     if (looksLikeAbsoluteSystemPath(raw)) {
       const abs = pathMod.resolve(raw);
-      if (pathIsUnder(abs, normRoot)) return abs;
+      if (inSandbox(abs)) return abs;
       await ensureOutsideSandboxAllowed(abs, intent, toolName, ctx);
       return abs;
     }
@@ -207,7 +214,7 @@ export function registerFilesystemTools(
     }
     if (normalized.length === 0) normalized = ".";
     const resolved = pathMod.resolve(rootDir, normalized);
-    if (!pathIsUnder(resolved, normRoot)) {
+    if (!inSandbox(resolved)) {
       throw new Error(
         `path escapes sandbox root (${normRoot}): ${raw} — use an absolute system path like /Users/foo or C:\\Users\\foo to request approved outside-sandbox access`,
       );

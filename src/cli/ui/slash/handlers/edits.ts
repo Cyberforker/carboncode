@@ -252,6 +252,14 @@ const cwd: SlashHandler = (args, _loop, ctx) => {
   return result.clear ? { info: result.info, clear: true } : { info: result.info };
 };
 
+const addDir: SlashHandler = (args, _loop, ctx) => {
+  if (!ctx.addDir) {
+    return { info: t("handlers.edits.addDirCodeOnly") };
+  }
+  const target = args.join(" ").trim();
+  return ctx.addDir(target ? stripOuterQuotes(target) : "");
+};
+
 export const handlers: Record<string, SlashHandler> = {
   undo,
   history,
@@ -265,4 +273,5 @@ export const handlers: Record<string, SlashHandler> = {
   checkpoint,
   restore,
   cwd,
+  "add-dir": addDir,
 };

@@ -342,6 +342,15 @@ export const SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     aliases: ["sandbox"],
     argCompleter: "path",
   },
+  {
+    cmd: "add-dir",
+    group: "code",
+    argsHint: "[path]",
+    summary:
+      "add an extra workspace root so file + shell tools can reach it (bare = list current roots)",
+    contextual: "code",
+    argCompleter: "path",
+  },
 
   {
     cmd: "jobs",

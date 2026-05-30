@@ -338,6 +338,10 @@ export const zhCN: TranslationSchema = {
         "切换工作区根目录 — 重新指向文件/Shell/记忆工具，重载项目 hooks，刷新 @ 引用遍历器",
       argsHint: "[path]",
     },
+    "add-dir": {
+      description: "添加额外的工作区根目录，让文件 + shell 工具可访问（不带参数 = 列出当前根目录）",
+      argsHint: "[path]",
+    },
     stop: { description: "中止当前模型回合（按 Esc 的替代方式）" },
     feedback: { description: "打开 GitHub Issue，诊断信息已复制到剪贴板" },
     plans: { description: "列出此会话的活跃 + 归档计划（最新在前）" },
@@ -896,6 +900,11 @@ export const zhCN: TranslationSchema = {
       restoreRemoved: "  · 移除了 {count} 个文件（检查点时不存在）",
       restoreSkipped: "  ✗ 跳过了 {count} 个文件：",
       cwdCodeOnly: "/cwd 仅在 `carboncode code` 中可用。",
+      addDirCodeOnly: "/add-dir 仅在 `carboncode code` 中可用。",
+      addDirList: "▸ 工作区根目录（● 主目录 · + 已添加）：\n{list}\n  /add-dir <path> 添加一个",
+      addDirAdded:
+        "✓ 已添加工作区根目录 → {dir}（共 {count} 个）。文件 + shell 工具现在可访问它；未建立语义索引，请在该目录用 search_content / grep。",
+      addDirError: "▲ /add-dir 失败：{reason}",
       cwdUsage:
         "用法：/cwd <path>   （当前根目录：{current}）。重新指向 filesystem / shell / memory 工具到 <path>。",
       cwdUsageNoCurrent: "用法：/cwd <path>   将工作区根目录切换到 <path>。",

@@ -262,6 +262,10 @@ export interface AppProps {
     reBootstrapSemantic?: (rootDir: string) => Promise<{ enabled: boolean }>;
     /** Notify the launcher/root wrapper that the workspace root changed so session switches remount into the new root. */
     onRootChange?: (newRoot: string) => void;
+    /** `/add-dir <path>` — register an extra allowed root for file + shell tools. Returns the full root list or an error. */
+    addDir?: (dir: string) => { roots: string[] } | { error: string };
+    /** Current workspace roots (primary first, then /add-dir roots). */
+    listRoots?: () => string[];
   };
   /**
    * When `true`, suppress the auto-launch of the embedded web dashboard
@@ -1061,6 +1065,23 @@ function AppInner({
       return { ok: true, info: t("app.workspaceSwitched", { root: resolved }) };
     },
     [codeMode, log, reloadHooks, setCurrentRootDir],
+  );
+
+  const addWorkspaceDir = useCallback(
+    (dir: string): { info: string } => {
+      if (!codeMode?.addDir) return { info: t("handlers.edits.addDirCodeOnly") };
+      const roots = codeMode.listRoots?.() ?? [codeMode.rootDir];
+      if (!dir.trim()) {
+        const list = roots.map((r, i) => `  ${i === 0 ? "●" : "+"} ${r}`).join("\n");
+        return { info: t("handlers.edits.addDirList", { list }) };
+      }
+      const result = codeMode.addDir(dir);
+      if ("error" in result)
+        return { info: t("handlers.edits.addDirError", { reason: result.error }) };
+      const added = result.roots[result.roots.length - 1] ?? dir;
+      return { info: t("handlers.edits.addDirAdded", { dir: added, count: result.roots.length }) };
+    },
+    [codeMode],
   );
 
   useEffect(() => {
@@ -2856,6 +2877,7 @@ function AppInner({
           },
           reloadHooks: () => reloadHooks(codeMode ? currentRootDir : undefined),
           switchCwd: codeMode?.reregisterTools ? switchWorkspaceRoot : undefined,
+          addDir: codeMode?.addDir ? addWorkspaceDir : undefined,
           reloadMcp: mcpRuntime
             ? async () => {
                 const r = await mcpRuntime.reloadFromConfig(loop);
@@ -3417,6 +3439,7 @@ function AppInner({
       liveMcpServers,
       generateCurrentSessionTitle,
       switchWorkspaceRoot,
+      addWorkspaceDir,
     ],
   );
 
