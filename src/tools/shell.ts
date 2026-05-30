@@ -73,13 +73,19 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
   // prefixes take effect inside the session that added them, not just
   // on the next launch. Static arrays are wrapped into a constant
   // getter so the call site below is uniform.
-  const getExtraAllowed: () => readonly string[] =
+  const baseExtraAllowed: () => readonly string[] =
     typeof opts.extraAllowed === "function"
       ? opts.extraAllowed
       : (() => {
           const snapshot = opts.extraAllowed ?? [];
           return () => snapshot;
         })();
+  // Prefixes from the "allow this session" confirm choice — in-memory only (not
+  // persisted), cleared when the process exits. Merged into the allowlist so
+  // isCommandAllowed's risky-arg / sensitive-path demotion still gates them.
+  const sessionAllowed: string[] = [];
+  const getExtraAllowed = (): readonly string[] =>
+    sessionAllowed.length > 0 ? [...baseExtraAllowed(), ...sessionAllowed] : baseExtraAllowed();
   // Resolve dynamically so the TUI can flip yolo mode mid-session and
   // have the registry pick it up on the next dispatch. Static booleans
   // are wrapped into a thunk for uniformity.
@@ -140,6 +146,8 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
         }
         if (choice.type === "always_allow") {
           addProjectShellAllowed(rootDir, choice.prefix);
+        } else if (choice.type === "allow_session") {
+          if (!sessionAllowed.includes(choice.prefix)) sessionAllowed.push(choice.prefix);
         }
         // "run_once" — fall through and execute
       }
@@ -197,6 +205,8 @@ export function registerShellTools(registry: ToolRegistry, opts: ShellToolsOptio
         }
         if (choice.type === "always_allow") {
           addProjectShellAllowed(rootDir, choice.prefix);
+        } else if (choice.type === "allow_session") {
+          if (!sessionAllowed.includes(choice.prefix)) sessionAllowed.push(choice.prefix);
         }
         // "run_once" — fall through and execute
       }

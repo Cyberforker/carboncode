@@ -3441,6 +3441,10 @@ function AppInner({
         const prefix = derivePrefix(cmd);
         log.pushInfo(t("app.alwaysAllowed", { prefix, dir: currentRootDir }));
         pauseGate.resolve(id, { type: "always_allow", prefix });
+      } else if (choice === "allow_session") {
+        const prefix = derivePrefix(cmd);
+        log.pushInfo(t("app.sessionAllowed", { prefix }));
+        pauseGate.resolve(id, { type: "allow_session", prefix });
       } else {
         pauseGate.resolve(id, { type: "run_once" });
       }

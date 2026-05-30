@@ -5,6 +5,8 @@
 export type ConfirmationChoice =
   | { type: "deny"; denyContext?: string }
   | { type: "run_once" }
+  // Allow this prefix for the rest of the process session only (in-memory, not persisted).
+  | { type: "allow_session"; prefix: string }
   | { type: "always_allow"; prefix: string };
 
 export type PlanVerdict =
@@ -175,6 +177,7 @@ export class PauseGate {
     try {
       switch (choice.type) {
         case "run_once":
+        case "allow_session":
           this._auditListener({
             type: "tool.confirm.allow",
             kind: request.kind,

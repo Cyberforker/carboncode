@@ -215,6 +215,20 @@ describe("isAllowed", () => {
     expect(isAllowed("my-lint src/", ["my-lint"])).toBe(true);
   });
 
+  // B13 — "allow this session" feeds prefixes through the same `extra` channel,
+  // so a session-allowed prefix must STILL be demoted by the sensitive-path gate.
+  describe("session-allow (extra prefix) cannot bypass demotion", () => {
+    const projectRoot = "/home/user/project";
+    it("allows a session-allowed prefix on benign args", () => {
+      expect(isAllowed("my-tool src/", ["my-tool"], projectRoot)).toBe(true);
+    });
+    it("still demotes a session-allowed prefix touching a sensitive path", () => {
+      expect(isAllowed("my-tool ~/.ssh/id_rsa", ["my-tool"], projectRoot)).toBe(false);
+      expect(isAllowed("my-tool .env", ["my-tool"], projectRoot)).toBe(false);
+      expect(isAllowed("my-tool cert.pem", ["my-tool"], projectRoot)).toBe(false);
+    });
+  });
+
   // Issue #257 — allowlisted prefixes used to let destructive flags through
   // because the match only looked at the leading tokens. Demotion rules
   // bounce these specific risky tail tokens back to the confirm gate.

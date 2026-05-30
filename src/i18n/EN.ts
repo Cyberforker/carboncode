@@ -668,6 +668,7 @@ export const EN: TranslationSchema = {
     semanticRebootstrapFailed: "▸ semantic_search re-bootstrap failed: {reason}",
     denied: "▸ denied: {cmd}{context}",
     alwaysAllowed: '▸ always allowed "{prefix}" for {dir}',
+    sessionAllowed: '▸ allowed "{prefix}" for this session',
     runningCommand: "▸ running: {cmd}",
     startingBackground: "▸ starting (background): {cmd}",
     checkpointSaved:
@@ -1295,6 +1296,7 @@ export const EN: TranslationSchema = {
     pickFooter: "\u2191\u2193 pick  \u00b7  \u23ce confirm  \u00b7  esc cancel",
     allowOnce: "allow once",
     allowOnceDesc: "run this command, ask again next time",
+    allowSession: "allow this session",
     allowAlways: "allow always",
     allowAlwaysDesc: "remember `{prefix}` for this project",
     deny: "deny",

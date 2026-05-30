@@ -14,7 +14,7 @@ const CHROME_ROWS = 14;
 /** Floor so the user can always see *something* of the command on tiny terminals. */
 const MIN_COMMAND_LINES = 3;
 
-export type ShellConfirmChoice = "run_once" | "always_allow" | "deny";
+export type ShellConfirmChoice = "run_once" | "allow_session" | "always_allow" | "deny";
 
 export interface ShellConfirmProps {
   command: string;
@@ -116,6 +116,10 @@ export function ShellConfirm({
           {
             value: "run_once",
             label: t("shellConfirm.allowOnce"),
+          },
+          {
+            value: "allow_session",
+            label: t("shellConfirm.allowSession"),
           },
           {
             value: "always_allow",

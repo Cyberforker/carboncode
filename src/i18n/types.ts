@@ -215,6 +215,7 @@ export interface TranslationSchema {
     semanticRebootstrapFailed: string;
     denied: string;
     alwaysAllowed: string;
+    sessionAllowed: string;
     runningCommand: string;
     startingBackground: string;
     checkpointSaved: string;
@@ -496,6 +497,7 @@ export interface TranslationSchema {
     pickFooter: string;
     allowOnce: string;
     allowOnceDesc: string;
+    allowSession: string;
     allowAlways: string;
     allowAlwaysDesc: string;
     deny: string;
