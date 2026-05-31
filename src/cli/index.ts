@@ -110,7 +110,13 @@ program.action(async (opts: { continue?: boolean }) => {
     return;
   }
   const { codeCommand } = await import("./commands/code.js");
-  await codeCommand({ dir: process.cwd(), forceResume: !!opts.continue });
+  // Claude-parity: a bare launch starts a FRESH session; `-c/--continue` resumes
+  // the most recent. (Previously the default auto-resumed, which surprised users.)
+  await codeCommand({
+    dir: process.cwd(),
+    forceResume: !!opts.continue,
+    forceNew: !opts.continue,
+  });
 });
 
 program
@@ -152,8 +158,10 @@ program
         model: opts.model,
         noSession: opts.session === false,
         transcript: opts.transcript,
+        // Claude-parity: fresh by default; `-r/--resume` resumes the latest. `-n/--new`
+        // is kept as an explicit alias of the (now default) fresh-start behavior.
         forceResume: !!opts.resume,
-        forceNew: !!opts.new,
+        forceNew: !opts.resume,
         budgetUsd: parseBudgetFlag(opts.budget),
         noDashboard: opts.dashboard === false,
         openDashboard: opts.openDashboard === true,

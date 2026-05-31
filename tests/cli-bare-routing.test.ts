@@ -80,7 +80,7 @@ describe("bare CLI routing", () => {
     await importCli([]);
 
     await vi.waitFor(() =>
-      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: false }),
+      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: false, forceNew: true }),
     );
     expect(chatCommand).not.toHaveBeenCalled();
   });
@@ -91,7 +91,7 @@ describe("bare CLI routing", () => {
     await importCli([]);
 
     await vi.waitFor(() =>
-      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: false }),
+      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: false, forceNew: true }),
     );
     expect(chatCommand).not.toHaveBeenCalled();
     expect(stderr.mock.calls.map((call) => String(call[0])).join("")).not.toContain(
@@ -105,7 +105,35 @@ describe("bare CLI routing", () => {
     await importCli(["-c"]);
 
     await vi.waitFor(() =>
-      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: true }),
+      expect(codeCommand).toHaveBeenCalledWith({ dir: cwd, forceResume: true, forceNew: false }),
+    );
+  });
+
+  it("defaults bare carboncode to a FRESH session (Claude-parity: no auto-resume)", async () => {
+    writeConfig({ setupCompleted: true }, join(home, ".carboncode", "config.json"));
+
+    await importCli([]);
+
+    await vi.waitFor(() => expect(codeCommand).toHaveBeenCalled());
+    const arg = codeCommand.mock.calls[0]?.[0] as { forceNew?: boolean; forceResume?: boolean };
+    expect(arg.forceNew).toBe(true);
+    expect(arg.forceResume).toBe(false);
+  });
+
+  it("`code` subcommand defaults to fresh; -r opts into resume", async () => {
+    writeConfig({ setupCompleted: true }, join(home, ".carboncode", "config.json"));
+
+    await importCli(["code"]);
+    await vi.waitFor(() => expect(codeCommand).toHaveBeenCalled());
+    expect(codeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({ forceNew: true, forceResume: false }),
+    );
+
+    codeCommand.mockClear();
+    await importCli(["code", "-r"]);
+    await vi.waitFor(() => expect(codeCommand).toHaveBeenCalled());
+    expect(codeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({ forceNew: false, forceResume: true }),
     );
   });
 
