@@ -1,6 +1,14 @@
 /** Version module — semver compare, npx detection, cached latest-version fetcher (mocked fetch). */
 
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -145,6 +153,36 @@ describe("detectInstallSource", () => {
 
   it("returns unknown for empty path", () => {
     expect(detectInstallSource("")).toBe("unknown");
+  });
+
+  // Regression: a real `npm i -g` puts a SYMLINK at bin/ccode → node_modules/@carboncode/cli/...
+  // argv[1] is that symlink (no node_modules marker); detection must realpath it, else the
+  // startup update check never runs for global installs.
+  it("resolves a bin symlink (npm global install) to npm, not unknown", () => {
+    const dir = mkdtempSync(join(tmpdir(), "cc-bin-"));
+    try {
+      const target = join(
+        dir,
+        "lib",
+        "node_modules",
+        "@carboncode",
+        "cli",
+        "dist",
+        "cli",
+        "index.js",
+      );
+      mkdirSync(join(dir, "lib", "node_modules", "@carboncode", "cli", "dist", "cli"), {
+        recursive: true,
+      });
+      writeFileSync(target, "#!/usr/bin/env node\n");
+      mkdirSync(join(dir, "bin"));
+      const link = join(dir, "bin", "ccode");
+      symlinkSync(target, link);
+      // The symlink path itself has no node_modules marker — only realpath does.
+      expect(detectInstallSource(link)).toBe("npm");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

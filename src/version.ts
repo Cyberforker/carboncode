@@ -1,6 +1,6 @@
 /** VERSION sourced from package.json so it never drifts from npm; latest-check returns null on any failure. */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -140,8 +140,17 @@ export type InstallSource = "npm" | "bun" | "pnpm" | "yarn" | "npx" | "unknown";
 
 /** Each manager owns a unique global path segment, so argv[1] tells us who installed us. */
 export function detectInstallSource(bin?: string): InstallSource {
-  const raw = bin ?? process.argv[1] ?? "";
-  if (!raw) return "unknown";
+  const raw0 = bin ?? process.argv[1] ?? "";
+  if (!raw0) return "unknown";
+  // npm/pnpm/yarn install a bin SYMLINK (e.g. ~/.../bin/ccode → …/node_modules/@carboncode/cli/…).
+  // process.argv[1] is that symlink path, which has no node_modules marker — so resolve it, or a
+  // global `npm i -g` install is misread as "unknown" and the startup update check never runs.
+  let raw = raw0;
+  try {
+    raw = realpathSync(raw0);
+  } catch {
+    /* synthetic / nonexistent path (e.g. in tests) — keep the literal argv */
+  }
   const norm = raw.replace(/\\/g, "/").toLowerCase();
   if (/\/_npx\//.test(norm)) return "npx";
   if (/\/\.pnpm\//.test(norm) && /dlx/i.test(norm)) return "npx";
