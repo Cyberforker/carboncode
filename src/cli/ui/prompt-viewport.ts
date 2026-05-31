@@ -61,6 +61,27 @@ export function stringCells(s: string, pastes?: ReadonlyMap<number, PasteEntry>)
   return n;
 }
 
+// Soft-wrap a plain text run into display rows of ≤ `width` cells (CJK-safe, never
+// splits a wide glyph); returns each row's text + char offset. Manual wrap so Ink/Yoga
+// never miscounts CJK width — the reason buildViewport otherwise single-rows.
+export function wrapToCells(text: string, width: number): Array<{ text: string; start: number }> {
+  if (width <= 0 || text.length === 0) return [{ text, start: 0 }];
+  const rows: Array<{ text: string; start: number }> = [];
+  let start = 0;
+  let used = 0;
+  for (let i = 0; i < text.length; i++) {
+    const cw = charCells(text[i]!);
+    if (used + cw > width && i > start) {
+      rows.push({ text: text.slice(start, i), start });
+      start = i;
+      used = 0;
+    }
+    used += cw;
+  }
+  rows.push({ text: text.slice(start), start });
+  return rows;
+}
+
 /** Compact placeholder for cell-width arithmetic; the visible chip lives in PasteChipRow. */
 export function pasteSentinelLabel(id: number, entry: PasteEntry | undefined): string {
   if (!entry) return `[paste #${id + 1} · (missing)]`;

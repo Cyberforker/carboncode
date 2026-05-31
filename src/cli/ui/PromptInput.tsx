@@ -14,7 +14,7 @@ import {
   listPasteIdsInBuffer,
   makePasteEntry,
 } from "./paste-sentinels.js";
-import { type Segment, buildViewport, stringCells } from "./prompt-viewport.js";
+import { type Segment, buildViewport, stringCells, wrapToCells } from "./prompt-viewport.js";
 import { FG, SURFACE, TONE } from "./theme/tokens.js";
 import {
   INITIAL_VIM_STATE,
@@ -73,12 +73,22 @@ export function PromptInput({
   onCursorChange,
   vimEnabled = false,
 }: PromptInputProps) {
+  const { stdout } = useStdout();
+  const cols = stdout?.columns ?? 80;
+  const promptPrefix = "> ";
+  const continuationIndent = "  ";
+  const prefixCells = promptPrefix.length;
+  // Reserve for prompt prefix, cursor margin, and the rounded border (2 cells) + padding.
+  const visibleCells = Math.max(8, cols - prefixCells - 5);
   // Cap at 24 — collapseLinesForDisplay hides content past ~20 logical lines.
-  // Quantize spec.max to 4-row buckets so per-keystroke line-count changes
-  // don't churn viewport-budget; without this every single character that
-  // adds/removes a newline re-dispatches the allocator and reflows layout.
-  const inputLineCount = value.length > 0 ? value.split("\n").length : 1;
-  const reserveMax = Math.min(Math.ceil(inputLineCount / 4) * 4 + 3, 24);
+  // Long lines SOFT-WRAP to multiple display rows now, so size the reserve by the
+  // wrapped-row count (not logical lines). Quantize to 4-row buckets so per-keystroke
+  // changes don't churn the viewport-budget allocator.
+  const displayRowCount = (value.length > 0 ? value.split("\n") : [""]).reduce(
+    (n, ln) => n + Math.max(1, Math.ceil(stringCells(ln) / visibleCells)),
+    0,
+  );
+  const reserveMax = Math.min(Math.ceil(displayRowCount / 4) * 4 + 3, 24);
   useReserveRows("input", { min: 1, max: reserveMax });
 
   const [cursor, setCursor] = useState(value.length);
@@ -265,14 +275,6 @@ export function PromptInput({
 
   // ── Render ──────────────────────────────────────────────────────
 
-  const { stdout } = useStdout();
-  const cols = stdout?.columns ?? 80;
-  const promptPrefix = "> ";
-  const continuationIndent = "  ";
-  const prefixCells = promptPrefix.length;
-  // Reserve for prompt prefix, cursor margin, and the rounded border (2 cells) + padding.
-  const visibleCells = Math.max(8, cols - prefixCells - 5);
-
   // Hint avoids literal `/` and `@` glyphs — they render in the same row as
   // a just-cleared buffer and read as residual typed input on dim-poor terminals.
   const effectivePlaceholder = disabled
@@ -337,9 +339,9 @@ export function PromptInput({
           const segs = splitLineByPastes(line);
           for (let segIdx = 0; segIdx < segs.length; segIdx++) {
             const seg = segs[segIdx]!;
-            const isFirst = !firstRowEmitted;
-            firstRowEmitted = true;
             if (seg.kind === "paste") {
+              const isFirst = !firstRowEmitted;
+              firstRowEmitted = true;
               const cursorOnIt =
                 isCursorLine && cursorCol >= seg.startOffset && cursorCol <= seg.startOffset + 1;
               rows.push(
@@ -355,28 +357,40 @@ export function PromptInput({
               );
               continue;
             }
-            const segHasCursor =
-              isCursorLine &&
-              cursorCol >= seg.startOffset &&
-              cursorCol <= seg.startOffset + seg.text.length;
-            rows.push(
-              <PromptLine
-                key={`ln-${i}-text-${segIdx}`}
-                line={seg.text}
-                isFirst={isFirst}
-                isCursorLine={segHasCursor && !disabled}
-                cursorCol={segHasCursor ? cursorCol - seg.startOffset : null}
-                cursorVisible={cursorVisible}
-                showPlaceholder={false}
-                placeholderText=""
-                promptPrefix={promptPrefix}
-                continuationIndent={continuationIndent}
-                visibleCells={visibleCells}
-                accentColor={accentColor}
-                pastes={pastesRef.current}
-                disabled={disabled === true}
-              />,
-            );
+            // Soft-wrap this text run into display rows so a long line grows DOWNWARD
+            // (the cursor follows onto the wrapped row) instead of scrolling off-screen
+            // to the right. Wrapping is cell-aware (CJK-safe), so each chunk fits and
+            // PromptLine renders it in full (no `‹›` clip markers).
+            const relCursor = isCursorLine ? cursorCol - seg.startOffset : -1;
+            const chunks = wrapToCells(seg.text, visibleCells);
+            for (let ci = 0; ci < chunks.length; ci++) {
+              const chunk = chunks[ci]!;
+              const isFirst = !firstRowEmitted;
+              firstRowEmitted = true;
+              const isLastChunk = ci === chunks.length - 1;
+              const chunkEnd = chunk.start + chunk.text.length;
+              const cursorInChunk =
+                relCursor >= chunk.start &&
+                (isLastChunk ? relCursor <= chunkEnd : relCursor < chunkEnd);
+              rows.push(
+                <PromptLine
+                  key={`ln-${i}-text-${segIdx}-${ci}`}
+                  line={chunk.text}
+                  isFirst={isFirst}
+                  isCursorLine={cursorInChunk && !disabled}
+                  cursorCol={cursorInChunk ? relCursor - chunk.start : null}
+                  cursorVisible={cursorVisible}
+                  showPlaceholder={false}
+                  placeholderText=""
+                  promptPrefix={promptPrefix}
+                  continuationIndent={continuationIndent}
+                  visibleCells={visibleCells}
+                  accentColor={accentColor}
+                  pastes={pastesRef.current}
+                  disabled={disabled === true}
+                />,
+              );
+            }
           }
           if (segs.length === 0) {
             const isFirst = !firstRowEmitted;

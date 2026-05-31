@@ -6,7 +6,40 @@ import {
   encodePasteSentinel,
   makePasteEntry,
 } from "../src/cli/ui/paste-sentinels.js";
-import { buildViewport, charCells, stringCells } from "../src/cli/ui/prompt-viewport.js";
+import {
+  buildViewport,
+  charCells,
+  stringCells,
+  wrapToCells,
+} from "../src/cli/ui/prompt-viewport.js";
+
+describe("wrapToCells — soft-wrap by display cells (CJK-safe)", () => {
+  it("wraps ASCII at the cell width", () => {
+    expect(wrapToCells("abcdefghij", 4)).toEqual([
+      { text: "abcd", start: 0 },
+      { text: "efgh", start: 4 },
+      { text: "ij", start: 8 },
+    ]);
+  });
+
+  it("packs CJK 2 glyphs per 4 cells", () => {
+    expect(wrapToCells("中文测试", 4)).toEqual([
+      { text: "中文", start: 0 },
+      { text: "测试", start: 2 },
+    ]);
+  });
+
+  it("never splits a wide glyph (width 3 → one CJK per row)", () => {
+    const rows = wrapToCells("中文", 3);
+    expect(rows.map((r) => r.text)).toEqual(["中", "文"]);
+    for (const r of rows) expect(stringCells(r.text)).toBeLessThanOrEqual(3);
+  });
+
+  it("returns the text unchanged when it fits, and handles empty", () => {
+    expect(wrapToCells("ab", 10)).toEqual([{ text: "ab", start: 0 }]);
+    expect(wrapToCells("", 10)).toEqual([{ text: "", start: 0 }]);
+  });
+});
 
 describe("charCells", () => {
   it("ASCII printable = 1 cell", () => {
