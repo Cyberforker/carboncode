@@ -503,9 +503,9 @@ export const EN: TranslationSchema = {
         summary: "read issues, PRs, code search (needs GITHUB_PERSONAL_ACCESS_TOKEN)",
         note: "set GITHUB_PERSONAL_ACCESS_TOKEN in your env before spawning",
       },
-      puppeteer: {
-        summary: "browser automation — take screenshots, click, type",
-        note: "downloads Chromium on first run (~200 MB)",
+      playwright: {
+        summary: "browser automation — navigate, click, fill, screenshot",
+        note: "first run downloads a browser engine; pass --headless to run without a window",
       },
       everything: {
         summary: "official test server — exercises every MCP feature",

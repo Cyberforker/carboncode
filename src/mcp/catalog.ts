@@ -39,10 +39,10 @@ export const MCP_CATALOG: CatalogEntry[] = [
     note: "set GITHUB_PERSONAL_ACCESS_TOKEN in your env before spawning",
   },
   {
-    name: "puppeteer",
-    summary: "browser automation — take screenshots, click, type",
-    package: "@modelcontextprotocol/server-puppeteer",
-    note: "downloads Chromium on first run (~200 MB)",
+    name: "playwright",
+    summary: "browser automation — navigate, click, fill, screenshot",
+    package: "@playwright/mcp",
+    note: "first run downloads a browser engine; pass --headless to run without a window",
   },
   {
     name: "everything",

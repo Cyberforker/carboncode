@@ -178,7 +178,7 @@ export function registerScaffoldTools(
         from_catalog: {
           type: "string",
           description:
-            "Optional shortcut — name out of the bundled catalog (`filesystem`, `memory`, `github`, `puppeteer`, `everything`). When set, fills `command` + `args` from the catalog entry; you still supply `name` (defaults to the catalog name) and any user-args via `args`.",
+            "Optional shortcut — name out of the bundled catalog (`filesystem`, `memory`, `github`, `playwright`, `everything`). When set, fills `command` + `args` from the catalog entry; you still supply `name` (defaults to the catalog name) and any user-args via `args`.",
         },
       },
       required: ["name"],

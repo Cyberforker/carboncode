@@ -321,7 +321,7 @@ export interface TranslationSchema {
     themeCaption: Record<string, string>;
     presetDescriptions: Record<"auto" | "flash" | "pro", { headline: string; cost: string }>;
     mcpCatalog: Record<
-      "filesystem" | "memory" | "github" | "puppeteer" | "everything",
+      "filesystem" | "memory" | "github" | "playwright" | "everything",
       { summary: string; note?: string }
     >;
     reviewTitle: string;

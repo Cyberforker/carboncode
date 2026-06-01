@@ -2,7 +2,7 @@
 
 Minimal [Model Context Protocol](https://spec.modelcontextprotocol.io/)
 client, hand-rolled in TypeScript. Lets Carbon Code consume tools from any
-MCP server (filesystem, github, slack, puppeteer, …) while applying the
+MCP server (filesystem, github, slack, playwright, …) while applying the
 Cache-First Loop and tool-call repair to the whole thing automatically.
 
 ## Design choice: roll-our-own, not @modelcontextprotocol/sdk

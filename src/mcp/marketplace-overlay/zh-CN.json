@@ -38,5 +38,9 @@
   "puppeteer": {
     "title": "Puppeteer 浏览器",
     "description": "通过 Puppeteer 控制的 Chromium 实例进行网页浏览、截图和交互"
+  },
+  "playwright": {
+    "title": "Playwright 浏览器",
+    "description": "微软官方 Playwright MCP — 导航、点击、填表、截图，基于无障碍树文本操作，适配纯文本模型"
   }
 }

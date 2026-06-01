@@ -490,9 +490,9 @@ export const zhCN: TranslationSchema = {
         summary: "读取 issues、PR 和代码搜索（需要 GITHUB_PERSONAL_ACCESS_TOKEN）",
         note: "启动前请在环境变量中设置 GITHUB_PERSONAL_ACCESS_TOKEN",
       },
-      puppeteer: {
-        summary: "浏览器自动化 — 截图、点击、输入",
-        note: "首次运行会下载 Chromium（约 200 MB）",
+      playwright: {
+        summary: "浏览器自动化 — 导航、点击、填表、截图",
+        note: "首次运行会下载浏览器内核；加 --headless 可无窗口运行",
       },
       everything: {
         summary: "官方测试服务器 — 覆盖所有 MCP 功能",
