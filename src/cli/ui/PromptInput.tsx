@@ -1,5 +1,5 @@
-import { Box, Text, useStdout } from "ink";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, Text, useCursor, useStdout } from "ink";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { t } from "../../i18n/index.js";
 import { useKeystroke } from "./keystroke-context.js";
 import { useReserveRows } from "./layout/viewport-budget.js";
@@ -96,6 +96,35 @@ export function PromptInput({
   useEffect(() => {
     onCursorChange?.(cursor);
   }, [cursor, onCursorChange]);
+
+  // ── real terminal cursor (IME) ──────────────────────────────────────
+  // Park the OS cursor AT the input cell so the macOS IME candidate window hugs
+  // the text. Ink otherwise leaves it at the bottom of the frame → popup in the
+  // corner. The cursor row's absolute position comes from its Yoga layout (Ink 7's
+  // useCursor wants coords relative to the output origin).
+  const { setCursorPosition } = useCursor();
+  const cursorRowRef = useRef<any>(null); // Ink DOMElement / Yoga node.
+  const cursorXInRowRef = useRef(0);
+  const cursorActiveRef = useRef(false);
+  // Re-resolve on input/cursor/size change — the active typing path, where IME matters.
+  useLayoutEffect(() => {
+    if (disabled || !cursorActiveRef.current || !cursorRowRef.current?.yogaNode) {
+      setCursorPosition(undefined);
+      return;
+    }
+    let top = 0;
+    let left = 0;
+    let n: any = cursorRowRef.current; // walk Ink's Yoga layout tree.
+    while (n?.yogaNode) {
+      top += n.yogaNode.getComputedTop() ?? 0;
+      left += n.yogaNode.getComputedLeft() ?? 0;
+      n = n.parentNode;
+    }
+    setCursorPosition({
+      x: Math.max(0, Math.round(left + cursorXInRowRef.current)),
+      y: Math.max(0, Math.round(top)),
+    });
+  });
 
   // ── vim layer ──────────────────────────────────────────────────────
   // `vimMode` drives the badge + accent; refs carry the live value across the
@@ -297,6 +326,8 @@ export function PromptInput({
       {(() => {
         const rows: React.ReactNode[] = [];
         let firstRowEmitted = false;
+        // Reset each render; set true on whichever row carries the cursor (drives useCursor).
+        cursorActiveRef.current = false;
         for (let renderIdx = 0; renderIdx < renderItems.length; renderIdx++) {
           const item = renderItems[renderIdx]!;
           if (item.kind === "skip") {
@@ -315,9 +346,15 @@ export function PromptInput({
           const isCursorLine = i === cursorLine;
           const showPlaceholder = i === 0 && value.length === 0;
           if (showPlaceholder) {
+            const here = isCursorLine && !disabled;
+            if (here) {
+              cursorActiveRef.current = true;
+              cursorXInRowRef.current = prefixCells; // cursor sits right after "> "
+            }
             rows.push(
               <PromptLine
                 key={`ln-${i}-text-0`}
+                ref={here ? cursorRowRef : undefined}
                 line=""
                 isFirst={true}
                 isCursorLine={isCursorLine && !disabled}
@@ -372,9 +409,17 @@ export function PromptInput({
               const cursorInChunk =
                 relCursor >= chunk.start &&
                 (isLastChunk ? relCursor <= chunkEnd : relCursor < chunkEnd);
+              const here = cursorInChunk && !disabled;
+              if (here) {
+                cursorActiveRef.current = true;
+                cursorXInRowRef.current =
+                  prefixCells +
+                  stringCells(chunk.text.slice(0, relCursor - chunk.start), pastesRef.current);
+              }
               rows.push(
                 <PromptLine
                   key={`ln-${i}-text-${segIdx}-${ci}`}
+                  ref={here ? cursorRowRef : undefined}
                   line={chunk.text}
                   isFirst={isFirst}
                   isCursorLine={cursorInChunk && !disabled}
@@ -395,9 +440,15 @@ export function PromptInput({
           if (segs.length === 0) {
             const isFirst = !firstRowEmitted;
             firstRowEmitted = true;
+            const here = isCursorLine && !disabled;
+            if (here) {
+              cursorActiveRef.current = true;
+              cursorXInRowRef.current = prefixCells;
+            }
             rows.push(
               <PromptLine
                 key={`ln-${i}-empty`}
+                ref={here ? cursorRowRef : undefined}
                 line=""
                 isFirst={isFirst}
                 isCursorLine={isCursorLine && !disabled}
@@ -590,24 +641,27 @@ interface PromptLineProps {
   disabled: boolean;
 }
 
-function PromptLine({
-  line,
-  isFirst,
-  isCursorLine,
-  cursorCol,
-  cursorVisible,
-  showPlaceholder,
-  placeholderText,
-  promptPrefix,
-  continuationIndent,
-  visibleCells,
-  accentColor,
-  pastes,
-  disabled,
-}: PromptLineProps) {
+const PromptLine = React.forwardRef<unknown, PromptLineProps>(function PromptLine(
+  {
+    line,
+    isFirst,
+    isCursorLine,
+    cursorCol,
+    cursorVisible,
+    showPlaceholder,
+    placeholderText,
+    promptPrefix,
+    continuationIndent,
+    visibleCells,
+    accentColor,
+    pastes,
+    disabled,
+  },
+  ref,
+) {
   if (showPlaceholder) {
     return (
-      <Box>
+      <Box ref={ref as any}>
         <Text bold color={accentColor}>
           {promptPrefix}
         </Text>
@@ -620,7 +674,7 @@ function PromptLine({
   const viewport = buildViewport(line, isCursorLine ? cursorCol : null, visibleCells, pastes);
 
   return (
-    <Box>
+    <Box ref={ref as any}>
       {isFirst ? (
         <Text bold color={accentColor}>
           {promptPrefix}
@@ -638,7 +692,7 @@ function PromptLine({
       {viewport.hiddenRight ? <Text color={FG.faint}>{"›"}</Text> : null}
     </Box>
   );
-}
+});
 
 // ── ViewportContent ────────────────────────────────────────────────
 
