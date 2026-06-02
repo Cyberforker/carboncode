@@ -106,6 +106,9 @@ export function PromptInput({
   const cursorRowRef = useRef<any>(null); // Ink DOMElement / Yoga node.
   const cursorXInRowRef = useRef(0);
   const cursorActiveRef = useRef(false);
+  // Last frame's cursor-row origin (border/padding + row top) — stable as you type,
+  // so the in-render setCursorPosition below can use it without waiting for layout.
+  const rowOriginRef = useRef<{ top: number; left: number }>({ top: 0, left: 0 });
   // Re-resolve on input/cursor/size change — the active typing path, where IME matters.
   useLayoutEffect(() => {
     if (disabled || !cursorActiveRef.current || !cursorRowRef.current?.yogaNode) {
@@ -120,6 +123,9 @@ export function PromptInput({
       left += n.yogaNode.getComputedLeft() ?? 0;
       n = n.parentNode;
     }
+    // Cache the (stable) origin for the in-render setCursorPosition; refreshing it
+    // post-layout keeps it accurate when the row actually moves (buffer grows a row).
+    rowOriginRef.current = { top, left };
     setCursorPosition({
       x: Math.max(0, Math.round(left + cursorXInRowRef.current)),
       y: Math.max(0, Math.round(top)),
@@ -465,6 +471,19 @@ export function PromptInput({
               />,
             );
           }
+        }
+        // Position the OS cursor DURING render — setCursorPosition only writes a ref, and
+        // doing it here (before useCursor's insertion effect) lands it THIS commit. From a
+        // layout effect it lands one frame late: invisible per keystroke, but a multi-char
+        // IME commit flashed the cursor at the line start before snapping to the end. x is
+        // this frame's offset; the row origin is last frame's (stable as you type).
+        if (!disabled && cursorActiveRef.current) {
+          setCursorPosition({
+            x: Math.max(0, Math.round(rowOriginRef.current.left + cursorXInRowRef.current)),
+            y: Math.max(0, Math.round(rowOriginRef.current.top)),
+          });
+        } else {
+          setCursorPosition(undefined);
         }
         return rows;
       })()}
