@@ -655,7 +655,7 @@ export function ChatPanel() {
           : null
       }
 
-      <div class="chat-body">
+      <div class=${`chat-body ${messages.length === 0 ? "is-empty" : ""}`}>
         <div class="chat-main">
           <${ChatFeed} messages=${messages} streaming=${streaming} innerRef=${feedRef} />
 
@@ -874,13 +874,13 @@ const ChatInput = memo(function ChatInput({
         disabled=${busy}
         rows="2"
       ></textarea>
-      <div style="display: flex; flex-direction: column; gap: 6px; align-self: stretch; justify-content: flex-end;">
+      <div class="composer-actions">
         <button
           class="primary"
           onClick=${send}
           disabled=${busy || !input.trim()}
         >${t("chat.send")}</button>
-        <div style="display: flex; gap: 6px;">
+        <div class="composer-sub">
           <button onClick=${onNew} title=${t("chat.newTitle")}>${t("chat.new")}</button>
           <button onClick=${onClear} title=${t("chat.clearTitle")}>${t("chat.clear")}</button>
         </div>
@@ -913,7 +913,11 @@ const ChatFeed = memo(function ChatFeed({ messages, streaming, innerRef }: ChatF
     <div class="chat-feed" ref=${innerRef}>
       ${
         allMessages.length === 0
-          ? html`<div class="chat-empty">${t("chat.noConversation")}</div>`
+          ? html`<div class="chat-empty">
+              <div class="hero-glyph">◈</div>
+              <div class="hero-title">${t("chat.heroGreeting")}</div>
+              <div class="hero-sub">${t("chat.noConversation")}</div>
+            </div>`
           : allMessages.map(
               (m) => html`
                 <${ChatMessage}

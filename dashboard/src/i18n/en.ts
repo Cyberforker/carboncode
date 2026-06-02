@@ -192,6 +192,7 @@ export const en = {
     effortMaxTitle: "max (default — best quality)",
     effortHighTitle: "high (cheaper / faster)",
     presetTitle: "preset — model commitment",
+    heroGreeting: "How can I help you today?",
     presetAutoTitle:
       "auto — flash baseline; auto-escalates to pro on hard turns (NEEDS_PRO / failure threshold)",
     presetFlashTitle:

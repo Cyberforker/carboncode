@@ -1627,6 +1627,47 @@ input:focus, textarea:focus, select:focus { border-color: var(--c-brand); }
   padding: 40px 20px;
 }
 
+/* composer action buttons — base (advanced) layout; was inline styles */
+.composer-actions { display: flex; flex-direction: column; gap: 6px; align-self: stretch; justify-content: flex-end; }
+.composer-sub { display: flex; gap: 6px; }
+
+/* ── simple mode: conversation layout (centered column · bubbles · card input) ── */
+.app.simple .chat-body { grid-template-columns: minmax(0, 1fr); }
+.app.simple .chat-main { max-width: 760px; width: 100%; margin-inline: auto; }
+.app.simple .chat-feed { padding: 26px 8px 10px; gap: 22px; }
+.app.simple .chat-msg { flex-direction: column; gap: 0; line-height: 1.72; font-family: var(--font-sans); }
+.app.simple .chat-msg .glyph { display: none; }
+.app.simple .chat-msg .body { font-family: var(--font-sans); font-size: 14.5px; }
+.app.simple .chat-msg.user { align-items: flex-end; }
+.app.simple .chat-msg.user .body {
+  background: var(--bg-elev-2); border: 1px solid var(--bd);
+  border-radius: 16px; padding: 10px 15px; max-width: 82%;
+}
+.app.simple .chat-msg.assistant .body { max-width: 100%; }
+
+/* empty / landing — center the greeting + input as a group */
+.app.simple .chat-body.is-empty .chat-main { justify-content: center; }
+.app.simple .chat-body.is-empty .chat-feed { flex: 0 0 auto; overflow: visible; padding-bottom: 6px; }
+.app.simple .chat-empty { padding: 10px 20px 22px; font-family: var(--font-sans); }
+.app.simple .chat-empty .hero-glyph { font-size: 34px; color: var(--c-brand); line-height: 1; margin-bottom: 14px; }
+.app.simple .chat-empty .hero-title { font-size: 25px; font-weight: 500; color: var(--fg-0); letter-spacing: .01em; }
+.app.simple .chat-empty .hero-sub { margin-top: 8px; font-size: 13px; color: var(--fg-3); }
+
+/* input as a rounded card */
+.app.simple .chat-input-area {
+  flex-direction: column; gap: 8px; align-items: stretch;
+  border: 1px solid var(--bd-strong); border-radius: 18px;
+  background: var(--bg-elev); padding: 12px 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .18);
+}
+.app.simple .chat-input-area textarea {
+  background: transparent; border: none; min-height: 46px; max-height: 220px;
+  font-family: var(--font-sans); font-size: 14.5px; padding: 2px 4px;
+}
+.app.simple .chat-input-area textarea:focus { border: none; outline: none; }
+.app.simple .composer-actions { flex-direction: row; align-self: auto; align-items: center; justify-content: flex-end; gap: 8px; }
+.app.simple .composer-sub { gap: 8px; }
+
 .chat-status {
   display: flex;
   align-items: center;

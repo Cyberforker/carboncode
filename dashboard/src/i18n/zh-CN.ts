@@ -192,6 +192,7 @@ export const zhCN = {
     effortMaxTitle: "max（默认 — 最佳质量）",
     effortHighTitle: "high（更便宜 / 更快）",
     presetTitle: "预设 — 模型承诺",
+    heroGreeting: "有什么可以帮你的？",
     presetAutoTitle: "auto — flash 基线；困难轮次自动升级为 pro（NEEDS_PRO / 失败阈值）",
     presetFlashTitle: "flash — 始终 flash；不自动升级。/pro 仍可用于一次性手动提升",
     presetProTitle: "pro — 始终 pro；约 3 倍 flash 成本（5/31 折扣）。锁定困难的架构工作。",
