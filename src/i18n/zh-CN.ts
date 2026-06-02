@@ -61,7 +61,7 @@ export const zhCN: TranslationSchema = {
     activityThinking: "思考中…",
     activityProcessing: "处理中…",
     activityGerunds:
-      "思忖中…·盘算中…·推敲中…·琢磨中…·梳理中…·斟酌中…·运筹中…·构思中…·捣鼓中…·拆解中…",
+      "思索中…·盘算中…·推敲中…·琢磨中…·梳理中…·斟酌中…·运筹中…·构思中…·捣鼓中…·拆解中…",
     undo: "撤消",
     undoHint: "在 5 秒内按 u 撤消",
     applied: "已应用",
