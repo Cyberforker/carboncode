@@ -655,7 +655,7 @@ export function ChatPanel() {
           : null
       }
 
-      <div class=${`chat-body ${messages.length === 0 ? "is-empty" : ""}`}>
+      <div class=${`chat-body ${messages.some((m) => m.role === "user" || m.role === "assistant") ? "" : "is-empty"}`}>
         <div class="chat-main">
           <${ChatFeed} messages=${messages} streaming=${streaming} innerRef=${feedRef} />
 
@@ -909,10 +909,20 @@ const ChatFeed = memo(function ChatFeed({ messages, streaming, innerRef }: ChatF
         },
       ]
     : messages;
+  const hasConvo = allMessages.some((m) => m.role === "user" || m.role === "assistant");
+  let simpleMode = true;
+  try {
+    simpleMode = (localStorage.getItem("rx.simpleMode") ?? "1") !== "0";
+  } catch {
+    /* storage disabled */
+  }
+  // Landing/hero when there's no real conversation yet. In simple mode this also
+  // suppresses startup chatter (MCP handshake, dashboard URL, MCP errors).
+  const showLanding = allMessages.length === 0 || (simpleMode && !hasConvo);
   return html`
     <div class="chat-feed" ref=${innerRef}>
       ${
-        allMessages.length === 0
+        showLanding
           ? html`<div class="chat-empty">
               <div class="hero-glyph">◈</div>
               <div class="hero-title">${t("chat.heroGreeting")}</div>
