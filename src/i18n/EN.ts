@@ -455,6 +455,10 @@ export const EN: TranslationSchema = {
     welcomeTitle: "Welcome to Carbon Code.",
     apiKeyPrompt: "Paste your DeepSeek API key to get started.",
     apiKeyGetOne: "Get one at: https://platform.deepseek.com/api_keys",
+    apiKeyOpenedBrowser:
+      "Opened your browser to grab a key (didn't pop up? visit the URL below, or press Tab to reopen).",
+    apiKeyOpenHint: "Press Tab to open the browser and grab a key.",
+    apiKeyShownOnce: "DeepSeek shows the key only once — copy it right away.",
     apiKeySavedLocally: "Saved locally to {path}",
     apiKeyInputLabel: "key › ",
     apiKeyInvalid: "Key looks too short — paste the full token (16+ chars, no spaces).",

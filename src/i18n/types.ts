@@ -292,6 +292,9 @@ export interface TranslationSchema {
     welcomeTitle: string;
     apiKeyPrompt: string;
     apiKeyGetOne: string;
+    apiKeyOpenedBrowser: string;
+    apiKeyOpenHint: string;
+    apiKeyShownOnce: string;
     apiKeySavedLocally: string;
     apiKeyInputLabel: string;
     apiKeyInvalid: string;

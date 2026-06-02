@@ -37,6 +37,7 @@ import {
 import type { LanguageCode } from "../../i18n/types.js";
 import { type CatalogEntry, MCP_CATALOG } from "../../mcp/catalog.js";
 import { MultiSelect, type SelectItem, SingleSelect } from "./Select.js";
+import { openUrl } from "./open-url.js";
 import { ThemeProvider, useTheme } from "./theme/context.js";
 import { TONE, type ThemeName, listThemeNames } from "./theme/tokens.js";
 
@@ -423,6 +424,18 @@ function LanguageStep({
   );
 }
 
+const DEEPSEEK_API_KEYS_URL = "https://platform.deepseek.com/api_keys";
+
+// Auto-open the key page only on a genuine first run (no key yet) and a real TTY.
+// The TTY guard keeps tests/pipes from spawning a browser; openUrl itself also
+// no-ops under CI / CARBONCODE_NO_OPEN.
+export function shouldAutoOpenKeyHelp(
+  hasExistingKey: boolean,
+  isTty: boolean | undefined,
+): boolean {
+  return !hasExistingKey && !!isTty;
+}
+
 function ApiKeyStep({
   initialValue,
   validateApiKey,
@@ -438,6 +451,19 @@ function ApiKeyStep({
 }) {
   const [value, setValue] = useState("");
   const [checking, setChecking] = useState(false);
+  const [browserOpened, setBrowserOpened] = useState(false);
+  // Open the key page for the user (Claude opens a browser; DeepSeek has no OAuth,
+  // so the closest we can do is land them on the key page).
+  useEffect(() => {
+    if (shouldAutoOpenKeyHelp(!!initialValue, process.stdout.isTTY)) {
+      if (openUrl(DEEPSEEK_API_KEYS_URL).opened) setBrowserOpened(true);
+    }
+  }, [initialValue]);
+  // Tab re-opens it — the only key ink-text-input ignores that's free here, so it
+  // never leaks into the masked key field (Ctrl+O would be typed as "o").
+  useInput((_input, key) => {
+    if (key.tab && openUrl(DEEPSEEK_API_KEYS_URL).opened) setBrowserOpened(true);
+  });
   return (
     <Box flexDirection="column" borderStyle="round" borderColor={TONE.brand} paddingX={1}>
       <Text bold color={TONE.brand}>
@@ -446,7 +472,11 @@ function ApiKeyStep({
       <Box marginTop={1}>
         <Text>{t("wizard.apiKeyPrompt")}</Text>
       </Box>
+      <Text dimColor>
+        {browserOpened ? t("wizard.apiKeyOpenedBrowser") : t("wizard.apiKeyOpenHint")}
+      </Text>
       <Text dimColor>{t("wizard.apiKeyGetOne")}</Text>
+      <Text dimColor>{t("wizard.apiKeyShownOnce")}</Text>
       <Text dimColor>{t("wizard.apiKeySavedLocally", { path: defaultConfigPath() })}</Text>
       {initialValue ? (
         <Text dimColor>{t("wizard.apiKeyPreview", { redacted: redactKey(initialValue) })}</Text>

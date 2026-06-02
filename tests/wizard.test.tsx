@@ -11,10 +11,26 @@ import {
   mcpItems,
   placeholderFor,
   presetItems,
+  shouldAutoOpenKeyHelp,
   validateDeepSeekApiKey,
 } from "../src/cli/ui/Wizard.js";
 import { setLanguageRuntime } from "../src/i18n/index.js";
 import { parseMcpSpec } from "../src/mcp/spec.js";
+
+describe("shouldAutoOpenKeyHelp — auto-open the DeepSeek key page", () => {
+  it("opens on a genuine first run: no saved key + real TTY", () => {
+    expect(shouldAutoOpenKeyHelp(false, true)).toBe(true);
+  });
+
+  it("does NOT open when a key already exists (reconfigure via `setup`)", () => {
+    expect(shouldAutoOpenKeyHelp(true, true)).toBe(false);
+  });
+
+  it("does NOT open without a TTY — keeps tests/pipes from spawning a browser", () => {
+    expect(shouldAutoOpenKeyHelp(false, false)).toBe(false);
+    expect(shouldAutoOpenKeyHelp(false, undefined)).toBe(false);
+  });
+});
 
 describe("Wizard.buildSpec → parseMcpSpec round-trip", () => {
   it("builds a filesystem spec the parser accepts", () => {
