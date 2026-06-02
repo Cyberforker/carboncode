@@ -511,8 +511,8 @@ export function ChatPanel() {
 
   return html`
     <div class="chat-shell">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div class="chips" style="padding:0">
+      <div class="chat-header" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="chips header-chips" style="padding:0">
           <span class="chip-f static active">${MODE === "attached" ? t("chat.modeMirror") : t("chat.modeView")}</span>
         </div>
         <div class="header-pickers" style="margin-left:auto">
@@ -590,6 +590,15 @@ export function ChatPanel() {
             `
               : null
           }
+        </div>
+        <div class="simple-model" title=${t("chat.presetTitle")}>
+          <span class="sm-glyph">◇</span>
+          <select
+            value=${preset && ["auto", "flash", "pro"].includes(preset) ? preset : "auto"}
+            onChange=${(e: any) => setSetting("preset", e.target.value)}
+          >
+            ${["auto", "flash", "pro"].map((p) => html`<option value=${p}>${p}</option>`)}
+          </select>
         </div>
       </div>
 

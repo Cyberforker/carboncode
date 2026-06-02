@@ -282,6 +282,32 @@ main { padding: 32px 40px 60px 32px; min-width: 0; }
 .app-status .item .dot.err { background: var(--c-err); }
 .app-status .grow { flex: 1; }
 
+/* ── simple (chat-first) mode ───────────────────────────────────────── */
+.app.simple {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 44px 1fr;
+  grid-template-areas:
+    "top"
+    "body";
+}
+.app.simple .app-side,
+.app.simple .app-status,
+.app.simple .chat-rail,
+.app.simple .header-pickers,
+.app.simple .header-chips,
+.app.simple .chat-statusbar { display: none; }
+.app-top .toggle { cursor: pointer; color: var(--fg-3); padding: 2px 8px; border-radius: var(--r); font-size: 13px; }
+.app-top .toggle:hover { color: var(--fg-1); background: var(--bg-hover); }
+.app-top .brandname { font-family: var(--font-mono); font-weight: 700; letter-spacing: .06em; color: var(--fg-0); }
+.simple-model { display: none; align-items: center; gap: 6px; margin-left: auto; color: var(--fg-3); font-family: var(--font-mono); font-size: 12px; }
+.app.simple .simple-model { display: flex; }
+.simple-model .sm-glyph { color: var(--c-brand); }
+.simple-model select {
+  background: var(--bg-elev); color: var(--fg-0);
+  border: 1px solid var(--bd); border-radius: var(--r);
+  padding: 2px 8px; font-family: var(--font-mono); font-size: 12px; cursor: pointer;
+}
+
 /* ── §3 Components ─────────────────────────────────────────────────────── */
 
 /* Card */

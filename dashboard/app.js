@@ -152,6 +152,15 @@ function App() {
       return false;
     }
   });
+  // Simple (chat-first) mode hides the sidebar / stats / mode buttons and shows
+  // just the conversation. Default ON; the ⚙ in the top bar reveals everything.
+  const [simple, setSimple] = useState(() => {
+    try {
+      return (localStorage.getItem("rx.simpleMode") ?? "1") === "1";
+    } catch {
+      return true;
+    }
+  });
   useEffect(() => {
     try {
       localStorage.setItem("rx.sidebarCollapsed", sidebarCollapsed ? "1" : "0");
@@ -159,6 +168,13 @@ function App() {
       /* private mode / disabled storage — ignore */
     }
   }, [sidebarCollapsed]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("rx.simpleMode", simple ? "1" : "0");
+    } catch {
+      /* private mode / disabled storage — ignore */
+    }
+  }, [simple]);
   useEffect(() => {
     try {
       localStorage.setItem("rx.activeTab", activeId);
@@ -169,6 +185,9 @@ function App() {
   const TAB_SECTIONS = tabSections();
   const ALL_TABS = TAB_SECTIONS.flatMap((s) => s.tabs);
   const active = ALL_TABS.find((t) => t.id === activeId) ?? ALL_TABS[0];
+  // In simple mode only the chat view is reachable (no sidebar to switch tabs).
+  const chatTab = ALL_TABS.find((tab) => tab.id === "chat") ?? ALL_TABS[0];
+  const view = simple ? chatTab : active;
   useEffect(() => {
     if (active.id !== activeId) setActiveId(active.id);
   }, [active.id, activeId]);
@@ -185,7 +204,7 @@ function App() {
   const pickTab = useCallback((id) => setActiveId(id), []);
 
   return html`
-    <div class=${`app ${sidebarCollapsed ? "collapsed" : ""}`}>
+    <div class=${`app ${sidebarCollapsed ? "collapsed" : ""} ${simple ? "simple" : ""}`}>
       <aside class="app-side">
         <div class="brand">
           <span class="glyph">◈</span>
@@ -223,18 +242,45 @@ function App() {
             title=${sidebarCollapsed ? "expand" : "collapse"}
             onClick=${() => setSidebarCollapsed((c) => !c)}
           >${sidebarCollapsed ? "»" : "«"}</span>
+          <span
+            class="toggle"
+            title=${t("app.toSimple")}
+            onClick=${() => setSimple(true)}
+          >◐</span>
         </div>
       </aside>
       <header class="app-top">
-        <span class="ws">
-          <span class="path">dashboard</span>
-          <span class="sep">·</span>
-          <span class="branch">${MODE}</span>
-        </span>
-        <span class="grow"></span>
+        ${
+          simple
+            ? html`
+              <span class="ws">
+                <span class="glyph" style="color:var(--c-brand);font-size:15px">◈</span>
+                <span class="brandname">Carbon Code</span>
+              </span>
+              <span class="grow"></span>
+              <span
+                class="toggle"
+                title=${t("app.themeToggle")}
+                onClick=${() => setTheme(theme === "dark" ? "light" : "dark")}
+              >${theme === "dark" ? "☀" : "☾"}</span>
+              <span
+                class="toggle"
+                title=${t("app.toAdvanced")}
+                onClick=${() => setSimple(false)}
+              >⚙</span>
+            `
+            : html`
+              <span class="ws">
+                <span class="path">dashboard</span>
+                <span class="sep">·</span>
+                <span class="branch">${MODE}</span>
+              </span>
+              <span class="grow"></span>
+            `
+        }
       </header>
       <div class="app-body">
-        <${ErrorBoundary}>${active.panel()}<//>
+        <${ErrorBoundary}>${view.panel()}<//>
       </div>
       <footer class="app-status">
         <span class="grow"></span>

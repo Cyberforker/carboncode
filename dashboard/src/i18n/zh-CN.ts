@@ -23,6 +23,8 @@ export const zhCN = {
     themeToggle: "切换主题",
     themeLight: "浅色",
     themeDark: "深色",
+    toSimple: "简洁聊天",
+    toAdvanced: "高级面板",
   },
   changes: {
     chatPlaceholder: "询问代码问题…",

@@ -23,6 +23,8 @@ export const en = {
     themeToggle: "Toggle theme",
     themeLight: "Light",
     themeDark: "Dark",
+    toSimple: "Simple chat",
+    toAdvanced: "Advanced panels",
   },
   changes: {
     chatPlaceholder: "Ask about your code...",
