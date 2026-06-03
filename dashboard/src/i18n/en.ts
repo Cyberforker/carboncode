@@ -193,6 +193,10 @@ export const en = {
     effortHighTitle: "high (cheaper / faster)",
     presetTitle: "preset — model commitment",
     heroGreeting: "How can I help you today?",
+    chipCode: "Write a function",
+    chipExplain: "Explain this code",
+    chipFix: "Fix a bug",
+    chipTest: "Write tests",
     presetAutoTitle:
       "auto — flash baseline; auto-escalates to pro on hard turns (NEEDS_PRO / failure threshold)",
     presetFlashTitle:

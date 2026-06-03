@@ -665,6 +665,8 @@ export function ChatPanel() {
             onSubmit=${onSubmit}
             onNew=${newConversation}
             onClear=${clearScrollback}
+            preset=${preset}
+            onPreset=${(p: string) => setSetting("preset", p)}
           />
 
           ${
@@ -694,6 +696,8 @@ interface ChatInputProps {
   onSubmit: (text: string) => Promise<{ accepted: boolean; reason?: string }>;
   onNew: () => void;
   onClear: () => void;
+  preset: string | null;
+  onPreset: (p: string) => void;
 }
 
 /** Owns its own input + popover state so keystrokes never re-render the parent (status bar, rail, mode pickers, chat feed). Memo'd against stable parent callbacks. Fixes #1031 — Chinese / Japanese IME typing felt laggy because every input event triggered a full ChatPanel re-render plus a popover-update walk over long transcripts. */
@@ -703,9 +707,27 @@ const ChatInput = memo(function ChatInput({
   onSubmit,
   onNew,
   onClear,
+  preset,
+  onPreset,
 }: ChatInputProps) {
   useLang();
   const [input, setInput] = useState("");
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
+  let simpleMode = true;
+  try {
+    simpleMode = (localStorage.getItem("rx.simpleMode") ?? "1") !== "0";
+  } catch {
+    /* storage disabled */
+  }
+  // Landing-hero suggestion chips prefill the composer via the app bus.
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      setInput((e as CustomEvent).detail?.text ?? "");
+      taRef.current?.focus();
+    };
+    appBus.addEventListener("composer-prefill", onPrefill);
+    return () => appBus.removeEventListener("composer-prefill", onPrefill);
+  }, []);
   const [popoverKind, setPopoverKind] = useState<PopoverKind>(null);
   const [popoverItems, setPopoverItems] = useState<PopoverItem[]>([]);
   const [popoverSel, setPopoverSel] = useState(0);
@@ -864,6 +886,7 @@ const ChatInput = memo(function ChatInput({
           : null
       }
       <textarea
+        ref=${taRef}
         placeholder=${busy ? t("chat.placeholderBusy") : t("chat.placeholder")}
         value=${input}
         onInput=${onInput}
@@ -875,6 +898,19 @@ const ChatInput = memo(function ChatInput({
         rows="2"
       ></textarea>
       <div class="composer-actions">
+        ${
+          simpleMode
+            ? html`<div class="composer-model" title=${t("chat.presetTitle")}>
+                <span class="sm-glyph">◇</span>
+                <select
+                  value=${preset && ["auto", "flash", "pro"].includes(preset) ? preset : "auto"}
+                  onChange=${(e: any) => onPreset(e.target.value)}
+                >
+                  ${["auto", "flash", "pro"].map((p) => html`<option value=${p}>${p}</option>`)}
+                </select>
+              </div>`
+            : null
+        }
         <button
           class="primary"
           onClick=${send}
@@ -927,6 +963,14 @@ const ChatFeed = memo(function ChatFeed({ messages, streaming, innerRef }: ChatF
               <div class="hero-glyph">◈</div>
               <div class="hero-title">${t("chat.heroGreeting")}</div>
               <div class="hero-sub">${t("chat.noConversation")}</div>
+              <div class="hero-chips">
+                ${[t("chat.chipCode"), t("chat.chipExplain"), t("chat.chipFix"), t("chat.chipTest")].map(
+                  (c) => html`<button
+                    class="hero-chip"
+                    onClick=${() => appBus.dispatchEvent(new CustomEvent("composer-prefill", { detail: { text: c } }))}
+                  >${c}</button>`,
+                )}
+              </div>
             </div>`
           : allMessages.map(
               (m) => html`
